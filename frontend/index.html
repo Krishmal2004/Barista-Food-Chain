@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Barista Coffee Chain | Review Analytics Platform</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <!-- AOS Animation Library -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@300;400;500;600&display=swap"
+        rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="styles/style.css">
+</head>
+
+<body>
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg fixed-top">
+        <div class="container-fluid px-lg-5">
+            <a class="navbar-brand text-gradient" href="#">
+                <i class="bi bi-cup-hot-fill me-2 fs-3 text-gold"></i>Barista Chain
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto align-items-center gap-3">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#home">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#features">Features</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="about.html">About</a>
+                    </li>
+                    <li class="nav-item ms-lg-4">
+                        <a href="branch-register.html" class="btn btn-glass">
+                            <i class="bi bi-shop me-2"></i>Register Branch
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="login.html" class="btn btn-gold glow">
+                            <i class="bi bi-person-fill me-2"></i>Login
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero-section d-flex align-items-center position-relative overflow-hidden">
+        <!-- SVG Background Patterns -->
+        <div class="svg-bg-pattern">
+            <svg width="100%" height="100%" viewBox="0 0 1440 800" xmlns="http://www.w3.org/2000/svg">
+                <path fill="#f9f9f9" fill-opacity="0.1"
+                    d="M0,224L48,213.3C96,203,192,181,288,181.3C384,181,480,203,576,224C672,245,768,267,864,261.3C960,256,1056,224,1152,202.7C1248,181,1344,171,1392,165.3L1440,160L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z">
+                </path>
+            </svg>
+        </div>
+
+        <div class="container position-relative z-2">
+            <div class="row align-items-center min-vh-100 pt-5">
+                <div class="col-lg-6 hero-text" data-aos="fade-up" data-aos-duration="1000">
+                    <span class="badge bg-gold-light text-gold mb-3 px-3 py-2 rounded-pill tracking-wider">REVIEW
+                        ANALYTICS PLATFORM</span>
+                    <h1 class="display-1 fw-bold text-dark mb-4">
+                        Transform <span class="text-gradient">Customer Insights</span> into Success
+                    </h1>
+                    <p class="lead text-muted mb-5">
+                        Powerful analytics to understand your coffee chain's customer reviews, sentiment, and
+                        performance trends.
+                    </p>
+                    <div class="d-flex gap-3">
+                        <a href="#features" class="btn btn-gold btn-lg glow shadow-lg px-4 py-3 rounded-pill">
+                            View Features <i class="bi bi-arrow-right ms-2"></i>
+                        </a>
+                        <a href="#" class="btn btn-outline-dark btn-lg px-4 py-3 rounded-pill">
+                            Watch Demo <i class="bi bi-play-circle ms-2"></i>
+                        </a>
+                    </div>
+
+                    <div class="mt-5 d-flex align-items-center gap-4">
+                        <div class="d-flex align-items-center">
+                            <div class="avatar-group">
+                                <img src="https://i.pravatar.cc/150?img=1" class="rounded-circle border border-white"
+                                    width="40" alt="">
+                                <img src="https://i.pravatar.cc/150?img=5" class="rounded-circle border border-white"
+                                    width="40" alt="" style="margin-left: -15px;">
+                                <img src="https://i.pravatar.cc/150?img=8" class="rounded-circle border border-white"
+                                    width="40" alt="" style="margin-left: -15px;">
+                            </div>
+                            <div class="ms-3">
+                                <p class="mb-0 fw-bold">500+ Branch Partners</p>
+                                <div class="text-warning small">
+                                    <i class="bi bi-star-fill"></i>
+                                    <i class="bi bi-star-fill"></i>
+                                    <i class="bi bi-star-fill"></i>
+                                    <i class="bi bi-star-fill"></i>
+                                    <i class="bi bi-star-fill"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-6 position-relative" data-aos="fade-left" data-aos-delay="200"
+                    data-aos-duration="1200">
+                    <!-- Animated Coffee Cup SVG -->
+                    <div class="coffee-cup-container">
+                        <svg class="coffee-cup-svg" viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
+                            <!-- Background Circle -->
+                            <circle cx="250" cy="270" r="180" fill="#fcf6f0" />
+
+                            <!-- Steam Animation -->
+                            <g class="steam-group">
+                                <path class="steam steam-1" d="M220,120 Q230,100 220,80 T220,40" stroke="#d4a373"
+                                    stroke-width="4" fill="none" stroke-linecap="round" />
+                                <path class="steam steam-2" d="M250,120 Q260,100 250,80 T250,40" stroke="#d4a373"
+                                    stroke-width="4" fill="none" stroke-linecap="round" />
+                                <path class="steam steam-3" d="M280,120 Q290,100 280,80 T280,40" stroke="#d4a373"
+                                    stroke-width="4" fill="none" stroke-linecap="round" />
+                            </g>
+
+                            <!-- Cup Body -->
+                            <path fill="#6f4e37" d="M150,180 h200 c0,0 10,140 -100,140 c-110,0 -100,-140 -100,-140 z" />
+                            <!-- Coffee Surface -->
+                            <ellipse cx="250" cy="180" rx="100" ry="15" fill="#4a3426" />
+                            <!-- Latte Art Heart -->
+                            <path fill="#fcf6f0"
+                                d="M250,190 c-15,-20 -35,-10 -35,5 c0,20 35,35 35,35 c0,0 35,-15 35,-35 c0,-15 -20,-25 -35,-5 z"
+                                transform="scale(0.6) translate(165, 120)" opacity="0.9" />
+
+                            <!-- Handle -->
+                            <path fill="none" stroke="#6f4e37" stroke-width="15"
+                                d="M350,200 c30,0 50,20 50,50 c0,30 -20,50 -50,50" stroke-linecap="round" />
+
+                            <!-- Saucer -->
+                            <path fill="#5a3e2b" d="M130,320 h240 c10,0 10,20 -10,20 h-220 c-20,0 -20,-20 10,-20 z"
+                                opacity="0.4" />
+                        </svg>
+                    </div>
+
+                    <!-- Floating Badge -->
+                    <div
+                        class="floating-badge badge-1 bg-white shadow-lg p-3 rounded-4 d-flex align-items-center gap-3">
+                        <div class="icon-box bg-warning-subtle text-warning p-2 rounded-3">
+                            <i class="bi bi-graph-up fs-4"></i>
+                        </div>
+                        <div>
+                            <h6 class="mb-0 fw-bold">Real-Time Insights</h6>
+                            <small class="text-muted">Updated live</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Scroll Down Indicator -->
+        <a href="#features" class="scroll-down text-center text-muted">
+            <span class="d-block small mb-2">Scroll Down</span>
+            <i class="bi bi-arrow-down-circle fs-3 animate-bounce"></i>
+        </a>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="py-5 bg-light position-relative">
+        <div class="container py-5">
+            <div class="row text-center mb-5" data-aos="fade-up">
+                <div class="col-lg-8 mx-auto">
+                    <span class="text-gold fw-bold tracking-wider">POWERFUL FEATURES</span>
+                    <h2 class="display-5 fw-bold mt-2">Unlock the <span class="text-gradient">Power</span> of Customer
+                        Feedback</h2>
+                </div>
+            </div>
+
+            <div class="row g-4">
+                <div class="col-md-4" data-aos="fade-up" data-aos-delay="100">
+                    <div class="feature-card p-5 bg-white rounded-5 shadow-sm text-center card-hover h-100">
+                        <div
+                            class="icon-wrapper mb-4 bg-primary-subtle text-gold rounded-circle mx-auto d-flex align-items-center justify-content-center">
+                            <i class="bi bi-graph-up-arrow fs-2"></i>
+                        </div>
+                        <h3 class="h4 fw-bold mb-3">Real-Time Analytics</h3>
+                        <p class="text-muted mb-0">Monitor customer sentiment and review trends across all your branches
+                            in real-time.</p>
+                    </div>
+                </div>
+                <div class="col-md-4" data-aos="fade-up" data-aos-delay="200">
+                    <div class="feature-card p-5 bg-white rounded-5 shadow-sm text-center card-hover h-100">
+                        <div
+                            class="icon-wrapper mb-4 bg-success-subtle text-success rounded-circle mx-auto d-flex align-items-center justify-content-center">
+                            <i class="bi bi-emoji-smile fs-2"></i>
+                        </div>
+                        <h3 class="h4 fw-bold mb-3">Sentiment Analysis</h3>
+                        <p class="text-muted mb-0">Advanced AI-powered sentiment analysis to understand customer
+                            emotions and satisfaction levels.</p>
+                    </div>
+                </div>
+                <div class="col-md-4" data-aos="fade-up" data-aos-delay="300">
+                    <div class="feature-card p-5 bg-white rounded-5 shadow-sm text-center card-hover h-100">
+                        <div
+                            class="icon-wrapper mb-4 bg-danger-subtle text-danger rounded-circle mx-auto d-flex align-items-center justify-content-center">
+                            <i class="bi bi-bar-chart-line fs-2"></i>
+                        </div>
+                        <h3 class="h4 fw-bold mb-3">Branch Comparison</h3>
+                        <p class="text-muted mb-0">Compare performance metrics across all branches to identify top
+                            performers and improvement areas.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="py-5 bg-dark text-white position-relative overflow-hidden">
+        <div class="container py-5 text-center position-relative z-2">
+            <h2 class="display-4 fw-bold mb-4" data-aos="zoom-in">Ready to elevate your business?</h2>
+            <p class="lead mb-5 text-white-50" data-aos="fade-up" data-aos-delay="100">Start analyzing your customer
+                reviews today and unlock actionable insights.</p>
+            <a href="branch-register.html" class="btn btn-gold btn-lg rounded-pill px-5 py-3 glow" data-aos="fade-up"
+                data-aos-delay="200">Get Started</a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-darker text-white py-5 border-top border-secondary">
+        <div class="container">
+            <div class="row gy-4 justify-content-between">
+                <div class="col-lg-4">
+                    <a class="navbar-brand d-block mb-4" href="#">
+                        <i class="bi bi-cup-hot-fill text-gold me-2 fs-3"></i> <span class="fw-bold fs-4">Barista
+                            Chain</span>
+                    </a>
+                    <p class="text-white-50">Empowering coffee chains with data-driven insights since 2024.</p>
+                    <div class="social-links mt-4">
+                        <a href="#" class="social-btn me-2"><i class="bi bi-facebook"></i></a>
+                        <a href="#" class="social-btn me-2"><i class="bi bi-instagram"></i></a>
+                        <a href="#" class="social-btn me-2"><i class="bi bi-twitter-x"></i></a>
+                    </div>
+                </div>
+                <div class="col-lg-2 col-6">
+                    <h5 class="text-gold mb-4">Links</h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><a href="#" class="text-white-50 text-decoration-none hover-white">Home</a>
+                        </li>
+                        <li class="mb-2"><a href="#features"
+                                class="text-white-50 text-decoration-none hover-white">Features</a></li>
+                        <li class="mb-2"><a href="#" class="text-white-50 text-decoration-none hover-white">Pricing</a>
+                        </li>
+                        <li class="mb-2"><a href="#" class="text-white-50 text-decoration-none hover-white">Contact</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="row mt-5 pt-4 border-top border-secondary text-center text-white-50">
+                <p>&copy; 2024 Barista Coffee Chain. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- AOS Library -->
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <!-- Custom JS -->
+    <script src="js/script.js"></script>
+</body>
+
+</html>

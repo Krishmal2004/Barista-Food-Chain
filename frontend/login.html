@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | Barista Coffee Chain</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <!-- AOS Animation Library -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@300;400;500;600&display=swap"
+        rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="styles/style.css">
+    <style>
+        .login-container {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #6f4e37 0%, #4a3426 50%, #2d1f19 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .login-container::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(192, 160, 98, 0.1) 1px, transparent 1px);
+            background-size: 50px 50px;
+            animation: drift 60s linear infinite;
+        }
+
+        @keyframes drift {
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .login-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 30px;
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .login-left {
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            color: white;
+            padding: 60px 50px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .login-left::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+            background-size: 30px 30px;
+            animation: float 20s linear infinite;
+        }
+
+        .coffee-icon {
+            font-size: 8rem;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 30px;
+            animation: coffee-bounce 3s ease-in-out infinite;
+            filter: drop-shadow(0 10px 30px rgba(0, 0, 0, 0.2));
+        }
+
+        @keyframes coffee-bounce {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-20px);
+            }
+        }
+
+        .login-right {
+            padding: 60px 50px;
+        }
+
+        .form-control {
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            padding: 14px 20px;
+            font-size: 15px;
+            transition: all 0.3s ease;
+            background-color: #f8f9fa;
+        }
+
+        .form-control:focus {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 0.2rem rgba(192, 160, 98, 0.15);
+            background-color: white;
+        }
+
+        .input-group {
+            position: relative;
+        }
+
+        .input-group-text {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: transparent;
+            border: none;
+            z-index: 10;
+            cursor: pointer;
+            color: var(--primary-color);
+            font-size: 1.2rem;
+        }
+
+        .form-label {
+            font-weight: 500;
+            color: var(--primary-color);
+            margin-bottom: 8px;
+        }
+
+        .btn-login {
+            background: linear-gradient(45deg, var(--primary-color), var(--accent-color));
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 14px 30px;
+            font-weight: 600;
+            font-size: 16px;
+            width: 100%;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(111, 78, 55, 0.3);
+        }
+
+        .btn-login:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(111, 78, 55, 0.4);
+            filter: brightness(1.1);
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            text-align: center;
+            color: #adb5bd;
+            margin: 25px 0;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .divider span {
+            padding: 0 15px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .social-login {
+            display: flex;
+            gap: 15px;
+        }
+
+        .social-btn {
+            flex: 1;
+            border: 2px solid #e9ecef;
+            background: white;
+            padding: 12px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            color: var(--text-color);
+            font-weight: 500;
+        }
+
+        .social-btn:hover {
+            border-color: var(--accent-color);
+            background: rgba(192, 160, 98, 0.05);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .social-btn i {
+            font-size: 1.3rem;
+        }
+
+        .forgot-password {
+            color: var(--accent-color);
+            text-decoration: none;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .forgot-password:hover {
+            color: var(--primary-color);
+            text-decoration: underline;
+        }
+
+        .signup-link {
+            text-align: center;
+            margin-top: 25px;
+            color: #6c757d;
+            font-size: 15px;
+        }
+
+        .signup-link a {
+            color: var(--accent-color);
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .signup-link a:hover {
+            color: var(--primary-color);
+            text-decoration: underline;
+        }
+
+        .remember-me {
+            display: flex;
+            align-items: center;
+        }
+
+        .form-check-input {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #dee2e6;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .form-check-input:checked {
+            background-color: var(--accent-color);
+            border-color: var(--accent-color);
+        }
+
+        .form-check-label {
+            margin-left: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            color: #6c757d;
+        }
+
+        @media (max-width: 991px) {
+            .login-left {
+                padding: 40px 30px;
+                min-height: 300px;
+            }
+
+            .login-right {
+                padding: 40px 30px;
+            }
+
+            .coffee-icon {
+                font-size: 5rem;
+            }
+        }
+
+        .floating-elements {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+        }
+
+        .floating-coffee {
+            position: absolute;
+            color: rgba(255, 255, 255, 0.1);
+            animation: float-random 15s ease-in-out infinite;
+        }
+
+        .floating-coffee:nth-child(1) {
+            top: 10%;
+            left: 10%;
+            font-size: 2rem;
+            animation-delay: 0s;
+        }
+
+        .floating-coffee:nth-child(2) {
+            top: 60%;
+            left: 80%;
+            font-size: 3rem;
+            animation-delay: 5s;
+        }
+
+        .floating-coffee:nth-child(3) {
+            top: 80%;
+            left: 20%;
+            font-size: 2.5rem;
+            animation-delay: 10s;
+        }
+
+        @keyframes float-random {
+
+            0%,
+            100% {
+                transform: translate(0, 0) rotate(0deg);
+            }
+
+            25% {
+                transform: translate(20px, -20px) rotate(90deg);
+            }
+
+            50% {
+                transform: translate(-20px, 20px) rotate(180deg);
+            }
+
+            75% {
+                transform: translate(20px, 20px) rotate(270deg);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="login-container">
+        <!-- Floating Coffee Elements -->
+        <div class="floating-elements">
+            <i class="bi bi-cup-hot-fill floating-coffee"></i>
+            <i class="bi bi-cup-hot-fill floating-coffee"></i>
+            <i class="bi bi-cup-hot-fill floating-coffee"></i>
+        </div>
+
+        <div class="container-fluid h-100 d-flex align-items-center justify-content-center py-5">
+            <div class="login-card" data-aos="zoom-in" data-aos-duration="800">
+                <div class="row g-0">
+                    <!-- Left Side - Branding -->
+                    <div class="col-lg-5 d-none d-lg-block">
+                        <div class="login-left h-100">
+                            <i class="bi bi-cup-hot-fill coffee-icon"></i>
+                            <h2 class="fw-bold mb-3">Welcome Back!</h2>
+                            <p class="text-center text-white-50">Sign in to access your coffee chain analytics dashboard
+                                and insights.</p>
+                            <div class="mt-4">
+                                <div class="d-flex align-items-center gap-3 mb-3">
+                                    <i class="bi bi-check-circle-fill fs-4"></i>
+                                    <span>Real-time Analytics</span>
+                                </div>
+                                <div class="d-flex align-items-center gap-3 mb-3">
+                                    <i class="bi bi-check-circle-fill fs-4"></i>
+                                    <span>Customer Insights</span>
+                                </div>
+                                <div class="d-flex align-items-center gap-3">
+                                    <i class="bi bi-check-circle-fill fs-4"></i>
+                                    <span>Performance Metrics</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Side - Login Form -->
+                    <div class="col-lg-7">
+                        <div class="login-right">
+                            <!-- Back to Home -->
+                            <a href="index.html" class="btn btn-sm btn-outline-secondary mb-4 rounded-pill">
+                                <i class="bi bi-arrow-left me-2"></i>Back to Home
+                            </a>
+
+                            <h3 class="fw-bold mb-2" style="color: var(--primary-color);">Sign In</h3>
+                            <p class="text-muted mb-4">Enter your credentials to access your account</p>
+
+                            <!-- Login Form -->
+                            <form id="loginForm">
+                                <!-- Email Input -->
+                                <div class="mb-3">
+                                    <label for="email" class="form-label">Email Address</label>
+                                    <input type="email" class="form-control" id="email" placeholder="Enter your email"
+                                        required>
+                                </div>
+
+                                <!-- Password Input -->
+                                <div class="mb-3">
+                                    <label for="password" class="form-label">Password</label>
+                                    <div class="input-group">
+                                        <input type="password" class="form-control" id="password"
+                                            placeholder="Enter your password" required>
+                                        <span class="input-group-text" onclick="togglePassword()">
+                                            <i class="bi bi-eye" id="toggleIcon"></i>
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <!-- Remember Me & Forgot Password -->
+                                <div class="d-flex justify-content-between align-items-center mb-4">
+                                    <div class="remember-me">
+                                        <input type="checkbox" class="form-check-input" id="rememberMe">
+                                        <label class="form-check-label" for="rememberMe">Remember me</label>
+                                    </div>
+                                    <a href="#" class="forgot-password">Forgot Password?</a>
+                                </div>
+
+                                <!-- Login Button -->
+                                <button type="submit" class="btn btn-login">
+                                    <i class="bi bi-box-arrow-in-right me-2"></i>Sign In
+                                </button>
+                            </form>
+
+                            <!-- Divider -->
+                            <div class="divider">
+                                <span>OR CONTINUE WITH</span>
+                            </div>
+
+                            <!-- Social Login -->
+                            <div class="social-login">
+                                <button class="social-btn">
+                                    <i class="bi bi-google" style="color: #DB4437;"></i>
+                                    <span class="d-none d-md-inline">Google</span>
+                                </button>
+                                <button class="social-btn">
+                                    <i class="bi bi-facebook" style="color: #4267B2;"></i>
+                                    <span class="d-none d-md-inline">Facebook</span>
+                                </button>
+                                <button class="social-btn">
+                                    <i class="bi bi-apple" style="color: #000;"></i>
+                                    <span class="d-none d-md-inline">Apple</span>
+                                </button>
+                            </div>
+
+                            <!-- Sign Up Link -->
+                            <div class="signup-link">
+                                Don't have an account? <a href="signup.html">Sign up</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- AOS Library -->
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+
+    <script>
+        // Initialize AOS
+        AOS.init();
+
+        // Toggle Password Visibility
+        function togglePassword() {
+            const passwordInput = document.getElementById('password');
+            const toggleIcon = document.getElementById('toggleIcon');
+
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleIcon.classList.remove('bi-eye');
+                toggleIcon.classList.add('bi-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                toggleIcon.classList.remove('bi-eye-slash');
+                toggleIcon.classList.add('bi-eye');
+            }
+        }
+
+        // Form Submission Handler
+        document.getElementById('loginForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const rememberMe = document.getElementById('rememberMe').checked;
+
+            // Basic validation
+            if (email && password) {
+                // Show loading state
+                const btn = e.target.querySelector('.btn-login');
+                const originalText = btn.innerHTML;
+                btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Signing in...';
+                btn.disabled = true;
+
+                try {
+                    const response = await fetch('http://localhost:3000/api/login', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({email,password})
+                    });
+                    const result = await response.json();
+                    if (response.ok) {
+                        console.log('Login Successful:', result.data);
+                        alert('Welocome back to Barista Coffee!');
+
+                        if(result.data.session) {
+                            localStorage.setItem('supabase_session', JSON.stringify(result.data.session));
+                        }
+                        window.location.href = '/dashboard/user.html';
+                    } else {
+                        alert('Login Failed: '+result.error);
+                    }
+                }catch (err) {
+                    console.error('Connection failed',err);
+                    alert('Could not connect to the server. Please try again later.');
+                }finally {
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                }
+            }
+        });
+
+        // Add subtle parallax effect on mouse move
+        document.addEventListener('mousemove', function (e) {
+            const coffeeIcons = document.querySelectorAll('.floating-coffee');
+            const x = e.clientX / window.innerWidth;
+            const y = e.clientY / window.innerHeight;
+
+            coffeeIcons.forEach((icon, index) => {
+                const speed = (index + 1) * 10;
+                icon.style.transform = `translate(${x * speed}px, ${y * speed}px)`;
+            });
+        });
+    </script>
+</body>
+
+</html>

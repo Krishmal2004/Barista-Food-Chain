@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Dashboard | Barista Coffee Chain</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <!-- Google Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@300;400;500;600&display=swap"
+        rel="stylesheet">
+    <!-- Custom Dashboard CSS -->
+    <link rel="stylesheet" href="css/dashboard.css">
+</head>
+
+<body>
+    <div class="dashboard-wrapper">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <i class="bi bi-cup-hot-fill text-gold fs-2"></i>
+                <h4 class="mb-0 fw-bold">Barista Chain</h4>
+            </div>
+
+            <nav class="sidebar-nav">
+                <a href="user.html" class="nav-item active">
+                    <i class="bi bi-speedometer2"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="reviews.html" class="nav-item">
+                    <i class="bi bi-chat-left-quote"></i>
+                    <span>Reviews Analysis</span>
+                </a>
+                <a href="map.html" class="nav-item">
+                    <i class="bi bi-geo-alt"></i>
+                    <span>Branch Locations</span>
+                </a>
+                <a href="users.html" class="nav-item">
+                    <i class="bi bi-people"></i>
+                    <span>Registered Users</span>
+                </a>
+                <div class="nav-divider"></div>
+                <a href="#" class="nav-item">
+                    <i class="bi bi-gear"></i>
+                    <span>Settings</span>
+                </a>
+                <a href="../index.html" class="nav-item">
+                    <i class="bi bi-box-arrow-left"></i>
+                    <span>Logout</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="user-profile">
+                    <img src="https://i.pravatar.cc/150?img=12" alt="User" class="profile-img">
+                    <div class="user-info">
+                        <div class="user-name">John Doe</div>
+                        <div class="user-role">Administrator</div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Top Navigation Bar -->
+            <nav class="topbar">
+                <button class="btn btn-link sidebar-toggle" id="sidebarToggle">
+                    <i class="bi bi-list fs-4"></i>
+                </button>
+                <h5 class="mb-0 fw-bold">Dashboard Overview</h5>
+                <div class="topbar-actions">
+                    <button class="btn btn-light rounded-pill">
+                        <i class="bi bi-bell"></i>
+                        <span class="badge bg-danger">3</span>
+                    </button>
+                </div>
+            </nav>
+
+            <!-- Dashboard Content -->
+            <div class="content-area">
+                <!-- Statistics Cards -->
+                <div class="row g-4 mb-4">
+                    <div class="col-lg-3 col-md-6">
+                        <div class="stat-card">
+                            <div class="stat-icon bg-primary-subtle text-primary">
+                                <i class="bi bi-chat-left-quote-fill"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3 class="stat-value">12,458</h3>
+                                <p class="stat-label">Total Reviews</p>
+                                <div class="stat-change positive">
+                                    <i class="bi bi-arrow-up"></i> 12.5% from last month
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-3 col-md-6">
+                        <div class="stat-card">
+                            <div class="stat-icon bg-success-subtle text-success">
+                                <i class="bi bi-emoji-smile-fill"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3 class="stat-value">87.3%</h3>
+                                <p class="stat-label">Positive Sentiment</p>
+                                <div class="stat-change positive">
+                                    <i class="bi bi-arrow-up"></i> 3.2% increase
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-3 col-md-6">
+                        <div class="stat-card">
+                            <div class="stat-icon bg-warning-subtle text-warning">
+                                <i class="bi bi-shop"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3 class="stat-value">142</h3>
+                                <p class="stat-label">Active Branches</p>
+                                <div class="stat-change positive">
+                                    <i class="bi bi-arrow-up"></i> 5 new this month
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-3 col-md-6">
+                        <div class="stat-card">
+                            <div class="stat-icon bg-danger-subtle text-danger">
+                                <i class="bi bi-people-fill"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3 class="stat-value">3,247</h3>
+                                <p class="stat-label">Registered Users</p>
+                                <div class="stat-change positive">
+                                    <i class="bi bi-arrow-up"></i> 234 new users
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts Row -->
+                <div class="row g-4 mb-4">
+                    <div class="col-lg-8">
+                        <div class="dashboard-card">
+                            <div class="card-header">
+                                <h5 class="mb-0">Review Trends</h5>
+                                <div class="card-actions">
+                                    <select class="form-select form-select-sm">
+                                        <option>Last 7 days</option>
+                                        <option>Last 30 days</option>
+                                        <option>Last 3 months</option>
+                                        <option>Last year</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <canvas id="reviewTrendsChart" height="80"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-4">
+                        <div class="dashboard-card">
+                            <div class="card-header">
+                                <h5 class="mb-0">Sentiment Distribution</h5>
+                            </div>
+                            <div class="card-body">
+                                <canvas id="sentimentChart" height="200"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Activity & Top Branches -->
+                <div class="row g-4">
+                    <div class="col-lg-6">
+                        <div class="dashboard-card">
+                            <div class="card-header">
+                                <h5 class="mb-0">Recent Reviews</h5>
+                                <a href="reviews.html" class="btn btn-sm btn-link">View All</a>
+                            </div>
+                            <div class="card-body p-0">
+                                <div class="activity-list">
+                                    <div class="activity-item">
+                                        <div class="activity-icon bg-success-subtle">
+                                            <i class="bi bi-star-fill text-success"></i>
+                                        </div>
+                                        <div class="activity-content">
+                                            <div class="activity-title">5 Star Review - Downtown Branch</div>
+                                            <div class="activity-text">"Amazing coffee and great service!"</div>
+                                            <div class="activity-time">2 minutes ago</div>
+                                        </div>
+                                        <div class="activity-rating">
+                                            <span class="badge bg-success">5.0</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="activity-item">
+                                        <div class="activity-icon bg-warning-subtle">
+                                            <i class="bi bi-star-fill text-warning"></i>
+                                        </div>
+                                        <div class="activity-content">
+                                            <div class="activity-title">3 Star Review - Westside Branch</div>
+                                            <div class="activity-text">"Good coffee but long wait times."</div>
+                                            <div class="activity-time">15 minutes ago</div>
+                                        </div>
+                                        <div class="activity-rating">
+                                            <span class="badge bg-warning">3.0</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="activity-item">
+                                        <div class="activity-icon bg-success-subtle">
+                                            <i class="bi bi-star-fill text-success"></i>
+                                        </div>
+                                        <div class="activity-content">
+                                            <div class="activity-title">4 Star Review - Central Park</div>
+                                            <div class="activity-text">"Nice atmosphere and friendly staff."</div>
+                                            <div class="activity-time">1 hour ago</div>
+                                        </div>
+                                        <div class="activity-rating">
+                                            <span class="badge bg-success">4.0</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-6">
+                        <div class="dashboard-card">
+                            <div class="card-header">
+                                <h5 class="mb-0">Top Performing Branches</h5>
+                                <a href="map.html" class="btn btn-sm btn-link">View Map</a>
+                            </div>
+                            <div class="card-body">
+                                <div class="branch-list">
+                                    <div class="branch-item">
+                                        <div class="branch-rank">1</div>
+                                        <div class="branch-info">
+                                            <div class="branch-name">Downtown Branch</div>
+                                            <div class="branch-location">123 Main St, New York</div>
+                                        </div>
+                                        <div class="branch-stats">
+                                            <div class="rating">
+                                                <i class="bi bi-star-fill text-warning"></i>
+                                                <span>4.8</span>
+                                            </div>
+                                            <div class="reviews-count">1,245 reviews</div>
+                                        </div>
+                                    </div>
+
+                                    <div class="branch-item">
+                                        <div class="branch-rank">2</div>
+                                        <div class="branch-info">
+                                            <div class="branch-name">Central Park Cafe</div>
+                                            <div class="branch-location">456 Park Ave, New York</div>
+                                        </div>
+                                        <div class="branch-stats">
+                                            <div class="rating">
+                                                <i class="bi bi-star-fill text-warning"></i>
+                                                <span>4.7</span>
+                                            </div>
+                                            <div class="reviews-count">987 reviews</div>
+                                        </div>
+                                    </div>
+
+                                    <div class="branch-item">
+                                        <div class="branch-rank">3</div>
+                                        <div class="branch-info">
+                                            <div class="branch-name">Riverside Coffee</div>
+                                            <div class="branch-location">789 River Rd, Brooklyn</div>
+                                        </div>
+                                        <div class="branch-stats">
+                                            <div class="rating">
+                                                <i class="bi bi-star-fill text-warning"></i>
+                                                <span>4.6</span>
+                                            </div>
+                                            <div class="reviews-count">856 reviews</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <!-- Custom Dashboard JS -->
+    <script src="js/dashboard.js"></script>
+</body>
+
+</html>

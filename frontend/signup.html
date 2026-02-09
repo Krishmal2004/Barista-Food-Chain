@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up | Barista Coffee Chain</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <!-- AOS Animation Library -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@300;400;500;600&display=swap"
+        rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="styles/style.css">
+    <style>
+        .signup-container {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #4a3426 0%, #6f4e37 50%, #c0a062 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .signup-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image:
+                radial-gradient(circle at 30% 20%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 70% 80%, rgba(255, 255, 255, 0.08) 0%, transparent 50%);
+            animation: gradient-shift 15s ease-in-out infinite;
+        }
+
+        @keyframes gradient-shift {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.6;
+            }
+        }
+
+        .signup-card {
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(30px);
+            border-radius: 35px;
+            box-shadow: 0 40px 100px rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .signup-left {
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            color: white;
+            padding: 60px 50px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .signup-left::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+            background-size: 30px 30px;
+            animation: pattern-drift 25s linear infinite;
+        }
+
+        @keyframes pattern-drift {
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .features-list {
+            position: relative;
+            z-index: 2;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .feature-item:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateX(10px);
+        }
+
+        .feature-icon {
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .signup-right {
+            padding: 60px 50px;
+        }
+
+        .form-control {
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            padding: 14px 20px;
+            font-size: 15px;
+            transition: all 0.3s ease;
+            background-color: #f8f9fa;
+        }
+
+        .form-control:focus {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 0.2rem rgba(192, 160, 98, 0.15);
+            background-color: white;
+        }
+
+        .input-group {
+            position: relative;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--primary-color);
+            z-index: 10;
+            font-size: 1.1rem;
+        }
+
+        .form-control.with-icon {
+            padding-left: 50px;
+        }
+
+        .input-group-text {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: transparent;
+            border: none;
+            z-index: 10;
+            cursor: pointer;
+            color: var(--primary-color);
+            font-size: 1.2rem;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .btn-signup {
+            background: linear-gradient(45deg, var(--primary-color), var(--accent-color));
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 16px 40px;
+            font-weight: 600;
+            font-size: 16px;
+            width: 100%;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(111, 78, 55, 0.3);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-signup:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(111, 78, 55, 0.5);
+            filter: brightness(1.15);
+        }
+
+        .password-strength {
+            height: 4px;
+            border-radius: 2px;
+            background: #e9ecef;
+            margin-top: 8px;
+            overflow: hidden;
+        }
+
+        .password-strength-bar {
+            height: 100%;
+            width: 0%;
+            transition: all 0.3s ease;
+            border-radius: 2px;
+        }
+
+        .password-strength-bar.weak {
+            width: 33%;
+            background: #dc3545;
+        }
+
+        .password-strength-bar.medium {
+            width: 66%;
+            background: #ffc107;
+        }
+
+        .password-strength-bar.strong {
+            width: 100%;
+            background: #28a745;
+        }
+
+        .password-hint {
+            font-size: 12px;
+            color: #6c757d;
+            margin-top: 5px;
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            text-align: center;
+            color: #adb5bd;
+            margin: 25px 0;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .divider span {
+            padding: 0 15px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .social-signup {
+            display: flex;
+            gap: 15px;
+        }
+
+        .social-btn {
+            flex: 1;
+            border: 2px solid #e9ecef;
+            background: white;
+            padding: 12px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            color: var(--text-color);
+            font-weight: 500;
+        }
+
+        .social-btn:hover {
+            border-color: var(--accent-color);
+            background: rgba(192, 160, 98, 0.05);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .social-btn i {
+            font-size: 1.3rem;
+        }
+
+        .login-link {
+            text-align: center;
+            margin-top: 25px;
+            color: #6c757d;
+            font-size: 15px;
+        }
+
+        .login-link a {
+            color: var(--accent-color);
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .login-link a:hover {
+            color: var(--primary-color);
+            text-decoration: underline;
+        }
+
+        .form-check-input {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #dee2e6;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .form-check-input:checked {
+            background-color: var(--accent-color);
+            border-color: var(--accent-color);
+        }
+
+        .form-check-label {
+            margin-left: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            color: #6c757d;
+        }
+
+        .form-check-label a {
+            color: var(--accent-color);
+            text-decoration: none;
+        }
+
+        .form-check-label a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 991px) {
+            .signup-left {
+                padding: 40px 30px;
+                min-height: 300px;
+            }
+
+            .signup-right {
+                padding: 40px 30px;
+            }
+        }
+
+        .floating-particles {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            animation: float-up 15s linear infinite;
+        }
+
+        .particle:nth-child(1) {
+            left: 10%;
+            animation-delay: 0s;
+        }
+
+        .particle:nth-child(2) {
+            left: 30%;
+            animation-delay: 5s;
+        }
+
+        .particle:nth-child(3) {
+            left: 50%;
+            animation-delay: 10s;
+        }
+
+        .particle:nth-child(4) {
+            left: 70%;
+            animation-delay: 3s;
+        }
+
+        .particle:nth-child(5) {
+            left: 90%;
+            animation-delay: 8s;
+        }
+
+        @keyframes float-up {
+            0% {
+                bottom: -10%;
+                opacity: 0;
+            }
+
+            10% {
+                opacity: 1;
+            }
+
+            90% {
+                opacity: 1;
+            }
+
+            100% {
+                bottom: 110%;
+                opacity: 0;
+            }
+        }
+
+        .validation-feedback {
+            font-size: 13px;
+            margin-top: 5px;
+        }
+
+        .validation-feedback.valid {
+            color: #28a745;
+        }
+
+        .validation-feedback.invalid {
+            color: #dc3545;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="signup-container">
+        <!-- Floating Particles -->
+        <div class="floating-particles">
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+        </div>
+
+        <div class="container-fluid h-100 d-flex align-items-center justify-content-center py-5">
+            <div class="signup-card" data-aos="zoom-in" data-aos-duration="800" style="max-width: 1000px;">
+                <div class="row g-0">
+                    <!-- Left Side - Features -->
+                    <div class="col-lg-5 d-none d-lg-block">
+                        <div class="signup-left h-100">
+                            <div style="position: relative; z-index: 2;">
+                                <i class="bi bi-cup-hot-fill" style="font-size: 4rem; margin-bottom: 20px;"></i>
+                                <h2 class="fw-bold mb-3">Join Barista Chain</h2>
+                                <p class="mb-4 opacity-90">Create your account and unlock premium features</p>
+
+                                <div class="features-list">
+                                    <div class="feature-item">
+                                        <div class="feature-icon">
+                                            <i class="bi bi-graph-up-arrow"></i>
+                                        </div>
+                                        <div>
+                                            <h6 class="mb-1 fw-bold">Real-Time Analytics</h6>
+                                            <small class="opacity-75">Track reviews instantly</small>
+                                        </div>
+                                    </div>
+                                    <div class="feature-item">
+                                        <div class="feature-icon">
+                                            <i class="bi bi-shield-check"></i>
+                                        </div>
+                                        <div>
+                                            <h6 class="mb-1 fw-bold">Secure Platform</h6>
+                                            <small class="opacity-75">Your data is protected</small>
+                                        </div>
+                                    </div>
+                                    <div class="feature-item">
+                                        <div class="feature-icon">
+                                            <i class="bi bi-people"></i>
+                                        </div>
+                                        <div>
+                                            <h6 class="mb-1 fw-bold">Community</h6>
+                                            <small class="opacity-75">Join 500+ partners</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Side - Signup Form -->
+                    <div class="col-lg-7">
+                        <div class="signup-right">
+                            <!-- Back to Home -->
+                            <a href="index.html" class="btn btn-sm btn-outline-secondary mb-4 rounded-pill">
+                                <i class="bi bi-arrow-left me-2"></i>Back to Home
+                            </a>
+
+                            <h3 class="fw-bold mb-2" style="color: var(--primary-color);">Create Account</h3>
+                            <p class="text-muted mb-4">Fill in your details to get started</p>
+
+                            <!-- Signup Form -->
+                            <form id="signupForm">
+                                <div class="row g-3">
+                                    <!-- Full Name -->
+                                    <div class="col-md-6">
+                                        <label for="fullName" class="form-label">Full Name</label>
+                                        <div class="input-group">
+                                            <i class="bi bi-person-fill input-icon"></i>
+                                            <input type="text" class="form-control with-icon" id="fullName"
+                                                placeholder="John Doe" required>
+                                        </div>
+                                    </div>
+
+                                    <!-- Username -->
+                                    <div class="col-md-6">
+                                        <label for="username" class="form-label">Username</label>
+                                        <div class="input-group">
+                                            <i class="bi bi-at input-icon"></i>
+                                            <input type="text" class="form-control with-icon" id="username"
+                                                placeholder="johndoe" required>
+                                        </div>
+                                        <div class="validation-feedback" id="usernameFeedback"></div>
+                                    </div>
+
+                                    <!-- Email -->
+                                    <div class="col-12">
+                                        <label for="email" class="form-label">Email Address</label>
+                                        <div class="input-group">
+                                            <i class="bi bi-envelope-fill input-icon"></i>
+                                            <input type="email" class="form-control with-icon" id="email"
+                                                placeholder="john@example.com" required>
+                                        </div>
+                                        <div class="validation-feedback" id="emailFeedback"></div>
+                                    </div>
+
+                                    <!-- Phone -->
+                                    <div class="col-12">
+                                        <label for="phone" class="form-label">Phone Number</label>
+                                        <div class="input-group">
+                                            <i class="bi bi-phone-fill input-icon"></i>
+                                            <input type="tel" class="form-control with-icon" id="phone"
+                                                placeholder="+1 234 567 8900" required>
+                                        </div>
+                                    </div>
+
+                                    <!-- Password -->
+                                    <div class="col-12">
+                                        <label for="password" class="form-label">Password</label>
+                                        <div class="input-group">
+                                            <i class="bi bi-lock-fill input-icon"></i>
+                                            <input type="password" class="form-control with-icon" id="password"
+                                                placeholder="Create a strong password" required>
+                                            <span class="input-group-text"
+                                                onclick="togglePassword('password', 'toggleIcon1')">
+                                                <i class="bi bi-eye" id="toggleIcon1"></i>
+                                            </span>
+                                        </div>
+                                        <div class="password-strength">
+                                            <div class="password-strength-bar" id="strengthBar"></div>
+                                        </div>
+                                        <div class="password-hint" id="passwordHint">Use 8+ characters with letters,
+                                            numbers & symbols</div>
+                                    </div>
+
+                                    <!-- Confirm Password -->
+                                    <div class="col-12">
+                                        <label for="confirmPassword" class="form-label">Confirm Password</label>
+                                        <div class="input-group">
+                                            <i class="bi bi-lock-fill input-icon"></i>
+                                            <input type="password" class="form-control with-icon" id="confirmPassword"
+                                                placeholder="Re-enter your password" required>
+                                            <span class="input-group-text"
+                                                onclick="togglePassword('confirmPassword', 'toggleIcon2')">
+                                                <i class="bi bi-eye" id="toggleIcon2"></i>
+                                            </span>
+                                        </div>
+                                        <div class="validation-feedback" id="confirmPasswordFeedback"></div>
+                                    </div>
+
+                                    <!-- Terms & Conditions -->
+                                    <div class="col-12 mt-3">
+                                        <div class="form-check">
+                                            <input type="checkbox" class="form-check-input" id="termsAccept" required>
+                                            <label class="form-check-label" for="termsAccept">
+                                                I agree to the <a href="#">Terms & Conditions</a> and <a
+                                                    href="#">Privacy Policy</a>
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    <!-- Signup Button -->
+                                    <div class="col-12 mt-4">
+                                        <button type="submit" class="btn btn-signup">
+                                            <i class="bi bi-person-plus-fill me-2"></i>Create Account
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+
+                            <!-- Divider -->
+                            <div class="divider">
+                                <span>OR SIGN UP WITH</span>
+                            </div>
+
+                            <!-- Social Signup -->
+                            <div class="social-signup">
+                                <button class="social-btn">
+                                    <i class="bi bi-google" style="color: #DB4437;"></i>
+                                    <span class="d-none d-md-inline">Google</span>
+                                </button>
+                                <button class="social-btn">
+                                    <i class="bi bi-facebook" style="color: #4267B2;"></i>
+                                    <span class="d-none d-md-inline">Facebook</span>
+                                </button>
+                                <button class="social-btn">
+                                    <i class="bi bi-apple" style="color: #000;"></i>
+                                    <span class="d-none d-md-inline">Apple</span>
+                                </button>
+                            </div>
+
+                            <!-- Login Link -->
+                            <div class="login-link">
+                                Already have an account? <a href="login.html">Sign In</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- AOS Library -->
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+
+    <script>
+        // Initialize AOS
+        AOS.init();
+
+        // Toggle Password Visibility
+        function togglePassword(inputId, iconId) {
+            const passwordInput = document.getElementById(inputId);
+            const toggleIcon = document.getElementById(iconId);
+
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleIcon.classList.remove('bi-eye');
+                toggleIcon.classList.add('bi-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                toggleIcon.classList.remove('bi-eye-slash');
+                toggleIcon.classList.add('bi-eye');
+            }
+        }
+
+        // Password Strength Checker
+        const passwordInput = document.getElementById('password');
+        const strengthBar = document.getElementById('strengthBar');
+        const passwordHint = document.getElementById('passwordHint');
+
+        passwordInput.addEventListener('input', function () {
+            const password = this.value;
+            let strength = 0;
+
+            // Check password criteria
+            if (password.length >= 8) strength++;
+            if (password.match(/[a-z]/)) strength++;
+            if (password.match(/[A-Z]/)) strength++;
+            if (password.match(/[0-9]/)) strength++;
+            if (password.match(/[^a-zA-Z0-9]/)) strength++;
+
+            // Update strength bar
+            strengthBar.className = 'password-strength-bar';
+            if (strength <= 2) {
+                strengthBar.classList.add('weak');
+                passwordHint.textContent = 'Weak password - Add more characters';
+                passwordHint.style.color = '#dc3545';
+            } else if (strength <= 4) {
+                strengthBar.classList.add('medium');
+                passwordHint.textContent = 'Medium strength - Almost there!';
+                passwordHint.style.color = '#ffc107';
+            } else {
+                strengthBar.classList.add('strong');
+                passwordHint.textContent = 'Strong password!';
+                passwordHint.style.color = '#28a745';
+            }
+        });
+
+        // Email Validation
+        const emailInput = document.getElementById('email');
+        const emailFeedback = document.getElementById('emailFeedback');
+
+        emailInput.addEventListener('blur', function () {
+            const email = this.value;
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+            if (email && emailRegex.test(email)) {
+                emailFeedback.className = 'validation-feedback valid';
+                emailFeedback.innerHTML = '<i class="bi bi-check-circle-fill me-1"></i>Valid email';
+            } else if (email) {
+                emailFeedback.className = 'validation-feedback invalid';
+                emailFeedback.innerHTML = '<i class="bi bi-x-circle-fill me-1"></i>Invalid email format';
+            } else {
+                emailFeedback.textContent = '';
+            }
+        });
+
+        // Username Validation
+        const usernameInput = document.getElementById('username');
+        const usernameFeedback = document.getElementById('usernameFeedback');
+
+        usernameInput.addEventListener('input', function () {
+            const username = this.value;
+            const usernameRegex = /^[a-zA-Z0-9_]{3,20}$/;
+
+            if (username && usernameRegex.test(username)) {
+                usernameFeedback.className = 'validation-feedback valid';
+                usernameFeedback.innerHTML = '<i class="bi bi-check-circle-fill me-1"></i>Username available';
+            } else if (username) {
+                usernameFeedback.className = 'validation-feedback invalid';
+                usernameFeedback.innerHTML = '<i class="bi bi-x-circle-fill me-1"></i>3-20 characters, letters, numbers & underscore only';
+            } else {
+                usernameFeedback.textContent = '';
+            }
+        });
+
+        // Confirm Password Match
+        const confirmPasswordInput = document.getElementById('confirmPassword');
+        const confirmPasswordFeedback = document.getElementById('confirmPasswordFeedback');
+
+        confirmPasswordInput.addEventListener('input', function () {
+            const password = passwordInput.value;
+            const confirmPassword = this.value;
+
+            if (confirmPassword && password === confirmPassword) {
+                confirmPasswordFeedback.className = 'validation-feedback valid';
+                confirmPasswordFeedback.innerHTML = '<i class="bi bi-check-circle-fill me-1"></i>Passwords match';
+            } else if (confirmPassword) {
+                confirmPasswordFeedback.className = 'validation-feedback invalid';
+                confirmPasswordFeedback.innerHTML = '<i class="bi bi-x-circle-fill me-1"></i>Passwords do not match';
+            } else {
+                confirmPasswordFeedback.textContent = '';
+            }
+        });
+
+        // Form Submission
+        document.getElementById('signupForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            const formData = {
+                fullName: document.getElementById('fullName').value,
+                username: document.getElementById('username').value,
+                email: document.getElementById('email').value,
+                phone: document.getElementById('phone').value,
+                password: document.getElementById('password').value,
+                confirmPassword: document.getElementById('confirmPassword').value,
+                termsAccept: document.getElementById('termsAccept').checked
+            };
+
+            try {
+                const response = await fetch('http://localhost:3000/api/signup', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(formData)
+                });
+
+                const result = await response.json();
+                if (response.ok) {
+                    alert(result.message);
+                    window.location.href = 'login.html';
+                } else {
+                    alert('Error:'+result.error);
+                }
+            }catch (err) {
+                console.error('Connection failed', err);
+                alert('Could not connect to the server. Check you backend');
+            }finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+
+            // Validation
+            if (password !== confirmPassword) {
+                alert('Passwords do not match!');
+                return;
+            }
+
+            if (!termsAccept) {
+                alert('Please accept the Terms & Conditions');
+                return;
+            }
+
+            // Show loading state
+            const btn = e.target.querySelector('.btn-signup');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Creating account...';
+            btn.disabled = true;
+
+            // Simulate API call
+            setTimeout(() => {
+                console.log('Signup attempt:', { fullName, username, email, phone, password });
+                alert('Account created successfully! You will be redirected to login.');
+
+                // Restore button state
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+
+                // Redirect to login (uncomment when ready)
+                // window.location.href = 'login.html';
+            }, 2000);
+        });
+    </script>
+</body>
+
+</html>
