@@ -18,6 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const formData = {
                 businessName: document.getElementById('businessName').value,
                 branchName: document.getElementById('branchName').value,
+                branchId: document.getElementById('branchId').value,
                 businessType: document.getElementById('businessType').value,
                 yearEstablished: document.getElementById('yearEstablished').value,
                 fullName: document.getElementById('fullName').value,
@@ -64,22 +65,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = '<i class="bi bi-rocket-takeoff me-2"></i> Submit Registration';
             }
-
-            // Simulate API call (replace with actual backend call)
-            /*setTimeout(() => {
-                // Show success message
-                showSuccessMessage();
-
-                // Reset form
-                registrationForm.reset();
-
-                // Restore button
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = originalText;
-
-                // Log form data (for demo purposes)
-                console.log('Registration Data:', formData);
-            }, 2000);*/
         });
     }
 
