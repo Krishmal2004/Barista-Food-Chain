@@ -64,22 +64,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = '<i class="bi bi-rocket-takeoff me-2"></i> Submit Registration';
             }
-
-            // Simulate API call (replace with actual backend call)
-            /*setTimeout(() => {
-                // Show success message
-                showSuccessMessage();
-
-                // Reset form
-                registrationForm.reset();
-
-                // Restore button
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = originalText;
-
-                // Log form data (for demo purposes)
-                console.log('Registration Data:', formData);
-            }, 2000);*/
         });
     }
 
