@@ -19,6 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 businessName: document.getElementById('businessName').value,
                 branchName: document.getElementById('branchName').value,
                 branchId: document.getElementById('branchId').value,
+                branchPassword: document.getElementById('branch-password').value,
                 businessType: document.getElementById('businessType').value,
                 yearEstablished: document.getElementById('yearEstablished').value,
                 fullName: document.getElementById('fullName').value,

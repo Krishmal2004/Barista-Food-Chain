@@ -67,6 +67,7 @@ app.post('/api/register-branch', async (req, res) => {
         business_name: branchData.businessName,
         branch_name: branchData.branchName,
         branch_id: branchData.branchId,
+        branch_password: branchData.branchPassword,
         business_type: branchData.businessType,
         year_established: branchData.yearEstablished,
         contact_full_name: branchData.fullName,
