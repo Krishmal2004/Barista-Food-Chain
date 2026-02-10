@@ -89,6 +89,17 @@ app.post('/api/register-branch', async (req, res) => {
     }
     res.status(200).json({message: "Branch successfully registered", data});
 });
+// Branch login routing 
+app.post('/api/login-branch',async (req,res)=> {
+    const {branchId,branchPassword} = req.body;
+    const {data,error} = await supabase.from('branches').select('*').eq('branch_id',branchId).eq('branch_password',branchPassword).single();
+    if (error || !data) {
+        console.error("Supabase Branch Login Error: ",error ? error.message: "Invalid credentials");
+        return res.status(401).json({error:"Invalid credentials"});
+    }
+    console.log(`Branch ${branchId} successfully logged in`);
+    res.status(200).json({message: "Branch successfully logged in", data});
+});
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

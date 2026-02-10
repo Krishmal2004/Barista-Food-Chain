@@ -422,10 +422,10 @@
 
                         <!-- Password Input -->
                         <div class="mb-4">
-                            <label for="password" class="form-label">Password</label>
+                            <label for="branch-password" class="form-label">Password</label>
                             <div class="input-group">
                                 <i class="bi bi-lock-fill input-group-icon"></i>
-                                <input type="password" class="form-control with-icon" id="password"
+                                <input type="password" class="form-control with-icon" id="branch-password"
                                     placeholder="Enter your password" required>
                                 <span class="input-group-text" onclick="togglePassword()">
                                     <i class="bi bi-eye" id="toggleIcon"></i>
@@ -472,7 +472,7 @@
 
         // Toggle Password Visibility
         function togglePassword() {
-            const passwordInput = document.getElementById('password');
+            const passwordInput = document.getElementById('branch-password');
             const toggleIcon = document.getElementById('toggleIcon');
 
             if (passwordInput.type === 'password') {
@@ -487,13 +487,42 @@
         }
 
         // Form Submission Handler
-        document.getElementById('branchLoginForm').addEventListener('submit', function (e) {
+        document.getElementById('branchLoginForm').addEventListener('submit', async function (e) {
             e.preventDefault();
 
             const branchId = document.getElementById('branchId').value;
             const branchName = document.getElementById('branchName').value;
-            const password = document.getElementById('password').value;
+            const password = document.getElementById('branch-password').value;
             const rememberMe = document.getElementById('rememberMe').checked;
+
+            const btn = e.target.querySelector('.btn-branch-login');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Verifying...';
+            btn.disabled = true;
+
+            try {
+                const response = await fetch('http://localhost:3000/api/login-branch', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({branchId, branchPassword: password})
+                });
+                const result = await response.json();
+                if (response.ok) {
+                    alert('Welcome back, '+ result.data.branch_name+'!');
+                    localStorage.setItem('branch_authenicated', 'true');
+                    localStorage.setItem('active_branch_id',branchId);
+
+                    window.location.href = '/dashboard/user.html';
+                } else {
+                    alert('Login failed: '+result.error);
+                }
+            } catch (err) {
+                console.error('Connection failed', err);
+                alert('Unable to connect to the server. Please try again later.');
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
 
             // Basic validation
             if (branchId && branchName && password) {
@@ -504,7 +533,7 @@
                 btn.disabled = true;
 
                 // Simulate API call
-                setTimeout(() => {
+                /*setTimeout(() => {
                     // Here you would normally make an API call to your backend
                     console.log('Branch login attempt:', { branchId, branchName, password, rememberMe });
 
@@ -514,7 +543,7 @@
                     // Restore button state
                     btn.innerHTML = originalText;
                     btn.disabled = false;
-                }, 1500);
+                }, 1500);*/
             }
         });
 
