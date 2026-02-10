@@ -66,6 +66,7 @@ app.post('/api/register-branch', async (req, res) => {
     const {data, error} = await supabase.from('branches').insert([{
         business_name: branchData.businessName,
         branch_name: branchData.branchName,
+        branch_id: branchData.branchId,
         business_type: branchData.businessType,
         year_established: branchData.yearEstablished,
         contact_full_name: branchData.fullName,
