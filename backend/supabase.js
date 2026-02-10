@@ -79,7 +79,8 @@ app.post('/api/register-branch', async (req, res) => {
         country: branchData.country,
         review_platforms: branchData.platforms, // Array of strings
         additional_info: branchData.additionalInfo,
-        newsletter_subscribed: branchData.newsletter
+        newsletter_subscribed: branchData.newsletter,
+        branch_id: branchData.branchId
     }]);
     if (error) {
         console.error("Supabase Branch Registration Error: ",error.message);
@@ -87,6 +88,8 @@ app.post('/api/register-branch', async (req, res) => {
     }
     res.status(200).json({message: "Branch successfully registered", data});
 });
+// Branch loging routing
+
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
