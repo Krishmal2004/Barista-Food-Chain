@@ -1,11 +1,19 @@
+//import { application, json } from "express";
+
 // Branch Registration Form Handler
 document.addEventListener('DOMContentLoaded', () => {
     const registrationForm = document.getElementById('branchRegistrationForm');
 
     if (registrationForm) {
-        registrationForm.addEventListener('submit', function (e) {
+        registrationForm.addEventListener('submit', async function (e) {
             e.preventDefault();
-
+            
+            const platforms = [];
+            ['platformGoogle', 'platformYelp', 'platformFacebook', 'platformTripadvisor', 'platformZomato', 'platformOther']
+            .forEach(id => {
+                const checkbox = document.getElementById(id);
+                if (checkbox.checked) platforms.push(checkbox.value);
+            });
             // Get form data
             const formData = {
                 businessName: document.getElementById('businessName').value,
@@ -25,7 +33,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 additionalInfo: document.getElementById('additionalInfo').value,
                 newsletter: document.getElementById('newsletter').checked
             };
-
             // Validate form
             if (!validateForm()) {
                 return;
@@ -37,8 +44,29 @@ document.addEventListener('DOMContentLoaded', () => {
             submitBtn.disabled = true;
             submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Processing...';
 
+            try {
+                const response = await fetch('http://localhost:3000/api/register-branch', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(formData)
+                });
+                const result = await response.json();
+                if(response.ok) {
+                    alert("Sucess! Your branch has been registered");
+                    window.location.href = 'index.html';
+                } else {
+                    alert("Error: "+result.error);
+                } 
+            } catch (error) {
+                console.error("Network Error: ",error);
+                alert("Could not connect to the server.");
+            }finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="bi bi-rocket-takeoff me-2"></i> Submit Registration';
+            }
+
             // Simulate API call (replace with actual backend call)
-            setTimeout(() => {
+            /*setTimeout(() => {
                 // Show success message
                 showSuccessMessage();
 
@@ -51,7 +79,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 // Log form data (for demo purposes)
                 console.log('Registration Data:', formData);
-            }, 2000);
+            }, 2000);*/
         });
     }
 
