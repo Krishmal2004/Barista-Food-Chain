@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Branch Dashboard | Barista Coffee Chain</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <!-- Google Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@300;400;500;600&display=swap"
+        rel="stylesheet">
+    <!-- Custom Dashboard CSS -->
+    <link rel="stylesheet" href="css/dashboard.css">
+</head>
+
+<body>
+    <div class="dashboard-wrapper">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <i class="bi bi-shop-window text-gold fs-2"></i>
+                <h4 class="mb-0 fw-bold">Branch Portal</h4>
+            </div>
+
+            <nav class="sidebar-nav">
+                <a href="branch-dashboard.html" class="nav-item active">
+                    <i class="bi bi-speedometer2"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="branch-profile.html" class="nav-item">
+                    <i class="bi bi-person-circle"></i>
+                    <span>Branch Profile</span>
+                </a>
+                <a href="branch-concerns.html" class="nav-item">
+                    <i class="bi bi-exclamation-triangle"></i>
+                    <span>Concerns</span>
+                </a>
+                <a href="branch-todo.html" class="nav-item">
+                    <i class="bi bi-check2-square"></i>
+                    <span>Todo List</span>
+                </a>
+                <div class="nav-divider"></div>
+                <a href="#" class="nav-item">
+                    <i class="bi bi-gear"></i>
+                    <span>Settings</span>
+                </a>
+                <a href="../branch-login.html" class="nav-item" onclick="return confirmLogout()">
+                    <i class="bi bi-box-arrow-left"></i>
+                    <span>Logout</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="user-profile">
+                    <img src="https://i.pravatar.cc/150?img=33" alt="Manager" class="profile-img">
+                    <div class="user-info">
+                        <div class="user-name" id="branchManagerName">Branch Manager</div>
+                        <div class="user-role" id="branchName">Loading...</div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Top Navigation Bar -->
+            <nav class="topbar">
+                <button class="btn btn-link sidebar-toggle" id="sidebarToggle">
+                    <i class="bi bi-list fs-4"></i>
+                </button>
+                <h5 class="mb-0 fw-bold">Branch Dashboard</h5>
+                <div class="topbar-actions">
+                    <button class="btn btn-light rounded-pill">
+                        <i class="bi bi-bell"></i>
+                        <span class="badge bg-danger" id="notificationCount">0</span>
+                    </button>
+                </div>
+            </nav>
+
+            <!-- Dashboard Content -->
+            <div class="content-area">
+                <!-- Welcome Section -->
+                <div class="welcome-banner mb-4">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h3 class="mb-2">Welcome Back! ☕</h3>
+                            <p class="text-muted mb-0">Here's what's happening with your branch today</p>
+                        </div>
+                        <div class="text-end">
+                            <p class="mb-1 fw-bold" id="currentDate">Loading...</p>
+                            <p class="text-muted mb-0" id="currentTime">--:--</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Statistics Cards -->
+                <div class="row g-4 mb-4">
+                    <div class="col-lg-3 col-md-6">
+                        <div class="stat-card">
+                            <div class="stat-icon bg-success-subtle text-success">
+                                <i class="bi bi-check-circle-fill"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3 class="stat-value" id="todayTasks">0</h3>
+                                <p class="stat-label">Tasks Completed Today</p>
+                                <div class="stat-change positive">
+                                    <i class="bi bi-arrow-up"></i> <span id="taskProgress">0%</span> completion
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-3 col-md-6">
+                        <div class="stat-card">
+                            <div class="stat-icon bg-warning-subtle text-warning">
+                                <i class="bi bi-exclamation-triangle-fill"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3 class="stat-value" id="openConcerns">0</h3>
+                                <p class="stat-label">Open Concerns</p>
+                                <div class="stat-change">
+                                    <i class="bi bi-clock"></i> <span id="urgentConcerns">0</span> urgent
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-3 col-md-6">
+                        <div class="stat-card">
+                            <div class="stat-icon bg-primary-subtle text-primary">
+                                <i class="bi bi-star-fill"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3 class="stat-value" id="branchRating">4.5</h3>
+                                <p class="stat-label">Branch Rating</p>
+                                <div class="stat-change positive">
+                                    <i class="bi bi-arrow-up"></i> <span id="ratingChange">+0.2</span> this month
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-3 col-md-6">
+                        <div class="stat-card">
+                            <div class="stat-icon bg-danger-subtle text-danger">
+                                <i class="bi bi-clock-history"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3 class="stat-value" id="pendingActions">0</h3>
+                                <p class="stat-label">Pending Actions</p>
+                                <div class="stat-change">
+                                    <i class="bi bi-list-check"></i> View all tasks
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="dashboard-card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="bi bi-lightning-charge-fill text-warning me-2"></i>Quick Actions</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-md-3 col-sm-6">
+                                <button class="quick-action-btn" onclick="window.location.href='branch-todo.html'">
+                                    <i class="bi bi-plus-circle"></i>
+                                    <span>Add New Task</span>
+                                </button>
+                            </div>
+                            <div class="col-md-3 col-sm-6">
+                                <button class="quick-action-btn" onclick="window.location.href='branch-concerns.html'">
+                                    <i class="bi bi-flag"></i>
+                                    <span>Report Concern</span>
+                                </button>
+                            </div>
+                            <div class="col-md-3 col-sm-6">
+                                <button class="quick-action-btn" onclick="window.location.href='branch-profile.html'">
+                                    <i class="bi bi-pencil-square"></i>
+                                    <span>Update Profile</span>
+                                </button>
+                            </div>
+                            <div class="col-md-3 col-sm-6">
+                                <button class="quick-action-btn" onclick="generateReport()">
+                                    <i class="bi bi-file-earmark-bar-graph"></i>
+                                    <span>Generate Report</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Activity & Upcoming Tasks -->
+                <div class="row g-4">
+                    <div class="col-lg-6">
+                        <div class="dashboard-card">
+                            <div class="card-header">
+                                <h5 class="mb-0">Recent Concerns</h5>
+                                <a href="branch-concerns.html" class="btn btn-sm btn-link">View All</a>
+                            </div>
+                            <div class="card-body p-0">
+                                <div class="activity-list" id="recentConcernsList">
+                                    <div class="text-center py-5 text-muted">
+                                        <i class="bi bi-inbox fs-1"></i>
+                                        <p class="mt-2">No recent concerns</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-6">
+                        <div class="dashboard-card">
+                            <div class="card-header">
+                                <h5 class="mb-0">Today's Tasks</h5>
+                                <a href="branch-todo.html" class="btn btn-sm btn-link">View All</a>
+                            </div>
+                            <div class="card-body p-0">
+                                <div class="activity-list" id="todayTasksList">
+                                    <div class="text-center py-5 text-muted">
+                                        <i class="bi bi-check2-all fs-1"></i>
+                                        <p class="mt-2">No tasks for today</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Custom Dashboard JS -->
+    <script src="js/dashboard.js"></script>
+    <script>
+        // Initialize branch dashboard
+        document.addEventListener('DOMContentLoaded', function () {
+            loadBranchInfo();
+            updateDashboardStats();
+            updateDateTime();
+            setInterval(updateDateTime, 1000);
+        });
+
+        function loadBranchInfo() {
+            const branchId = localStorage.getItem('active_branch_id') || 'BCH-001';
+            const branchData = JSON.parse(localStorage.getItem('branch_' + branchId)) || {
+                name: 'Downtown Branch',
+                manager: 'Branch Manager'
+            };
+
+            document.getElementById('branchName').textContent = branchData.name;
+            document.getElementById('branchManagerName').textContent = branchData.manager;
+        }
+
+        function updateDashboardStats() {
+            const branchId = localStorage.getItem('active_branch_id') || 'BCH-001';
+            const todos = JSON.parse(localStorage.getItem('branch_todos_' + branchId)) || [];
+            const concerns = JSON.parse(localStorage.getItem('branch_concerns_' + branchId)) || [];
+
+            // Calculate stats
+            const today = new Date().toDateString();
+            const todayTasks = todos.filter(t => t.completed && new Date(t.completedDate).toDateString() === today).length;
+            const totalTasks = todos.length;
+            const completedTasks = todos.filter(t => t.completed).length;
+            const openConcerns = concerns.filter(c => c.status !== 'Resolved').length;
+            const urgentConcerns = concerns.filter(c => c.priority === 'High' && c.status !== 'Resolved').length;
+            const pendingActions = todos.filter(t => !t.completed).length + openConcerns;
+
+            // Update UI
+            document.getElementById('todayTasks').textContent = todayTasks;
+            document.getElementById('taskProgress').textContent = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) + '%' : '0%';
+            document.getElementById('openConcerns').textContent = openConcerns;
+            document.getElementById('urgentConcerns').textContent = urgentConcerns;
+            document.getElementById('pendingActions').textContent = pendingActions;
+            document.getElementById('notificationCount').textContent = urgentConcerns;
+
+            // Display recent concerns
+            displayRecentConcerns(concerns.slice(0, 3));
+
+            // Display today's tasks
+            displayTodayTasks(todos.filter(t => !t.completed).slice(0, 3));
+        }
+
+        function displayRecentConcerns(concerns) {
+            const container = document.getElementById('recentConcernsList');
+            if (concerns.length === 0) return;
+
+            container.innerHTML = concerns.map(concern => `
+                <div class="activity-item">
+                    <div class="activity-icon ${getPriorityClass(concern.priority)}">
+                        <i class="bi bi-exclamation-triangle-fill"></i>
+                    </div>
+                    <div class="activity-content">
+                        <div class="activity-title">${concern.title}</div>
+                        <div class="activity-text">${concern.description.substring(0, 50)}...</div>
+                        <div class="activity-time">${formatDate(concern.date)}</div>
+                    </div>
+                    <div class="activity-rating">
+                        <span class="badge ${getStatusBadge(concern.status)}">${concern.status}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function displayTodayTasks(tasks) {
+            const container = document.getElementById('todayTasksList');
+            if (tasks.length === 0) return;
+
+            container.innerHTML = tasks.map(task => `
+                <div class="activity-item">
+                    <div class="activity-icon ${getCategoryClass(task.category)}">
+                        <i class="bi bi-circle"></i>
+                    </div>
+                    <div class="activity-content">
+                        <div class="activity-title">${task.title}</div>
+                        <div class="activity-text">${task.category}</div>
+                        ${task.dueDate ? `<div class="activity-time">Due: ${formatDate(task.dueDate)}</div>` : ''}
+                    </div>
+                    <div class="activity-rating">
+                        <span class="badge ${getPriorityBadge(task.priority)}">${task.priority}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function updateDateTime() {
+            const now = new Date();
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('currentDate').textContent = now.toLocaleDateString('en-US', options);
+            document.getElementById('currentTime').textContent = now.toLocaleTimeString('en-US');
+        }
+
+        function getPriorityClass(priority) {
+            const classes = {
+                'High': 'bg-danger-subtle text-danger',
+                'Medium': 'bg-warning-subtle text-warning',
+                'Low': 'bg-success-subtle text-success'
+            };
+            return classes[priority] || 'bg-secondary-subtle text-secondary';
+        }
+
+        function getStatusBadge(status) {
+            const badges = {
+                'Open': 'bg-danger',
+                'In Progress': 'bg-warning',
+                'Resolved': 'bg-success'
+            };
+            return badges[status] || 'bg-secondary';
+        }
+
+        function getCategoryClass(category) {
+            const classes = {
+                'Daily Operations': 'bg-primary-subtle text-primary',
+                'Staff Management': 'bg-success-subtle text-success',
+                'Inventory': 'bg-warning-subtle text-warning',
+                'Customer Service': 'bg-info-subtle text-info'
+            };
+            return classes[category] || 'bg-secondary-subtle text-secondary';
+        }
+
+        function getPriorityBadge(priority) {
+            const badges = {
+                'High': 'bg-danger',
+                'Medium': 'bg-warning',
+                'Low': 'bg-success'
+            };
+            return badges[priority] || 'bg-secondary';
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            const now = new Date();
+            const diffTime = Math.abs(now - date);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+            if (diffDays === 0) return 'Today';
+            if (diffDays === 1) return 'Yesterday';
+            if (diffDays < 7) return diffDays + ' days ago';
+            return date.toLocaleDateString();
+        }
+
+        function confirmLogout() {
+            if (confirm('Are you sure you want to logout?')) {
+                localStorage.removeItem('branch_authenticated');
+                return true;
+            }
+            return false;
+        }
+
+        function generateReport() {
+            alert('Report generation feature coming soon!');
+        }
+    </script>
+</body>
+
+</html>

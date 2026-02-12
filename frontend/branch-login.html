@@ -503,18 +503,18 @@
             try {
                 const response = await fetch('http://localhost:3000/api/login-branch', {
                     method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({branchId, branchPassword: password})
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ branchId, branchPassword: password })
                 });
                 const result = await response.json();
                 if (response.ok) {
-                    alert('Welcome back, '+ result.data.branch_name+'!');
-                    localStorage.setItem('branch_authenicated', 'true');
-                    localStorage.setItem('active_branch_id',branchId);
+                    alert('Welcome back, ' + result.data.branch_name + '!');
+                    localStorage.setItem('branch_authenticated', 'true');
+                    localStorage.setItem('active_branch_id', branchId);
 
-                    window.location.href = '/dashboard/user.html';
+                    window.location.href = 'dashboard/branch-dashboard.html';
                 } else {
-                    alert('Login failed: '+result.error);
+                    alert('Login failed: ' + result.error);
                 }
             } catch (err) {
                 console.error('Connection failed', err);

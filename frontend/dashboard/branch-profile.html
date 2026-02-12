@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Branch Profile | Barista Coffee Chain</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <!-- Google Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@300;400;500;600&display=swap"
+        rel="stylesheet">
+    <!-- Custom Dashboard CSS -->
+    <link rel="stylesheet" href="css/dashboard.css">
+</head>
+
+<body>
+    <div class="dashboard-wrapper">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <i class="bi bi-shop-window text-gold fs-2"></i>
+                <h4 class="mb-0 fw-bold">Branch Portal</h4>
+            </div>
+
+            <nav class="sidebar-nav">
+                <a href="branch-dashboard.html" class="nav-item">
+                    <i class="bi bi-speedometer2"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="branch-profile.html" class="nav-item active">
+                    <i class="bi bi-person-circle"></i>
+                    <span>Branch Profile</span>
+                </a>
+                <a href="branch-concerns.html" class="nav-item">
+                    <i class="bi bi-exclamation-triangle"></i>
+                    <span>Concerns</span>
+                </a>
+                <a href="branch-todo.html" class="nav-item">
+                    <i class="bi bi-check2-square"></i>
+                    <span>Todo List</span>
+                </a>
+                <div class="nav-divider"></div>
+                <a href="#" class="nav-item">
+                    <i class="bi bi-gear"></i>
+                    <span>Settings</span>
+                </a>
+                <a href="../branch-login.html" class="nav-item" onclick="return confirmLogout()">
+                    <i class="bi bi-box-arrow-left"></i>
+                    <span>Logout</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="user-profile">
+                    <img src="https://i.pravatar.cc/150?img=33" alt="Manager" class="profile-img">
+                    <div class="user-info">
+                        <div class="user-name" id="sidebarManagerName">Branch Manager</div>
+                        <div class="user-role" id="sidebarBranchName">Loading...</div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Top Navigation Bar -->
+            <nav class="topbar">
+                <button class="btn btn-link sidebar-toggle" id="sidebarToggle">
+                    <i class="bi bi-list fs-4"></i>
+                </button>
+                <h5 class="mb-0 fw-bold">Branch Profile</h5>
+                <div class="topbar-actions">
+                    <button class="btn btn-light rounded-pill" onclick="toggleEditMode()">
+                        <i class="bi bi-pencil-square"></i> Edit Profile
+                    </button>
+                </div>
+            </nav>
+
+            <!-- Profile Content -->
+            <div class="content-area">
+                <!-- Profile Header Card -->
+                <div class="dashboard-card mb-4">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-3 text-center">
+                                <div class="branch-logo-container mb-3">
+                                    <img src="https://ui-avatars.com/api/?name=Branch&size=200&background=6f4e37&color=fff"
+                                        alt="Branch Logo" class="branch-logo" id="branchLogo">
+                                    <button class="btn btn-sm btn-primary upload-logo-btn" id="uploadLogoBtn"
+                                        style="display: none;">
+                                        <i class="bi bi-camera"></i>
+                                    </button>
+                                </div>
+                                <h4 id="profileBranchName">Downtown Branch</h4>
+                                <p class="text-muted" id="profileBranchId">BCH-001</p>
+                            </div>
+                            <div class="col-md-9">
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <div class="profile-stat-box">
+                                            <i class="bi bi-star-fill text-warning fs-3"></i>
+                                            <div>
+                                                <h3 class="mb-0" id="avgRating">4.5</h3>
+                                                <p class="text-muted mb-0">Average Rating</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="profile-stat-box">
+                                            <i class="bi bi-chat-left-quote-fill text-primary fs-3"></i>
+                                            <div>
+                                                <h3 class="mb-0" id="totalReviews">234</h3>
+                                                <p class="text-muted mb-0">Total Reviews</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="profile-stat-box">
+                                            <i class="bi bi-exclamation-triangle-fill text-warning fs-3"></i>
+                                            <div>
+                                                <h3 class="mb-0" id="activeConcerns">0</h3>
+                                                <p class="text-muted mb-0">Active Concerns</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="profile-stat-box">
+                                            <i class="bi bi-list-check text-success fs-3"></i>
+                                            <div>
+                                                <h3 class="mb-0" id="totalTodos">0</h3>
+                                                <p class="text-muted mb-0">Total Tasks</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Branch Information Form -->
+                <div class="row g-4">
+                    <div class="col-lg-8">
+                        <div class="dashboard-card">
+                            <div class="card-header">
+                                <h5 class="mb-0"><i class="bi bi-building me-2"></i>Branch Information</h5>
+                                <button class="btn btn-success btn-sm" id="saveBtn" style="display: none;"
+                                    onclick="saveProfile()">
+                                    <i class="bi bi-check-circle"></i> Save Changes
+                                </button>
+                            </div>
+                            <div class="card-body">
+                                <form id="profileForm">
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <label class="form-label fw-bold">Branch Name</label>
+                                            <input type="text" class="form-control" id="branchName"
+                                                value="Downtown Branch" disabled>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label fw-bold">Branch ID</label>
+                                            <input type="text" class="form-control" id="branchId" value="BCH-001"
+                                                disabled>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label fw-bold">Manager Name</label>
+                                            <input type="text" class="form-control" id="managerName" value="John Smith"
+                                                disabled>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label fw-bold">Email</label>
+                                            <input type="email" class="form-control" id="email"
+                                                value="downtown@barista.com" disabled>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label fw-bold">Phone</label>
+                                            <input type="tel" class="form-control" id="phone" value="+1 (555) 123-4567"
+                                                disabled>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label fw-bold">Location</label>
+                                            <input type="text" class="form-control" id="location"
+                                                value="123 Main St, New York" disabled>
+                                        </div>
+                                        <div class="col-12">
+                                            <label class="form-label fw-bold">Address</label>
+                                            <textarea class="form-control" id="address" rows="2"
+                                                disabled>123 Main Street, Downtown, New York, NY 10001</textarea>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-4">
+                        <div class="dashboard-card mb-4">
+                            <div class="card-header">
+                                <h5 class="mb-0"><i class="bi bi-clock me-2"></i>Operating Hours</h5>
+                            </div>
+                            <div class="card-body">
+                                <div id="operatingHours">
+                                    <div class="hours-item">
+                                        <span class="day">Monday - Friday</span>
+                                        <span class="time" id="weekdayHours">7:00 AM - 9:00 PM</span>
+                                    </div>
+                                    <div class="hours-item">
+                                        <span class="day">Saturday</span>
+                                        <span class="time" id="saturdayHours">8:00 AM - 10:00 PM</span>
+                                    </div>
+                                    <div class="hours-item">
+                                        <span class="day">Sunday</span>
+                                        <span class="time" id="sundayHours">8:00 AM - 8:00 PM</span>
+                                    </div>
+                                </div>
+                                <button class="btn btn-sm btn-outline-primary w-100 mt-3" id="editHoursBtn"
+                                    style="display: none;">
+                                    <i class="bi bi-pencil"></i> Edit Hours
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="dashboard-card">
+                            <div class="card-header">
+                                <h5 class="mb-0"><i class="bi bi-info-circle me-2"></i>Quick Info</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="quick-info-item">
+                                    <i class="bi bi-calendar-check text-success"></i>
+                                    <div>
+                                        <strong>Opened Since</strong>
+                                        <p class="mb-0 text-muted" id="openedSince">January 2020</p>
+                                    </div>
+                                </div>
+                                <div class="quick-info-item">
+                                    <i class="bi bi-people text-primary"></i>
+                                    <div>
+                                        <strong>Staff Count</strong>
+                                        <p class="mb-0 text-muted" id="staffCount">12 employees</p>
+                                    </div>
+                                </div>
+                                <div class="quick-info-item">
+                                    <i class="bi bi-award text-warning"></i>
+                                    <div>
+                                        <strong>Status</strong>
+                                        <p class="mb-0 text-muted"><span class="badge bg-success">Active</span></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Custom Dashboard JS -->
+    <script src="js/dashboard.js"></script>
+    <script>
+        let editMode = false;
+
+        document.addEventListener('DOMContentLoaded', function () {
+            loadBranchProfile();
+            loadStats();
+        });
+
+        function loadBranchProfile() {
+            const branchId = localStorage.getItem('active_branch_id') || 'BCH-001';
+            const branchData = JSON.parse(localStorage.getItem('branch_' + branchId)) || getDefaultBranchData();
+
+            // Update all fields
+            document.getElementById('branchName').value = branchData.name;
+            document.getElementById('branchId').value = branchId;
+            document.getElementById('managerName').value = branchData.manager;
+            document.getElementById('email').value = branchData.email;
+            document.getElementById('phone').value = branchData.phone;
+            document.getElementById('location').value = branchData.location;
+            document.getElementById('address').value = branchData.address;
+            document.getElementById('weekdayHours').textContent = branchData.hours.weekday;
+            document.getElementById('saturdayHours').textContent = branchData.hours.saturday;
+            document.getElementById('sundayHours').textContent = branchData.hours.sunday;
+            document.getElementById('openedSince').textContent = branchData.openedSince;
+            document.getElementById('staffCount').textContent = branchData.staffCount;
+
+            // Update header
+            document.getElementById('profileBranchName').textContent = branchData.name;
+            document.getElementById('profileBranchId').textContent = branchId;
+
+            // Update sidebar
+            document.getElementById('sidebarManagerName').textContent = branchData.manager;
+            document.getElementById('sidebarBranchName').textContent = branchData.name;
+        }
+
+        function loadStats() {
+            const branchId = localStorage.getItem('active_branch_id') || 'BCH-001';
+            const concerns = JSON.parse(localStorage.getItem('branch_concerns_' + branchId)) || [];
+            const todos = JSON.parse(localStorage.getItem('branch_todos_' + branchId)) || [];
+
+            const activeConcernsCount = concerns.filter(c => c.status !== 'Resolved').length;
+
+            document.getElementById('activeConcerns').textContent = activeConcernsCount;
+            document.getElementById('totalTodos').textContent = todos.length;
+            document.getElementById('avgRating').textContent = '4.5';
+            document.getElementById('totalReviews').textContent = '234';
+        }
+
+        function getDefaultBranchData() {
+            return {
+                name: 'Downtown Branch',
+                manager: 'John Smith',
+                email: 'downtown@barista.com',
+                phone: '+1 (555) 123-4567',
+                location: '123 Main St, New York',
+                address: '123 Main Street, Downtown, New York, NY 10001',
+                hours: {
+                    weekday: '7:00 AM - 9:00 PM',
+                    saturday: '8:00 AM - 10:00 PM',
+                    sunday: '8:00 AM - 8:00 PM'
+                },
+                openedSince: 'January 2020',
+                staffCount: '12 employees'
+            };
+        }
+
+        function toggleEditMode() {
+            editMode = !editMode;
+            const inputs = document.querySelectorAll('#profileForm input, #profileForm textarea');
+
+            inputs.forEach(input => {
+                if (input.id !== 'branchId') { // Keep Branch ID always disabled
+                    input.disabled = !editMode;
+                }
+            });
+
+            document.getElementById('saveBtn').style.display = editMode ? 'block' : 'none';
+            document.getElementById('uploadLogoBtn').style.display = editMode ? 'block' : 'none';
+            document.getElementById('editHoursBtn').style.display = editMode ? 'block' : 'none';
+        }
+
+        function saveProfile() {
+            const branchId = localStorage.getItem('active_branch_id') || 'BCH-001';
+
+            const branchData = {
+                name: document.getElementById('branchName').value,
+                manager: document.getElementById('managerName').value,
+                email: document.getElementById('email').value,
+                phone: document.getElementById('phone').value,
+                location: document.getElementById('location').value,
+                address: document.getElementById('address').value,
+                hours: {
+                    weekday: document.getElementById('weekdayHours').textContent,
+                    saturday: document.getElementById('saturdayHours').textContent,
+                    sunday: document.getElementById('sundayHours').textContent
+                },
+                openedSince: document.getElementById('openedSince').textContent,
+                staffCount: document.getElementById('staffCount').textContent
+            };
+
+            localStorage.setItem('branch_' + branchId, JSON.stringify(branchData));
+
+            // Update display
+            document.getElementById('profileBranchName').textContent = branchData.name;
+            document.getElementById('sidebarBranchName').textContent = branchData.name;
+            document.getElementById('sidebarManagerName').textContent = branchData.manager;
+
+            toggleEditMode();
+
+            // Show success message
+            alert('Profile updated successfully!');
+        }
+
+        function confirmLogout() {
+            if (confirm('Are you sure you want to logout?')) {
+                localStorage.removeItem('branch_authenticated');
+                return true;
+            }
+            return false;
+        }
+    </script>
+</body>
+
+</html>

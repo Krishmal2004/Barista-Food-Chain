@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Concerns Management | Barista Coffee Chain</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <!-- Google Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@300;400;500;600&display=swap"
+        rel="stylesheet">
+    <!-- Custom Dashboard CSS -->
+    <link rel="stylesheet" href="css/dashboard.css">
+</head>
+
+<body>
+    <div class="dashboard-wrapper">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <i class="bi bi-shop-window text-gold fs-2"></i>
+                <h4 class="mb-0 fw-bold">Branch Portal</h4>
+            </div>
+
+            <nav class="sidebar-nav">
+                <a href="branch-dashboard.html" class="nav-item">
+                    <i class="bi bi-speedometer2"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="branch-profile.html" class="nav-item">
+                    <i class="bi bi-person-circle"></i>
+                    <span>Branch Profile</span>
+                </a>
+                <a href="branch-concerns.html" class="nav-item active">
+                    <i class="bi bi-exclamation-triangle"></i>
+                    <span>Concerns</span>
+                </a>
+                <a href="branch-todo.html" class="nav-item">
+                    <i class="bi bi-check2-square"></i>
+                    <span>Todo List</span>
+                </a>
+                <div class="nav-divider"></div>
+                <a href="#" class="nav-item">
+                    <i class="bi bi-gear"></i>
+                    <span>Settings</span>
+                </a>
+                <a href="../branch-login.html" class="nav-item" onclick="return confirmLogout()">
+                    <i class="bi bi-box-arrow-left"></i>
+                    <span>Logout</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="user-profile">
+                    <img src="https://i.pravatar.cc/150?img=33" alt="Manager" class="profile-img">
+                    <div class="user-info">
+                        <div class="user-name" id="sidebarManagerName">Branch Manager</div>
+                        <div class="user-role" id="sidebarBranchName">Loading...</div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Top Navigation Bar -->
+            <nav class="topbar">
+                <button class="btn btn-link sidebar-toggle" id="sidebarToggle">
+                    <i class="bi bi-list fs-4"></i>
+                </button>
+                <h5 class="mb-0 fw-bold">Concerns Management</h5>
+                <div class="topbar-actions">
+                    <button class="btn btn-primary rounded-pill" onclick="openAddConcernModal()">
+                        <i class="bi bi-plus-circle"></i> Add New Concern
+                    </button>
+                </div>
+            </nav>
+
+            <!-- Concerns Content -->
+            <div class="content-area">
+                <!-- Filters & Search -->
+                <div class="dashboard-card mb-4">
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col-md-6">
+                                <div class="btn-group" role="group">
+                                    <button type="button" class="btn btn-filter active"
+                                        onclick="filterConcerns('All')">All</button>
+                                    <button type="button" class="btn btn-filter"
+                                        onclick="filterConcerns('Open')">Open</button>
+                                    <button type="button" class="btn btn-filter"
+                                        onclick="filterConcerns('In Progress')">In Progress</button>
+                                    <button type="button" class="btn btn-filter"
+                                        onclick="filterConcerns('Resolved')">Resolved</button>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="bi bi-search"></i></span>
+                                    <input type="text" class="form-control" id="searchInput"
+                                        placeholder="Search concerns..." onkeyup="searchConcerns()">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Concerns Grid -->
+                <div class="row g-4" id="concernsGrid">
+                    <div class="col-12 text-center py-5">
+                        <i class="bi bi-inbox fs-1 text-muted"></i>
+                        <p class="text-muted mt-3">No concerns found. Click "Add New Concern" to create one.</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Add/Edit Concern Modal -->
+    <div class="modal fade" id="concernModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalTitle">Add New Concern</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="concernForm">
+                        <input type="hidden" id="concernId">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Title</label>
+                            <input type="text" class="form-control" id="concernTitle" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Description</label>
+                            <textarea class="form-control" id="concernDescription" rows="4" required></textarea>
+                        </div>
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold">Priority</label>
+                                <select class="form-select" id="concernPriority" required>
+                                    <option value="Low">Low</option>
+                                    <option value="Medium" selected>Medium</option>
+                                    <option value="High">High</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold">Category</label>
+                                <select class="form-select" id="concernCategory" required>
+                                    <option value="Equipment">Equipment</option>
+                                    <option value="Staff">Staff</option>
+                                    <option value="Inventory">Inventory</option>
+                                    <option value="Customer Service">Customer Service</option>
+                                    <option value="Facilities">Facilities</option>
+                                    <option value="Health & Safety">Health & Safety</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold">Status</label>
+                                <select class="form-select" id="concernStatus">
+                                    <option value="Open" selected>Open</option>
+                                    <option value="In Progress">In Progress</option>
+                                    <option value="Resolved">Resolved</option>
+                                </select>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="saveConcern()">Save Concern</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Custom Dashboard JS -->
+    <script src="js/dashboard.js"></script>
+    <script>
+        let currentFilter = 'All';
+        let concernModal;
+
+        document.addEventListener('DOMContentLoaded', function () {
+            concernModal = new bootstrap.Modal(document.getElementById('concernModal'));
+            loadBranchInfo();
+            loadConcerns();
+        });
+
+        function loadBranchInfo() {
+            const branchId = localStorage.getItem('active_branch_id') || 'BCH-001';
+            const branchData = JSON.parse(localStorage.getItem('branch_' + branchId)) || {
+                name: 'Downtown Branch',
+                manager: 'Branch Manager'
+            };
+
+            document.getElementById('sidebarBranchName').textContent = branchData.name;
+            document.getElementById('sidebarManagerName').textContent = branchData.manager;
+        }
+
+        function loadConcerns() {
+            const branchId = localStorage.getItem('active_branch_id') || 'BCH-001';
+            const concerns = JSON.parse(localStorage.getItem('branch_concerns_' + branchId)) || [];
+
+            displayConcerns(concerns);
+        }
+
+        function displayConcerns(concerns) {
+            const grid = document.getElementById('concernsGrid');
+
+            // Filter concerns
+            let filteredConcerns = concerns;
+            if (currentFilter !== 'All') {
+                filteredConcerns = concerns.filter(c => c.status === currentFilter);
+            }
+
+            if (filteredConcerns.length === 0) {
+                grid.innerHTML = `
+                    <div class="col-12 text-center py-5">
+                        <i class="bi bi-inbox fs-1 text-muted"></i>
+                        <p class="text-muted mt-3">No concerns found${currentFilter !== 'All' ? ' for this filter' : ''}.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            grid.innerHTML = filteredConcerns.map(concern => `
+                <div class="col-lg-6">
+                    <div class="concern-card priority-${concern.priority.toLowerCase()}">
+                        <div class="concern-header">
+                            <h5 class="concern-title">${concern.title}</h5>
+                            <div class="concern-badges">
+                                <span class="badge priority-badge-${concern.priority.toLowerCase()}">${concern.priority}</span>
+                                <span class="badge status-badge-${concern.status.toLowerCase().replace(' ', '-')}">${concern.status}</span>
+                            </div>
+                        </div>
+                        <p class="concern-description">${concern.description}</p>
+                        <div class="concern-meta">
+                            <span><i class="bi bi-tag"></i> ${concern.category}</span>
+                            <span><i class="bi bi-calendar"></i> ${formatDate(concern.date)}</span>
+                        </div>
+                        <div class="concern-actions">
+                            <button class="btn btn-sm btn-outline-primary" onclick="editConcern('${concern.id}')">
+                                <i class="bi bi-pencil"></i> Edit
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger" onclick="deleteConcern('${concern.id}')">
+                                <i class="bi bi-trash"></i> Delete
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function openAddConcernModal() {
+            document.getElementById('modalTitle').textContent = 'Add New Concern';
+            document.getElementById('concernForm').reset();
+            document.getElementById('concernId').value = '';
+            concernModal.show();
+        }
+
+        function editConcern(id) {
+            const branchId = localStorage.getItem('active_branch_id') || 'BCH-001';
+            const concerns = JSON.parse(localStorage.getItem('branch_concerns_' + branchId)) || [];
+            const concern = concerns.find(c => c.id === id);
+
+            if (concern) {
+                document.getElementById('modalTitle').textContent = 'Edit Concern';
+                document.getElementById('concernId').value = concern.id;
+                document.getElementById('concernTitle').value = concern.title;
+                document.getElementById('concernDescription').value = concern.description;
+                document.getElementById('concernPriority').value = concern.priority;
+                document.getElementById('concernCategory').value = concern.category;
+                document.getElementById('concernStatus').value = concern.status;
+                concernModal.show();
+            }
+        }
+
+        function saveConcern() {
+            const branchId = localStorage.getItem('active_branch_id') || 'BCH-001';
+            const concerns = JSON.parse(localStorage.getItem('branch_concerns_' + branchId)) || [];
+
+            const id = document.getElementById('concernId').value || generateId();
+            const concernData = {
+                id: id,
+                title: document.getElementById('concernTitle').value,
+                description: document.getElementById('concernDescription').value,
+                priority: document.getElementById('concernPriority').value,
+                category: document.getElementById('concernCategory').value,
+                status: document.getElementById('concernStatus').value,
+                date: document.getElementById('concernId').value ?
+                    concerns.find(c => c.id === id)?.date || new Date().toISOString() :
+                    new Date().toISOString()
+            };
+
+            // Update or add
+            const existingIndex = concerns.findIndex(c => c.id === id);
+            if (existingIndex !== -1) {
+                concerns[existingIndex] = concernData;
+            } else {
+                concerns.push(concernData);
+            }
+
+            localStorage.setItem('branch_concerns_' + branchId, JSON.stringify(concerns));
+            concernModal.hide();
+            loadConcerns();
+        }
+
+        function deleteConcern(id) {
+            if (confirm('Are you sure you want to delete this concern?')) {
+                const branchId = localStorage.getItem('active_branch_id') || 'BCH-001';
+                let concerns = JSON.parse(localStorage.getItem('branch_concerns_' + branchId)) || [];
+                concerns = concerns.filter(c => c.id !== id);
+                localStorage.setItem('branch_concerns_' + branchId, JSON.stringify(concerns));
+                loadConcerns();
+            }
+        }
+
+        function filterConcerns(status) {
+            currentFilter = status;
+            document.querySelectorAll('.btn-filter').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            loadConcerns();
+        }
+
+        function searchConcerns() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const branchId = localStorage.getItem('active_branch_id') || 'BCH-001';
+            let concerns = JSON.parse(localStorage.getItem('branch_concerns_' + branchId)) || [];
+
+            if (searchTerm) {
+                concerns = concerns.filter(c =>
+                    c.title.toLowerCase().includes(searchTerm) ||
+                    c.description.toLowerCase().includes(searchTerm) ||
+                    c.category.toLowerCase().includes(searchTerm)
+                );
+            }
+
+            displayConcerns(concerns);
+        }
+
+        function generateId() {
+            return 'concern_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        }
+
+        function confirmLogout() {
+            if (confirm('Are you sure you want to logout?')) {
+                localStorage.removeItem('branch_authenticated');
+                return true;
+            }
+            return false;
+        }
+    </script>
+</body>
+
+</html>
