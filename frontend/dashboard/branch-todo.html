@@ -295,9 +295,18 @@
             const today = new Date().toISOString().split('T')[0];
             document.getElementById('quickTaskDue').value = today;
         }
-
-        function loadTodos() {
+        async function loadTodos() {
             const branchId = localStorage.getItem('active_branch_id') || 'BCH-001';
+            try {
+                const response = await fetch(`http://localhost:3000/api/todos/${branchId}`);
+                if (!response.ok) throw new Error('Failed to fetch');
+                const todos = await response.json();
+                displayTodos(todos);
+                updateProgress(todos);
+            } catch (error) {
+                console.error("Failed to load tasks:",error);
+                displayTodos([]);
+            }
             const todos = JSON.parse(localStorage.getItem('branch_todos_' + branchId)) || [];
 
             displayTodos(todos);
@@ -364,14 +373,14 @@
             `).join('');
         }
 
-        function quickAddTask(event) {
+        async function quickAddTask(event) {
             event.preventDefault();
 
             const branchId = localStorage.getItem('active_branch_id') || 'BCH-001';
             const todos = JSON.parse(localStorage.getItem('branch_todos_' + branchId)) || [];
 
             const newTask = {
-                id: generateId(),
+                branchId: branchId,
                 title: document.getElementById('quickTaskTitle').value,
                 category: document.getElementById('quickTaskCategory').value,
                 priority: document.getElementById('quickTaskPriority').value,
@@ -380,7 +389,20 @@
                 completed: false,
                 createdDate: new Date().toISOString()
             };
-
+            try {
+                const response = await fetch('http://localhost:3000/api/todos', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(newTask)
+                });
+                if (response.ok) {
+                    document.getElementById('quickAddForm').rest();
+                    setDefaultDueDate();
+                    await loadTodos();
+                }
+            } catch (error) {
+                console.error('Failed to save task: ', error);
+            }
             todos.push(newTask);
             localStorage.setItem('branch_todos_' + branchId, JSON.stringify(todos));
 
@@ -437,13 +459,21 @@
             }
         }
 
-        function deleteTask(id) {
+        async function deleteTask(id) {
             if (confirm('Are you sure you want to delete this task?')) {
-                const branchId = localStorage.getItem('active_branch_id') || 'BCH-001';
-                let todos = JSON.parse(localStorage.getItem('branch_todos_' + branchId)) || [];
-                todos = todos.filter(t => t.id !== id);
-                localStorage.setItem('branch_todos_' + branchId, JSON.stringify(todos));
-                loadTodos();
+                try {
+                    const response = await fetch(`http://localhost:3000/api/todos/${id}`, {
+                        method: 'DELETE'
+                    });
+                    if (response.ok) {
+                        await loadTodos(); 
+                    } else {
+                        const result = await response.json();
+                        alert("Delete failed: " + result.error);
+                    }
+                } catch (error) {
+                    console.error("Network Error:", error);
+                }
             }
         }
 
