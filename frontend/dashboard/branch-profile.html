@@ -270,31 +270,70 @@
             loadStats();
         });
 
-        function loadBranchProfile() {
+        async function loadBranchProfile() {
             const branchId = localStorage.getItem('active_branch_id') || 'BCH-001';
-            const branchData = JSON.parse(localStorage.getItem('branch_' + branchId)) || getDefaultBranchData();
+            
+            try {
+                // FIXED: NO BODY in GET request
+                const response = await fetch(`/api/branch/${branchId}`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
 
-            // Update all fields
-            document.getElementById('branchName').value = branchData.name;
-            document.getElementById('branchId').value = branchId;
-            document.getElementById('managerName').value = branchData.manager;
-            document.getElementById('email').value = branchData.email;
-            document.getElementById('phone').value = branchData.phone;
-            document.getElementById('location').value = branchData.location;
-            document.getElementById('address').value = branchData.address;
-            document.getElementById('weekdayHours').textContent = branchData.hours.weekday;
-            document.getElementById('saturdayHours').textContent = branchData.hours.saturday;
-            document.getElementById('sundayHours').textContent = branchData.hours.sunday;
-            document.getElementById('openedSince').textContent = branchData.openedSince;
-            document.getElementById('staffCount').textContent = branchData.staffCount;
+                if(!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
 
-            // Update header
-            document.getElementById('profileBranchName').textContent = branchData.name;
-            document.getElementById('profileBranchId').textContent = branchId;
+                const contentType = response.headers.get('content-type');
+                if(!contentType || !contentType.includes('application/json')){
+                    throw new Error('Server did not return JSON. Check if API endpoint exists.');
+                }
 
-            // Update sidebar
-            document.getElementById('sidebarManagerName').textContent = branchData.manager;
-            document.getElementById('sidebarBranchName').textContent = branchData.name;
+                const result = await response.json();
+                const branchData = result.data;
+
+                if(branchData) {
+                    document.getElementById('branchName').value = branchData.branch_name || "";
+                    document.getElementById('branchId').value = branchData.branch_id || "";
+                    document.getElementById('managerName').value = branchData.contact_full_name || "";
+                    document.getElementById('email').value = branchData.contact_email || "";
+                    document.getElementById('phone').value = branchData.contact_phone || "";
+                    document.getElementById('address').value = branchData.address || "";
+                    
+                    // Use Optional Chaining (?.) to prevent 'weekday' crash
+                    document.getElementById('weekdayHours').textContent = branchData.hours?.weekday || '7:00 AM - 9:00 PM';
+                    document.getElementById('saturdayHours').textContent = branchData.hours?.saturday || '8:00 AM - 10:00 PM';
+                    document.getElementById('sundayHours').textContent = branchData.hours?.sunday || '8:00 AM - 8:00 PM';
+                    
+                    // UI Header updates
+                    document.getElementById('profileBranchName').textContent = branchData.branch_name || 'Unknown Branch';
+                    document.getElementById('profileBranchId').textContent = branchData.branch_id || 'N/A';
+                    document.getElementById('sidebarBranchName').textContent = branchData.branch_name || 'Unknown';
+                    document.getElementById('sidebarManagerName').textContent = branchData.contact_full_name || 'Manager';
+
+                    if (branchData.year_established) {
+                        document.getElementById('openedSince').textContent = branchData.year_established;
+                    }
+                } else {
+                    console.warn('No branch data found in response');
+                    loadDefaultData();
+                }
+            } catch (err) {
+                console.error("Failed to load profile:", err);
+                alert(`Error loading profile: ${err.message}`);
+                loadDefaultData();
+            }
+        }
+
+        function loadDefaultData() {
+            const defaultData = getDefaultBranchData();
+            document.getElementById('branchName').value = defaultData.name;
+            document.getElementById('managerName').value = defaultData.manager;
+            document.getElementById('email').value = defaultData.email;
+            document.getElementById('phone').value = defaultData.phone;
+            document.getElementById('address').value = defaultData.address;
         }
 
         function loadStats() {
@@ -330,54 +369,82 @@
 
         function toggleEditMode() {
             editMode = !editMode;
-            const inputs = document.querySelectorAll('#profileForm input, #profileForm textarea');
+            const form = document.getElementById('profileForm');
+            const inputs = form.querySelectorAll('input, textarea');
 
             inputs.forEach(input => {
-                if (input.id !== 'branchId') { // Keep Branch ID always disabled
+                if (input.id !== 'branchId') {
                     input.disabled = !editMode;
+
+                    if (editMode) {
+                        input.style.backgroundColor = '#fff';
+                        input.style.cursor = 'text';
+                    } else {
+                        input.style.backgroundColor = '#e9ecef';
+                        input.style.cursor = 'not-allowed';
+                    }
                 }
             });
 
-            document.getElementById('saveBtn').style.display = editMode ? 'block' : 'none';
+            document.getElementById('saveBtn').style.display = editMode ? 'inline-block' : 'none';
             document.getElementById('uploadLogoBtn').style.display = editMode ? 'block' : 'none';
             document.getElementById('editHoursBtn').style.display = editMode ? 'block' : 'none';
+
+            const editToggleBtn = document.querySelector('.topbar-actions .btn');
+            if(editMode) {
+                editToggleBtn.innerHTML = '<i class="bi bi-x-circle"></i> Cancel';
+                editToggleBtn.className = 'btn btn-danger rounded-pill';
+            } else {
+                editToggleBtn.innerHTML = '<i class="bi bi-pencil-square"></i> Edit Profile';
+                editToggleBtn.className = 'btn btn-light rounded-pill';
+                loadBranchProfile();
+            }
         }
 
-        function saveProfile() {
-            const branchId = localStorage.getItem('active_branch_id') || 'BCH-001';
+        async function saveProfile() {
+            const branchId = document.getElementById('branchId').value;
 
-            const branchData = {
+            const updatedData = {
                 name: document.getElementById('branchName').value,
                 manager: document.getElementById('managerName').value,
                 email: document.getElementById('email').value,
                 phone: document.getElementById('phone').value,
-                location: document.getElementById('location').value,
                 address: document.getElementById('address').value,
-                hours: {
-                    weekday: document.getElementById('weekdayHours').textContent,
-                    saturday: document.getElementById('saturdayHours').textContent,
-                    sunday: document.getElementById('sundayHours').textContent
-                },
-                openedSince: document.getElementById('openedSince').textContent,
-                staffCount: document.getElementById('staffCount').textContent
             };
 
-            localStorage.setItem('branch_' + branchId, JSON.stringify(branchData));
+            try {
+                const response = await fetch(`/api/update-branch/${branchId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(updatedData)
+                });
 
-            // Update display
-            document.getElementById('profileBranchName').textContent = branchData.name;
-            document.getElementById('sidebarBranchName').textContent = branchData.name;
-            document.getElementById('sidebarManagerName').textContent = branchData.manager;
+                if (response.ok) {
+                    const result = await response.json();
+                    
+                    document.getElementById('profileBranchName').textContent = updatedData.name;
+                    document.getElementById('sidebarBranchName').textContent = updatedData.name;
+                    document.getElementById('sidebarManagerName').textContent = updatedData.manager;
 
-            toggleEditMode();
-
-            // Show success message
-            alert('Profile updated successfully!');
+                    toggleEditMode();
+                    alert('Profile updated successfully!');
+                    await loadBranchProfile();
+                } else {
+                    const error = await response.json();
+                    alert('Update failed: ' + (error.error || 'Unknown error'));
+                }
+            } catch (err) {
+                console.error("Error updating profile:", err);
+                alert('An error occurred while saving: ' + err.message);
+            }
         }
 
         function confirmLogout() {
             if (confirm('Are you sure you want to logout?')) {
                 localStorage.removeItem('branch_authenticated');
+                localStorage.removeItem('active_branch_id');
                 return true;
             }
             return false;

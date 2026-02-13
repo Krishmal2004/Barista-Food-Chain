@@ -100,6 +100,52 @@ app.post('/api/login-branch',async (req,res)=> {
     console.log(`Branch ${branchId} successfully logged in`);
     res.status(200).json({message: "Branch successfully logged in", data});
 });
+//Branch profile updating route
+app.put('/api/update-branch/:branchId', async (req,res) => {
+    const {branchId} = req.params;
+    const {name, manager, email, phone, address} = req.body;
+
+    if(!name) {
+        return res.status(400).json({error:"Branch name is required"});
+    }
+
+    const { data, error} =  await supabase
+        .from('branches')
+        .update({
+            branch_name: name,
+            contact_full_name: manager,
+            contact_email: email,
+            contact_phone: phone,
+            address: address,
+        })
+        .eq('branch_id', branchId)
+        .select();
+
+    if (error) {
+        console.error("Supabase Update Error:",error.message);
+        return res.status(400).json({error: error.message});
+    }
+    res.status(200).json({message: "Branch profile successfully updated", data});
+});
+app.get('/api/branch/:branchId', async (req,res) => {
+    const {branchId} = req.params;
+    try {
+        const {data,error}= await supabase
+            .from('branches')
+            .select('*')
+            .eq('branch_id', branchId)
+            .single();
+        if (error || !data) {
+            console.error("Supabase Fetch Branch Error: ",error ? error.message : "Branch not found");
+            return res.status(404).json({error: error ? error.message : "Branch not found"});
+        }
+        console.log(`Branch ${branchId} profile fetched successfully`);
+        res.status(200).json({message: "Branch profile fetched successfully", data});
+    } catch (err) {
+        console.error("Server Error: ",err.message);
+        res.status(500).json({error: "Internal server error"});
+    }
+});
 
 // Todo routes
 app.get('/api/todos/:branchId',async (req, res) => {
