@@ -531,19 +531,6 @@
                 const originalText = btn.innerHTML;
                 btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Verifying...';
                 btn.disabled = true;
-
-                // Simulate API call
-                /*setTimeout(() => {
-                    // Here you would normally make an API call to your backend
-                    console.log('Branch login attempt:', { branchId, branchName, password, rememberMe });
-
-                    // For demo purposes, show success message
-                    alert('Branch login functionality will be connected to the backend!\n\nBranch ID: ' + branchId);
-
-                    // Restore button state
-                    btn.innerHTML = originalText;
-                    btn.disabled = false;
-                }, 1500);*/
             }
         });
 

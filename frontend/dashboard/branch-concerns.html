@@ -310,6 +310,7 @@
         }
 
         async function saveConcern() {
+            console.log("save concern button clicked!");
             const branchId = localStorage.getItem('active_branch_id') || 'BCH-001';
             const id = document.getElementById('concernId').value;
             

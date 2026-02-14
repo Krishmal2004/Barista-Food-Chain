@@ -336,17 +336,30 @@
             document.getElementById('address').value = defaultData.address;
         }
 
-        function loadStats() {
+        async function loadStats() {
             const branchId = localStorage.getItem('active_branch_id') || 'BCH-001';
-            const concerns = JSON.parse(localStorage.getItem('branch_concerns_' + branchId)) || [];
-            const todos = JSON.parse(localStorage.getItem('branch_todos_' + branchId)) || [];
+            try {
+                const [concernsRes, todoRes] =  await Promise.all([
+                    fetch(`/api/concerns/${branchId}`),
+                    fetch(`/api/todos/${branchId}`)
+                ]);
+                if (!concernsRes.ok || !todoRes.ok) {
+                    throw new Error(`one or more API routes returned an error`);
+                }
+                const concerns = await concernsRes.json();
+                const todos = await todoRes.json();
 
-            const activeConcernsCount = concerns.filter(c => c.status !== 'Resolved').length;
+                const activeCount = Array.isArray(concerns) ? concerns.filter(c => c.status !== 'Resolved').length : 0;
+                const taskCount = Array.isArray(todos) ? todos.length : 0;
 
-            document.getElementById('activeConcerns').textContent = activeConcernsCount;
-            document.getElementById('totalTodos').textContent = todos.length;
-            document.getElementById('avgRating').textContent = '4.5';
-            document.getElementById('totalReviews').textContent = '234';
+                document.getElementById('activeConcerns').textContent = activeCount;
+                document.getElementById('totalTodos').textContent = taskCount;
+
+            } catch (err) {
+                console.error("Error updating dashboard stats:",err);
+                document.getElementById('activeConcerns').textContent = 'N/A';
+                document.getElementById('totalTodos').textContent = 'N/A';
+            }
         }
 
         function getDefaultBranchData() {
