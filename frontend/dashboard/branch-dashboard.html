@@ -15,6 +15,9 @@
         rel="stylesheet">
     <!-- Custom Dashboard CSS -->
     <link rel="stylesheet" href="css/dashboard.css">
+    <!-- jsPDF for PDF Generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
 </head>
 
 <body>
@@ -235,62 +238,187 @@
         </main>
     </div>
 
+    <!-- Report Generation Modal -->
+    <div class="modal fade" id="reportModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="bi bi-file-earmark-bar-graph me-2"></i>Generate Report
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Report Type</label>
+                        <select class="form-select" id="reportType">
+                            <option value="full">Full Dashboard Report</option>
+                            <option value="tasks">Tasks Summary</option>
+                            <option value="concerns">Concerns Summary</option>
+                            <option value="performance">Performance Report</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Date Range</label>
+                        <select class="form-select" id="reportDateRange">
+                            <option value="today">Today</option>
+                            <option value="week">This Week</option>
+                            <option value="month" selected>This Month</option>
+                            <option value="quarter">This Quarter</option>
+                            <option value="year">This Year</option>
+                            <option value="all">All Time</option>
+                        </select>
+                    </div>
+                    <div class="alert alert-info mb-0">
+                        <i class="bi bi-info-circle me-2"></i>
+                        Report will be generated as a PDF file and downloaded automatically.
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="generatePdfBtn" onclick="generatePDFReport()">
+                        <i class="bi bi-file-earmark-pdf"></i> Generate PDF
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <!-- Custom Dashboard JS -->
     <script src="js/dashboard.js"></script>
     <script>
+        let reportModal;
+
         // Initialize branch dashboard
         document.addEventListener('DOMContentLoaded', function () {
+            reportModal = new bootstrap.Modal(document.getElementById('reportModal'));
             loadBranchInfo();
             updateDashboardStats();
             updateDateTime();
             setInterval(updateDateTime, 1000);
+            // Refresh dashboard every 30 seconds
+            setInterval(updateDashboardStats, 30000);
         });
 
-        function loadBranchInfo() {
+        async function loadBranchInfo() {
             const branchId = localStorage.getItem('active_branch_id') || 'BCH-001';
-            const branchData = JSON.parse(localStorage.getItem('branch_' + branchId)) || {
-                name: 'Downtown Branch',
-                manager: 'Branch Manager'
-            };
-
-            document.getElementById('branchName').textContent = branchData.name;
-            document.getElementById('branchManagerName').textContent = branchData.manager;
+            
+            try {
+                const response = await fetch(`/api/branch/${branchId}`);
+                if (response.ok) {
+                    const result = await response.json();
+                    const branchData = result.data;
+                    
+                    document.getElementById('branchName').textContent = branchData.branch_name || 'Unknown';
+                    document.getElementById('branchManagerName').textContent = branchData.contact_full_name || 'Manager';
+                } else {
+                    document.getElementById('branchName').textContent = 'Downtown Branch';
+                    document.getElementById('branchManagerName').textContent = 'Branch Manager';
+                }
+            } catch (error) {
+                console.error("Failed to load branch info:", error);
+            }
         }
 
-        function updateDashboardStats() {
+        async function updateDashboardStats() {
             const branchId = localStorage.getItem('active_branch_id') || 'BCH-001';
-            const todos = JSON.parse(localStorage.getItem('branch_todos_' + branchId)) || [];
-            const concerns = JSON.parse(localStorage.getItem('branch_concerns_' + branchId)) || [];
+            
+            try {
+                // Fetch data from API
+                const [todosRes, concernsRes] = await Promise.all([
+                    fetch(`/api/todos/${branchId}`),
+                    fetch(`/api/concerns/${branchId}`)
+                ]);
 
-            // Calculate stats
-            const today = new Date().toDateString();
-            const todayTasks = todos.filter(t => t.completed && new Date(t.completedDate).toDateString() === today).length;
-            const totalTasks = todos.length;
-            const completedTasks = todos.filter(t => t.completed).length;
-            const openConcerns = concerns.filter(c => c.status !== 'Resolved').length;
-            const urgentConcerns = concerns.filter(c => c.priority === 'High' && c.status !== 'Resolved').length;
-            const pendingActions = todos.filter(t => !t.completed).length + openConcerns;
+                if (!todosRes.ok || !concernsRes.ok) {
+                    throw new Error('Failed to fetch dashboard data');
+                }
 
-            // Update UI
-            document.getElementById('todayTasks').textContent = todayTasks;
-            document.getElementById('taskProgress').textContent = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) + '%' : '0%';
-            document.getElementById('openConcerns').textContent = openConcerns;
-            document.getElementById('urgentConcerns').textContent = urgentConcerns;
-            document.getElementById('pendingActions').textContent = pendingActions;
-            document.getElementById('notificationCount').textContent = urgentConcerns;
+                const todos = await todosRes.json();
+                const concerns = await concernsRes.json();
 
-            // Display recent concerns
-            displayRecentConcerns(concerns.slice(0, 3));
+                // Calculate stats
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
 
-            // Display today's tasks
-            displayTodayTasks(todos.filter(t => !t.completed).slice(0, 3));
+                // Tasks completed today
+                const todayTasks = todos.filter(t => {
+                    if (!t.completed || !t.completed_at) return false;
+                    const completedDate = new Date(t.completed_at);
+                    completedDate.setHours(0, 0, 0, 0);
+                    return completedDate.getTime() === today.getTime();
+                }).length;
+
+                // Overall task completion
+                const totalTasks = todos.length;
+                const completedTasks = todos.filter(t => t.completed).length;
+                const taskCompletionRate = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+
+                // Open concerns
+                const openConcerns = concerns.filter(c => c.status !== 'Resolved').length;
+                
+                // Urgent concerns (High priority and not resolved)
+                const urgentConcerns = concerns.filter(c => 
+                    c.priority === 'High' && c.status !== 'Resolved'
+                ).length;
+
+                // Pending actions (incomplete tasks + open concerns)
+                const pendingTasks = todos.filter(t => !t.completed).length;
+                const pendingActions = pendingTasks + openConcerns;
+
+                // Update UI
+                document.getElementById('todayTasks').textContent = todayTasks;
+                document.getElementById('taskProgress').textContent = taskCompletionRate + '%';
+                document.getElementById('openConcerns').textContent = openConcerns;
+                document.getElementById('urgentConcerns').textContent = urgentConcerns;
+                document.getElementById('pendingActions').textContent = pendingActions;
+                document.getElementById('notificationCount').textContent = urgentConcerns;
+
+                // Display recent concerns (max 5, most recent first)
+                const recentConcerns = concerns
+                    .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+                    .slice(0, 5);
+                displayRecentConcerns(recentConcerns);
+
+                // Display today's tasks (incomplete tasks due today or overdue)
+                const todaysTasks = todos.filter(t => {
+                    if (t.completed) return false;
+                    if (!t.due_date) return false;
+                    
+                    const dueDate = new Date(t.due_date);
+                    dueDate.setHours(0, 0, 0, 0);
+                    
+                    return dueDate.getTime() <= today.getTime();
+                }).slice(0, 5);
+                
+                displayTodayTasks(todaysTasks);
+
+            } catch (error) {
+                console.error('Error updating dashboard stats:', error);
+                // Set default values on error
+                document.getElementById('todayTasks').textContent = '0';
+                document.getElementById('taskProgress').textContent = '0%';
+                document.getElementById('openConcerns').textContent = '0';
+                document.getElementById('urgentConcerns').textContent = '0';
+                document.getElementById('pendingActions').textContent = '0';
+                document.getElementById('notificationCount').textContent = '0';
+            }
         }
 
         function displayRecentConcerns(concerns) {
             const container = document.getElementById('recentConcernsList');
-            if (concerns.length === 0) return;
+            
+            if (concerns.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-5 text-muted">
+                        <i class="bi bi-inbox fs-1"></i>
+                        <p class="mt-2">No recent concerns</p>
+                    </div>
+                `;
+                return;
+            }
 
             container.innerHTML = concerns.map(concern => `
                 <div class="activity-item">
@@ -299,8 +427,8 @@
                     </div>
                     <div class="activity-content">
                         <div class="activity-title">${concern.title}</div>
-                        <div class="activity-text">${concern.description.substring(0, 50)}...</div>
-                        <div class="activity-time">${formatDate(concern.date)}</div>
+                        <div class="activity-text">${concern.description.substring(0, 50)}${concern.description.length > 50 ? '...' : ''}</div>
+                        <div class="activity-time">${formatDate(concern.created_at)}</div>
                     </div>
                     <div class="activity-rating">
                         <span class="badge ${getStatusBadge(concern.status)}">${concern.status}</span>
@@ -311,7 +439,16 @@
 
         function displayTodayTasks(tasks) {
             const container = document.getElementById('todayTasksList');
-            if (tasks.length === 0) return;
+            
+            if (tasks.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-5 text-muted">
+                        <i class="bi bi-check2-all fs-1"></i>
+                        <p class="mt-2">No tasks for today</p>
+                    </div>
+                `;
+                return;
+            }
 
             container.innerHTML = tasks.map(task => `
                 <div class="activity-item">
@@ -321,7 +458,7 @@
                     <div class="activity-content">
                         <div class="activity-title">${task.title}</div>
                         <div class="activity-text">${task.category}</div>
-                        ${task.dueDate ? `<div class="activity-time">Due: ${formatDate(task.dueDate)}</div>` : ''}
+                        ${task.due_date ? `<div class="activity-time">${isOverdue(task.due_date) ? '🔴 Overdue: ' : 'Due: '}${formatDate(task.due_date)}</div>` : ''}
                     </div>
                     <div class="activity-rating">
                         <span class="badge ${getPriorityBadge(task.priority)}">${task.priority}</span>
@@ -335,6 +472,14 @@
             const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
             document.getElementById('currentDate').textContent = now.toLocaleDateString('en-US', options);
             document.getElementById('currentTime').textContent = now.toLocaleTimeString('en-US');
+        }
+
+        function isOverdue(dateString) {
+            const dueDate = new Date(dateString);
+            dueDate.setHours(0, 0, 0, 0);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            return dueDate < today;
         }
 
         function getPriorityClass(priority) {
@@ -375,27 +520,414 @@
         }
 
         function formatDate(dateString) {
+            if (!dateString) return 'N/A';
+            
             const date = new Date(dateString);
             const now = new Date();
             const diffTime = Math.abs(now - date);
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
 
             if (diffDays === 0) return 'Today';
             if (diffDays === 1) return 'Yesterday';
             if (diffDays < 7) return diffDays + ' days ago';
-            return date.toLocaleDateString();
+            
+            return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
         }
 
         function confirmLogout() {
             if (confirm('Are you sure you want to logout?')) {
                 localStorage.removeItem('branch_authenticated');
+                localStorage.removeItem('active_branch_id');
                 return true;
             }
             return false;
         }
 
+        // ================== REPORT GENERATION FUNCTIONS ==================
+        
         function generateReport() {
-            alert('Report generation feature coming soon!');
+            reportModal.show();
+        }
+
+        async function generatePDFReport() {
+            const branchId = localStorage.getItem('active_branch_id') || 'BCH-001';
+            const reportType = document.getElementById('reportType').value;
+            const dateRange = document.getElementById('reportDateRange').value;
+
+            // Show loading
+            const btn = document.getElementById('generatePdfBtn');
+            const originalBtnText = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Generating...';
+
+            try {
+                // Fetch report data
+                const response = await fetch(`/api/report/${branchId}`);
+                if (!response.ok) throw new Error('Failed to fetch report data');
+                
+                const reportData = await response.json();
+
+                // Filter data by date range
+                const filteredData = filterDataByDateRange(reportData, dateRange);
+
+                // Generate PDF based on report type
+                switch (reportType) {
+                    case 'full':
+                        generateFullReport(filteredData, dateRange);
+                        break;
+                    case 'tasks':
+                        generateTasksReport(filteredData, dateRange);
+                        break;
+                    case 'concerns':
+                        generateConcernsReport(filteredData, dateRange);
+                        break;
+                    case 'performance':
+                        generatePerformanceReport(filteredData, dateRange);
+                        break;
+                }
+
+                // Hide modal
+                reportModal.hide();
+                
+                // Show success message
+                setTimeout(() => {
+                    alert('✅ Report generated successfully!');
+                }, 300);
+
+            } catch (error) {
+                console.error('Error generating report:', error);
+                alert('❌ Failed to generate report. Please try again.');
+            } finally {
+                // Reset button
+                btn.disabled = false;
+                btn.innerHTML = originalBtnText;
+            }
+        }
+
+        function filterDataByDateRange(data, range) {
+            const now = new Date();
+            let startDate = new Date(0); // Beginning of time
+
+            switch (range) {
+                case 'today':
+                    startDate = new Date(now.setHours(0, 0, 0, 0));
+                    break;
+                case 'week':
+                    startDate = new Date(now.setDate(now.getDate() - 7));
+                    break;
+                case 'month':
+                    startDate = new Date(now.setMonth(now.getMonth() - 1));
+                    break;
+                case 'quarter':
+                    startDate = new Date(now.setMonth(now.getMonth() - 3));
+                    break;
+                case 'year':
+                    startDate = new Date(now.setFullYear(now.getFullYear() - 1));
+                    break;
+                case 'all':
+                default:
+                    startDate = new Date(0);
+            }
+
+            return {
+                branch: data.branch,
+                todos: data.todos.filter(t => new Date(t.created_at) >= startDate),
+                concerns: data.concerns.filter(c => new Date(c.created_at) >= startDate)
+            };
+        }
+
+        function generateFullReport(data, dateRange) {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            // Title
+            doc.setFontSize(20);
+            doc.setTextColor(111, 78, 55); // Coffee brown
+            doc.text('Branch Dashboard Report', 105, 20, { align: 'center' });
+
+            // Branch Info
+            doc.setFontSize(12);
+            doc.setTextColor(0, 0, 0);
+            doc.text(`Branch: ${data.branch.branch_name}`, 20, 35);
+            doc.text(`Branch ID: ${data.branch.branch_id}`, 20, 42);
+            doc.text(`Manager: ${data.branch.contact_full_name}`, 20, 49);
+            doc.text(`Report Period: ${getDateRangeLabel(dateRange)}`, 20, 56);
+            doc.text(`Generated: ${new Date().toLocaleString()}`, 20, 63);
+
+            // Statistics Summary
+            doc.setFontSize(14);
+            doc.setTextColor(111, 78, 55);
+            doc.text('Summary Statistics', 20, 75);
+
+            const totalTasks = data.todos.length;
+            const completedTasks = data.todos.filter(t => t.completed).length;
+            const pendingTasks = totalTasks - completedTasks;
+            const totalConcerns = data.concerns.length;
+            const openConcerns = data.concerns.filter(c => c.status !== 'Resolved').length;
+            const resolvedConcerns = totalConcerns - openConcerns;
+
+            doc.setFontSize(10);
+            doc.setTextColor(0, 0, 0);
+            doc.text(`Total Tasks: ${totalTasks}`, 20, 85);
+            doc.text(`Completed: ${completedTasks}`, 20, 92);
+            doc.text(`Pending: ${pendingTasks}`, 20, 99);
+            doc.text(`Completion Rate: ${totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0}%`, 20, 106);
+
+            doc.text(`Total Concerns: ${totalConcerns}`, 120, 85);
+            doc.text(`Open: ${openConcerns}`, 120, 92);
+            doc.text(`Resolved: ${resolvedConcerns}`, 120, 99);
+            doc.text(`Resolution Rate: ${totalConcerns > 0 ? Math.round((resolvedConcerns / totalConcerns) * 100) : 0}%`, 120, 106);
+
+            // Tasks Table
+            doc.setFontSize(14);
+            doc.setTextColor(111, 78, 55);
+            doc.text('Tasks Overview', 20, 120);
+
+            doc.autoTable({
+                startY: 125,
+                head: [['Title', 'Category', 'Priority', 'Status']],
+                body: data.todos.slice(0, 15).map(t => [
+                    t.title.substring(0, 30),
+                    t.category,
+                    t.priority,
+                    t.completed ? 'Completed' : 'Pending'
+                ]),
+                styles: { fontSize: 8 },
+                headStyles: { fillColor: [111, 78, 55] }
+            });
+
+            // Concerns Table (New Page)
+            doc.addPage();
+            doc.setFontSize(14);
+            doc.setTextColor(111, 78, 55);
+            doc.text('Concerns Overview', 20, 20);
+
+            doc.autoTable({
+                startY: 25,
+                head: [['Title', 'Category', 'Priority', 'Status']],
+                body: data.concerns.slice(0, 20).map(c => [
+                    c.title.substring(0, 30),
+                    c.category,
+                    c.priority,
+                    c.status
+                ]),
+                styles: { fontSize: 8 },
+                headStyles: { fillColor: [111, 78, 55] }
+            });
+
+            // Save PDF
+            doc.save(`Branch_Report_${data.branch.branch_id}_${new Date().toISOString().split('T')[0]}.pdf`);
+        }
+
+        function generateTasksReport(data, dateRange) {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            doc.setFontSize(18);
+            doc.setTextColor(111, 78, 55);
+            doc.text('Tasks Summary Report', 105, 20, { align: 'center' });
+
+            doc.setFontSize(10);
+            doc.setTextColor(0, 0, 0);
+            doc.text(`Branch: ${data.branch.branch_name}`, 20, 35);
+            doc.text(`Period: ${getDateRangeLabel(dateRange)}`, 20, 42);
+            doc.text(`Generated: ${new Date().toLocaleString()}`, 20, 49);
+
+            const totalTasks = data.todos.length;
+            const completed = data.todos.filter(t => t.completed).length;
+            const highPriority = data.todos.filter(t => t.priority === 'High').length;
+
+            doc.setFontSize(12);
+            doc.text(`Total Tasks: ${totalTasks}`, 20, 60);
+            doc.text(`Completed: ${completed} (${totalTasks > 0 ? Math.round((completed / totalTasks) * 100) : 0}%)`, 20, 68);
+            doc.text(`High Priority: ${highPriority}`, 20, 76);
+
+            // Tasks by Category
+            const categories = {};
+            data.todos.forEach(t => {
+                categories[t.category] = (categories[t.category] || 0) + 1;
+            });
+
+            doc.setFontSize(14);
+            doc.setTextColor(111, 78, 55);
+            doc.text('Tasks by Category', 20, 90);
+
+            let yPos = 98;
+            Object.entries(categories).forEach(([category, count]) => {
+                doc.setFontSize(10);
+                doc.setTextColor(0, 0, 0);
+                doc.text(`${category}: ${count}`, 25, yPos);
+                yPos += 7;
+            });
+
+            // Detailed Tasks Table
+            doc.autoTable({
+                startY: yPos + 10,
+                head: [['Title', 'Category', 'Priority', 'Due Date', 'Status']],
+                body: data.todos.map(t => [
+                    t.title.substring(0, 25),
+                    t.category,
+                    t.priority,
+                    t.due_date ? new Date(t.due_date).toLocaleDateString() : 'N/A',
+                    t.completed ? 'Done' : 'Pending'
+                ]),
+                styles: { fontSize: 8 },
+                headStyles: { fillColor: [111, 78, 55] }
+            });
+
+            doc.save(`Tasks_Report_${data.branch.branch_id}_${new Date().toISOString().split('T')[0]}.pdf`);
+        }
+
+        function generateConcernsReport(data, dateRange) {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            doc.setFontSize(18);
+            doc.setTextColor(111, 78, 55);
+            doc.text('Concerns Summary Report', 105, 20, { align: 'center' });
+
+            doc.setFontSize(10);
+            doc.setTextColor(0, 0, 0);
+            doc.text(`Branch: ${data.branch.branch_name}`, 20, 35);
+            doc.text(`Period: ${getDateRangeLabel(dateRange)}`, 20, 42);
+            doc.text(`Generated: ${new Date().toLocaleString()}`, 20, 49);
+
+            const totalConcerns = data.concerns.length;
+            const open = data.concerns.filter(c => c.status === 'Open').length;
+            const inProgress = data.concerns.filter(c => c.status === 'In Progress').length;
+            const resolved = data.concerns.filter(c => c.status === 'Resolved').length;
+            const highPriority = data.concerns.filter(c => c.priority === 'High').length;
+
+            doc.setFontSize(12);
+            doc.text(`Total Concerns: ${totalConcerns}`, 20, 60);
+            doc.text(`Open: ${open}`, 20, 68);
+            doc.text(`In Progress: ${inProgress}`, 20, 76);
+            doc.text(`Resolved: ${resolved} (${totalConcerns > 0 ? Math.round((resolved / totalConcerns) * 100) : 0}%)`, 20, 84);
+            doc.text(`High Priority: ${highPriority}`, 20, 92);
+
+            // Concerns by Category
+            const categories = {};
+            data.concerns.forEach(c => {
+                categories[c.category] = (categories[c.category] || 0) + 1;
+            });
+
+            doc.setFontSize(14);
+            doc.setTextColor(111, 78, 55);
+            doc.text('Concerns by Category', 20, 106);
+
+            let yPos = 114;
+            Object.entries(categories).forEach(([category, count]) => {
+                doc.setFontSize(10);
+                doc.setTextColor(0, 0, 0);
+                doc.text(`${category}: ${count}`, 25, yPos);
+                yPos += 7;
+            });
+
+            // Detailed Concerns Table
+            doc.autoTable({
+                startY: yPos + 10,
+                head: [['Title', 'Category', 'Priority', 'Status', 'Created']],
+                body: data.concerns.map(c => [
+                    c.title.substring(0, 25),
+                    c.category,
+                    c.priority,
+                    c.status,
+                    new Date(c.created_at).toLocaleDateString()
+                ]),
+                styles: { fontSize: 8 },
+                headStyles: { fillColor: [111, 78, 55] }
+            });
+
+            doc.save(`Concerns_Report_${data.branch.branch_id}_${new Date().toISOString().split('T')[0]}.pdf`);
+        }
+
+        function generatePerformanceReport(data, dateRange) {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            doc.setFontSize(18);
+            doc.setTextColor(111, 78, 55);
+            doc.text('Performance Report', 105, 20, { align: 'center' });
+
+            doc.setFontSize(10);
+            doc.setTextColor(0, 0, 0);
+            doc.text(`Branch: ${data.branch.branch_name}`, 20, 35);
+            doc.text(`Manager: ${data.branch.contact_full_name}`, 20, 42);
+            doc.text(`Period: ${getDateRangeLabel(dateRange)}`, 20, 49);
+            doc.text(`Generated: ${new Date().toLocaleString()}`, 20, 56);
+
+            // Performance Metrics
+            const totalTasks = data.todos.length;
+            const completedTasks = data.todos.filter(t => t.completed).length;
+            const taskCompletionRate = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+
+            const totalConcerns = data.concerns.length;
+            const resolvedConcerns = data.concerns.filter(c => c.status === 'Resolved').length;
+            const concernResolutionRate = totalConcerns > 0 ? Math.round((resolvedConcerns / totalConcerns) * 100) : 0;
+
+            const avgResponseTime = 'N/A'; // Placeholder
+            const customerSatisfaction = '4.5/5'; // Placeholder
+
+            doc.setFontSize(14);
+            doc.setTextColor(111, 78, 55);
+            doc.text('Key Performance Indicators', 20, 70);
+
+            doc.setFontSize(11);
+            doc.setTextColor(0, 0, 0);
+            doc.text(`Task Completion Rate: ${taskCompletionRate}%`, 20, 82);
+            doc.text(`Concern Resolution Rate: ${concernResolutionRate}%`, 20, 90);
+            doc.text(`Average Response Time: ${avgResponseTime}`, 20, 98);
+            doc.text(`Customer Satisfaction: ${customerSatisfaction}`, 20, 106);
+
+            // Performance Score
+            const performanceScore = Math.round((taskCompletionRate + concernResolutionRate) / 2);
+            let performanceGrade = 'A';
+            if (performanceScore < 90) performanceGrade = 'B';
+            if (performanceScore < 80) performanceGrade = 'C';
+            if (performanceScore < 70) performanceGrade = 'D';
+            if (performanceScore < 60) performanceGrade = 'F';
+
+            doc.setFontSize(16);
+            doc.setTextColor(111, 78, 55);
+            doc.text(`Overall Performance Score: ${performanceScore}% (Grade ${performanceGrade})`, 20, 120);
+
+            // Recommendations
+            doc.setFontSize(14);
+            doc.text('Recommendations', 20, 135);
+
+            doc.setFontSize(10);
+            doc.setTextColor(0, 0, 0);
+            let recY = 143;
+
+            if (taskCompletionRate < 80) {
+                doc.text('• Focus on completing pending tasks', 25, recY);
+                recY += 7;
+            }
+            if (concernResolutionRate < 80) {
+                doc.text('• Prioritize resolving open concerns', 25, recY);
+                recY += 7;
+            }
+            if (performanceScore >= 90) {
+                doc.text('• Excellent performance! Keep up the good work', 25, recY);
+            } else if (performanceScore >= 70) {
+                doc.text('• Good progress. Continue improving efficiency', 25, recY);
+            } else {
+                doc.text('• Improvement needed. Review workflows and priorities', 25, recY);
+            }
+
+            doc.save(`Performance_Report_${data.branch.branch_id}_${new Date().toISOString().split('T')[0]}.pdf`);
+        }
+
+        function getDateRangeLabel(range) {
+            const labels = {
+                'today': 'Today',
+                'week': 'This Week',
+                'month': 'This Month',
+                'quarter': 'This Quarter',
+                'year': 'This Year',
+                'all': 'All Time'
+            };
+            return labels[range] || 'Custom Range';
         }
     </script>
 </body>

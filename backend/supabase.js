@@ -278,6 +278,36 @@ app.delete('/api/concerns/:id', async (req, res) => {
         res.status(500).json({error: "Internal server error"});
     }
 });
+// Branch Report data routing
+app.get(`/api/report/:branchId`, async (req,res) => {
+    const {branchId} = req.params;
+    try {
+        const {data: branchData, error: branchError} = await supabase
+            .from('branches')
+            .select('*')
+            .eq('branch_id', branchId)
+            .single();
+        if(branchError) throw branchError;
+        const {data: todos,error: todosError} = await supabase 
+            .from('todos')
+            .select('*')
+            .eq('branch_id',branchId);
+        if(todosError) throw todosError;
+        const {data: concerns, error: concernsError} = await supabase
+            .from('concerns')
+            .select('*')
+            .eq('branch_id', branchId);
+        if(concernsError) throw concernsError;
+        res.status(200).json({
+            branch: branchData,
+            todos: todos || [],
+            concerns: concerns || []
+        });
+    } catch (err) {
+        console.error("Server Error:",err.message);
+        res.status(500).json({error: "Internal server error"});
+    }
+});
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`Backend runnning on http://localhost:${PORT}`);

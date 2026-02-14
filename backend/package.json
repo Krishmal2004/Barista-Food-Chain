@@ -13,8 +13,9 @@
   "dependencies": {
     "@supabase/supabase-js": "^2.95.3",
     "cors": "^2.8.6",
+    "dotenv": "^16.4.7",
     "express": "^5.2.1",
-    "dotenv": "^16.4.7"
-  },
-  "devDependencies": {}
+    "jspdf": "^4.1.0",
+    "jspdf-autotable": "^5.0.7"
+  }
 }
