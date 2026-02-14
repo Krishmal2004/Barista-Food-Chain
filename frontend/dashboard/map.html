@@ -99,64 +99,10 @@
             font-size: 13px;
         }
 
-        .popup-stats {
-            margin-bottom: 12px;
-        }
-
-        .popup-stat-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 8px 0;
-            border-bottom: 1px solid #f0f0f0;
-        }
-
-        .popup-stat-row:last-child {
-            border-bottom: none;
-        }
-
-        .popup-stat-label {
-            color: #6c757d;
-            font-size: 14px;
-        }
-
-        .popup-stat-value {
-            font-weight: 600;
-            color: var(--primary-color);
-        }
-
-        .popup-rating {
-            color: #ffc107;
-        }
-
         .popup-actions {
             margin-top: 15px;
             padding-top: 12px;
             border-top: 2px solid #f0f0f0;
-        }
-
-        .sentiment-indicator {
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            padding: 4px 10px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: 600;
-        }
-
-        .sentiment-positive {
-            background: #d4edda;
-            color: #155724;
-        }
-
-        .sentiment-neutral {
-            background: #fff3cd;
-            color: #856404;
-        }
-
-        .sentiment-negative {
-            background: #f8d7da;
-            color: #721c24;
         }
 
         .map-legend {
@@ -176,36 +122,24 @@
             color: var(--primary-color);
         }
 
-        .legend-item {
+        .custom-marker {
+            background-color: #6f4e37;
+            color: white;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
             display: flex;
             align-items: center;
-            gap: 10px;
-            margin-bottom: 8px;
-            font-size: 13px;
+            justify-content: center;
+            font-size: 16px;
+            border: 3px solid white;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.3);
         }
 
-        .legend-dot {
-            width: 15px;
-            height: 15px;
-            border-radius: 50%;
-            border: 2px solid white;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-        }
-
-        .legend-dot.excellent {
-            background: #28a745;
-        }
-
-        .legend-dot.good {
-            background: #ffc107;
-        }
-
-        .legend-dot.average {
-            background: #fd7e14;
-        }
-
-        .legend-dot.poor {
-            background: #dc3545;
+        .no-locations {
+            padding: 40px;
+            text-align: center;
+            color: #6c757d;
         }
     </style>
 </head>
@@ -265,10 +199,10 @@
                 <button class="btn btn-link sidebar-toggle" id="sidebarToggle">
                     <i class="bi bi-list fs-4"></i>
                 </button>
-                <h5 class="mb-0 fw-bold">Branch Locations Map</h5>
+                <h5 class="mb-0 fw-bold">Branch Locations Map - Sri Lanka</h5>
                 <div class="topbar-actions">
-                    <button class="btn btn-light rounded-pill">
-                        <i class="bi bi-funnel"></i> Filter
+                    <button class="btn btn-light rounded-pill" onclick="refreshMap()">
+                        <i class="bi bi-arrow-clockwise"></i> Refresh
                     </button>
                 </div>
             </nav>
@@ -280,98 +214,16 @@
                     <div class="col-lg-4">
                         <div class="branch-sidebar">
                             <div class="p-3 border-bottom">
-                                <h6 class="mb-3 fw-bold">All Branches (8)</h6>
-                                <input type="text" class="form-control" placeholder="Search branches...">
+                                <h6 class="mb-3 fw-bold">All Branches (<span id="branchCount">0</span>)</h6>
+                                <input type="text" class="form-control" id="searchBranch" placeholder="Search branches..." onkeyup="filterBranches()">
                             </div>
 
-                            <!-- Branch Items -->
-                            <div class="branch-list-item active" data-branch="downtown">
-                                <div class="branch-name">Downtown Branch</div>
-                                <div class="branch-address">123 Main St, New York, NY 10001</div>
-                                <div class="branch-stats-mini">
-                                    <div class="stat-mini">
-                                        <i class="bi bi-star-fill text-warning"></i>
-                                        <span>4.8</span>
+                            <div id="branchList">
+                                <div class="no-locations">
+                                    <div class="spinner-border text-primary mb-3" role="status">
+                                        <span class="visually-hidden">Loading...</span>
                                     </div>
-                                    <div class="stat-mini">
-                                        <i class="bi bi-chat-left-quote"></i>
-                                        <span>1,245</span>
-                                    </div>
-                                    <span class="sentiment-indicator sentiment-positive">
-                                        <i class="bi bi-emoji-smile-fill"></i> 89%
-                                    </span>
-                                </div>
-                            </div>
-
-                            <div class="branch-list-item" data-branch="central">
-                                <div class="branch-name">Central Park Cafe</div>
-                                <div class="branch-address">456 Park Ave, New York, NY 10022</div>
-                                <div class="branch-stats-mini">
-                                    <div class="stat-mini">
-                                        <i class="bi bi-star-fill text-warning"></i>
-                                        <span>4.7</span>
-                                    </div>
-                                    <div class="stat-mini">
-                                        <i class="bi bi-chat-left-quote"></i>
-                                        <span>987</span>
-                                    </div>
-                                    <span class="sentiment-indicator sentiment-positive">
-                                        <i class="bi bi-emoji-smile-fill"></i> 85%
-                                    </span>
-                                </div>
-                            </div>
-
-                            <div class="branch-list-item" data-branch="riverside">
-                                <div class="branch-name">Riverside Coffee</div>
-                                <div class="branch-address">789 River Rd, Brooklyn, NY 11211</div>
-                                <div class="branch-stats-mini">
-                                    <div class="stat-mini">
-                                        <i class="bi bi-star-fill text-warning"></i>
-                                        <span>4.6</span>
-                                    </div>
-                                    <div class="stat-mini">
-                                        <i class="bi bi-chat-left-quote"></i>
-                                        <span>856</span>
-                                    </div>
-                                    <span class="sentiment-indicator sentiment-positive">
-                                        <i class="bi bi-emoji-smile-fill"></i> 82%
-                                    </span>
-                                </div>
-                            </div>
-
-                            <div class="branch-list-item" data-branch="westside">
-                                <div class="branch-name">Westside Branch</div>
-                                <div class="branch-address">321 West St, New York, NY 10014</div>
-                                <div class="branch-stats-mini">
-                                    <div class="stat-mini">
-                                        <i class="bi bi-star-fill text-warning"></i>
-                                        <span>4.3</span>
-                                    </div>
-                                    <div class="stat-mini">
-                                        <i class="bi bi-chat-left-quote"></i>
-                                        <span>654</span>
-                                    </div>
-                                    <span class="sentiment-indicator sentiment-neutral">
-                                        <i class="bi bi-emoji-neutral-fill"></i> 72%
-                                    </span>
-                                </div>
-                            </div>
-
-                            <div class="branch-list-item" data-branch="uptown">
-                                <div class="branch-name">Uptown Cafe</div>
-                                <div class="branch-address">555 Uptown Ave, New York, NY 10033</div>
-                                <div class="branch-stats-mini">
-                                    <div class="stat-mini">
-                                        <i class="bi bi-star-fill text-warning"></i>
-                                        <span>4.5</span>
-                                    </div>
-                                    <div class="stat-mini">
-                                        <i class="bi bi-chat-left-quote"></i>
-                                        <span>723</span>
-                                    </div>
-                                    <span class="sentiment-indicator sentiment-positive">
-                                        <i class="bi bi-emoji-smile-fill"></i> 80%
-                                    </span>
+                                    <p>Loading branches...</p>
                                 </div>
                             </div>
                         </div>
@@ -383,22 +235,11 @@
 
                         <!-- Map Legend -->
                         <div class="map-legend">
-                            <div class="legend-title">Performance Rating</div>
-                            <div class="legend-item">
-                                <div class="legend-dot excellent"></div>
-                                <span>Excellent (4.5+)</span>
+                            <div class="legend-title">
+                                <i class="bi bi-cup-hot-fill me-2"></i>Barista Branches
                             </div>
-                            <div class="legend-item">
-                                <div class="legend-dot good"></div>
-                                <span>Good (4.0-4.4)</span>
-                            </div>
-                            <div class="legend-item">
-                                <div class="legend-dot average"></div>
-                                <span>Average (3.5-3.9)</span>
-                            </div>
-                            <div class="legend-item">
-                                <div class="legend-dot poor"></div>
-                                <span>Needs Attention (&lt;3.5)</span>
+                            <div class="text-muted small">
+                                <i class="bi bi-geo-alt-fill text-primary"></i> Click markers for details
                             </div>
                         </div>
                     </div>
@@ -413,161 +254,182 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="js/dashboard.js"></script>
     <script>
-        // Branch Data
-        const branches = [
-            {
-                id: 'downtown',
-                name: 'Downtown Branch',
-                address: '123 Main St, New York, NY 10001',
-                lat: 40.7589,
-                lng: -73.9851,
-                rating: 4.8,
-                reviews: 1245,
-                sentiment: 89,
-                sentimentLabel: 'Positive',
-                performance: 'excellent'
-            },
-            {
-                id: 'central',
-                name: 'Central Park Cafe',
-                address: '456 Park Ave, New York, NY 10022',
-                lat: 40.7614,
-                lng: -73.9776,
-                rating: 4.7,
-                reviews: 987,
-                sentiment: 85,
-                sentimentLabel: 'Positive',
-                performance: 'excellent'
-            },
-            {
-                id: 'riverside',
-                name: 'Riverside Coffee',
-                address: '789 River Rd, Brooklyn, NY 11211',
-                lat: 40.7181,
-                lng: -73.9571,
-                rating: 4.6,
-                reviews: 856,
-                sentiment: 82,
-                sentimentLabel: 'Positive',
-                performance: 'excellent'
-            },
-            {
-                id: 'westside',
-                name: 'Westside Branch',
-                address: '321 West St, New York, NY 10014',
-                lat: 40.7359,
-                lng: -74.0084,
-                rating: 4.3,
-                reviews: 654,
-                sentiment: 72,
-                sentimentLabel: 'Neutral',
-                performance: 'good'
-            },
-            {
-                id: 'uptown',
-                name: 'Uptown Cafe',
-                address: '555 Uptown Ave, New York, NY 10033',
-                lat: 40.8488,
-                lng: -73.9388,
-                rating: 4.5,
-                reviews: 723,
-                sentiment: 80,
-                sentimentLabel: 'Positive',
-                performance: 'excellent'
-            }
-        ];
+        let map;
+        let markers = [];
+        let allBranches = [];
 
-        // Initialize Map
-        const map = L.map('map').setView([40.7589, -73.9851], 12);
+        // Initialize Map centered on Sri Lanka
+        function initMap() {
+            map = L.map('map').setView([7.8731, 80.7718], 8); // Center of Sri Lanka
 
-        // Add Tile Layer
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '© OpenStreetMap contributors'
-        }).addTo(map);
-
-        // Function to get marker color based on performance
-        function getMarkerColor(performance) {
-            const colors = {
-                'excellent': '#28a745',
-                'good': '#ffc107',
-                'average': '#fd7e14',
-                'poor': '#dc3545'
-            };
-            return colors[performance] || '#6c757d';
-        }
-
-        // Create custom icon
-        function createCustomIcon(branch) {
-            const color = getMarkerColor(branch.performance);
-            return L.divIcon({
-                className: 'custom-marker',
-                html: `<div style="background-color: ${color}; width: 30px; height: 30px; border-radius: 50%; border: 3px solid white; box-shadow: 0 2px 10px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center;">
-                    <i class="bi bi-shop" style="color: white; font-size: 14px;"></i>
-                </div>`,
-                iconSize: [30, 30],
-                iconAnchor: [15, 15]
-            });
-        }
-
-        // Add markers
-        branches.forEach(branch => {
-            const marker = L.marker([branch.lat, branch.lng], {
-                icon: createCustomIcon(branch)
+            // Add OpenStreetMap tiles
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors',
+                maxZoom: 19
             }).addTo(map);
 
-            // Create popup content
-            const popupContent = `
-                <div class="popup-content">
-                    <div class="popup-header">
-                        <div class="popup-title">${branch.name}</div>
-                        <div class="popup-address">
-                            <i class="bi bi-geo-alt"></i> ${branch.address}
+            // Load branches from database
+            loadBranches();
+        }
+
+        // Fetch branches from backend
+        async function loadBranches() {
+            try {
+                const response = await fetch('/api/branches/map');
+                
+                if (!response.ok) {
+                    throw new Error('Failed to fetch branches');
+                }
+
+                allBranches = await response.json();
+                
+                console.log('Loaded branches:', allBranches);
+
+                if (allBranches.length === 0) {
+                    document.getElementById('branchList').innerHTML = `
+                        <div class="no-locations">
+                            <i class="bi bi-exclamation-circle fs-1 text-muted"></i>
+                            <p class="mt-3">No branches found with location data.</p>
+                            <small class="text-muted">Add latitude and longitude to branches in your database.</small>
                         </div>
+                    `;
+                    return;
+                }
+
+                displayBranches(allBranches);
+                addMarkersToMap(allBranches);
+
+            } catch (error) {
+                console.error('Error loading branches:', error);
+                document.getElementById('branchList').innerHTML = `
+                    <div class="no-locations">
+                        <i class="bi bi-exclamation-triangle fs-1 text-danger"></i>
+                        <p class="mt-3 text-danger">Error loading branches</p>
+                        <small>${error.message}</small>
                     </div>
-                    <div class="popup-stats">
-                        <div class="popup-stat-row">
-                            <span class="popup-stat-label">Overall Rating</span>
-                            <span class="popup-stat-value popup-rating">
-                                <i class="bi bi-star-fill"></i> ${branch.rating}
-                            </span>
-                        </div>
-                        <div class="popup-stat-row">
-                            <span class="popup-stat-label">Total Reviews</span>
-                            <span class="popup-stat-value">${branch.reviews.toLocaleString()}</span>
-                        </div>
-                        <div class="popup-stat-row">
-                            <span class="popup-stat-label">Sentiment</span>
-                            <span class="sentiment-indicator sentiment-${branch.sentimentLabel.toLowerCase()}">
-                                <i class="bi bi-emoji-smile-fill"></i> ${branch.sentiment}% ${branch.sentimentLabel}
-                            </span>
-                        </div>
+                `;
+            }
+        }
+
+        // Display branches in sidebar
+        function displayBranches(branches) {
+            const branchList = document.getElementById('branchList');
+            document.getElementById('branchCount').textContent = branches.length;
+
+            if (branches.length === 0) {
+                branchList.innerHTML = '<div class="no-locations">No branches match your search.</div>';
+                return;
+            }
+
+            branchList.innerHTML = branches.map((branch, index) => `
+                <div class="branch-list-item ${index === 0 ? 'active' : ''}" 
+                     onclick="focusBranch(${branch.latitude}, ${branch.longitude}, '${branch.branch_name}')"
+                     data-branch-id="${branch.branch_id}">
+                    <div class="branch-name">
+                        <i class="bi bi-geo-alt-fill text-primary me-2"></i>${branch.branch_name}
                     </div>
-                    <div class="popup-actions">
-                        <a href="reviews.html?branch=${branch.id}" class="btn btn-sm btn-primary w-100">
-                            <i class="bi bi-eye"></i> View Detailed Analytics
-                        </a>
+                    <div class="branch-address">
+                        ${branch.address || 'Address not available'}, ${branch.city || ''}
+                    </div>
+                    <div class="branch-stats-mini">
+                        <div class="stat-mini">
+                            <i class="bi bi-pin-map-fill text-muted"></i>
+                            <span class="text-muted small">${branch.latitude?.toFixed(4) || 'N/A'}, ${branch.longitude?.toFixed(4) || 'N/A'}</span>
+                        </div>
                     </div>
                 </div>
-            `;
+            `).join('');
+        }
 
-            marker.bindPopup(popupContent, {
-                maxWidth: 300,
-                className: 'custom-popup'
+        // Add markers to map
+        function addMarkersToMap(branches) {
+            // Clear existing markers
+            markers.forEach(marker => map.removeLayer(marker));
+            markers = [];
+
+            // Custom coffee icon
+            const coffeeIcon = L.divIcon({
+                className: 'custom-div-icon',
+                html: '<div class="custom-marker"><i class="bi bi-cup-hot-fill"></i></div>',
+                iconSize: [30, 30],
+                iconAnchor: [15, 15],
+                popupAnchor: [0, -15]
             });
 
-            // Add click handler to list item
-            document.querySelector(`[data-branch="${branch.id}"]`).addEventListener('click', function () {
-                // Remove active class from all items
+            branches.forEach(branch => {
+                if (branch.latitude && branch.longitude) {
+                    const marker = L.marker([branch.latitude, branch.longitude], { icon: coffeeIcon })
+                        .addTo(map)
+                        .bindPopup(`
+                            <div class="popup-content">
+                                <div class="popup-header">
+                                    <div class="popup-title">
+                                        <i class="bi bi-cup-hot-fill me-2"></i>${branch.branch_name}
+                                    </div>
+                                    <div class="popup-address">
+                                        <i class="bi bi-geo-alt me-1"></i>${branch.address || 'Address not available'}
+                                        ${branch.city ? ', ' + branch.city : ''}
+                                    </div>
+                                </div>
+                                <div class="popup-actions">
+                                    <a href="reviews.html?branch=${branch.branch_id}" class="btn btn-sm btn-primary w-100">
+                                        <i class="bi bi-bar-chart-fill me-2"></i>View Analytics
+                                    </a>
+                                </div>
+                            </div>
+                        `);
+
+                    markers.push(marker);
+                }
+            });
+
+            // Fit map to show all markers
+            if (markers.length > 0) {
+                const group = new L.featureGroup(markers);
+                map.fitBounds(group.getBounds().pad(0.1));
+            }
+        }
+
+        // Focus on a specific branch
+        function focusBranch(lat, lng, name) {
+            if (lat && lng) {
+                map.setView([lat, lng], 15);
+                
+                // Highlight selected branch in sidebar
                 document.querySelectorAll('.branch-list-item').forEach(item => {
                     item.classList.remove('active');
                 });
-                // Add active class to clicked item
-                this.classList.add('active');
-                // Pan to marker and open popup
-                map.flyTo([branch.lat, branch.lng], 14);
-                marker.openPopup();
-            });
-        });
+                event.currentTarget.classList.add('active');
+
+                // Open popup for this marker
+                markers.forEach(marker => {
+                    const markerLatLng = marker.getLatLng();
+                    if (markerLatLng.lat === lat && markerLatLng.lng === lng) {
+                        marker.openPopup();
+                    }
+                });
+            }
+        }
+
+        // Filter branches by search
+        function filterBranches() {
+            const searchTerm = document.getElementById('searchBranch').value.toLowerCase();
+            const filtered = allBranches.filter(branch => 
+                branch.branch_name.toLowerCase().includes(searchTerm) ||
+                (branch.address && branch.address.toLowerCase().includes(searchTerm)) ||
+                (branch.city && branch.city.toLowerCase().includes(searchTerm))
+            );
+            displayBranches(filtered);
+            addMarkersToMap(filtered);
+        }
+
+        // Refresh map
+        function refreshMap() {
+            loadBranches();
+        }
+
+        // Initialize map on page load
+        document.addEventListener('DOMContentLoaded', initMap);
     </script>
 </body>
 

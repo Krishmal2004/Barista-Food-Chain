@@ -5,6 +5,7 @@ import cors from 'cors';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import * as todoLogic from './todo.js';
+import * as mapLogic from './map.js';
 import { title } from 'process';
 dotenv.config();
 
@@ -130,6 +131,39 @@ app.put('/api/update-branch/:branchId', async (req,res) => {
         return res.status(400).json({error: error.message});
     }
     res.status(200).json({message: "Branch profile successfully updated", data});
+});
+
+// Update branch location
+app.put('/api/branches/location/:branchId', async (req, res) => {
+    const { branchId } = req.params;
+    const { latitude, longitude } = req.body;
+
+    if (latitude === undefined || longitude === undefined) {
+        return res.status(400).json({ error: "Latitude and longitude are required" });
+    }
+
+    try {
+        const { data, error } = await supabase
+            .from('branches')
+            .update({
+                latitude: parseFloat(latitude),
+                longitude: parseFloat(longitude)
+            })
+            .eq('branch_id', branchId)
+            .select()
+            .single();
+
+        if (error) {
+            console.error("Supabase Location Update Error:", error.message);
+            return res.status(400).json({ error: error.message });
+        }
+
+        console.log(`Branch ${branchId} location updated to [${latitude}, ${longitude}]`);
+        res.status(200).json({ message: "Location updated successfully", data });
+    } catch (err) {
+        console.error("Server Error:", err.message);
+        res.status(500).json({ error: "Internal server error" });
+    }
 });
 app.get('/api/branch/:branchId', async (req,res) => {
     const {branchId} = req.params;
@@ -399,6 +433,15 @@ app.delete('/api/users/:id', async (req,res) => {
     } catch (error) {
         console.error("Delete User Error:",error.message);
         res.status(400).json({error:error.message});
+    }
+});
+//Map Data
+app.get('/api/branches/map', async (req,res) => {
+    try {
+        const locations = await mapLogic.getBranchLocations(supabase);
+        res.status(200).json(locations);
+    } catch (error) {
+        res.status(400).json({error:"Failed to fetch the branch locations"});
     }
 });
 const PORT = process.env.PORT || 3000;

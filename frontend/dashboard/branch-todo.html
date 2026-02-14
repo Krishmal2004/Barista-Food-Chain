@@ -35,6 +35,10 @@
                     <i class="bi bi-person-circle"></i>
                     <span>Branch Profile</span>
                 </a>
+                <a href="branch-location.html" class="nav-item">
+                    <i class="bi bi-geo-alt"></i>
+                    <span>Location</span>
+                </a>
                 <a href="branch-concerns.html" class="nav-item">
                     <i class="bi bi-exclamation-triangle"></i>
                     <span>Concerns</span>
@@ -282,13 +286,13 @@
 
         async function loadBranchInfo() {
             const branchId = localStorage.getItem('active_branch_id') || 'BCH-001';
-            
+
             try {
                 const response = await fetch(`/api/branch/${branchId}`);
                 if (response.ok) {
                     const result = await response.json();
                     const branchData = result.data;
-                    
+
                     document.getElementById('sidebarBranchName').textContent = branchData.branch_name || 'Unknown';
                     document.getElementById('sidebarManagerName').textContent = branchData.contact_full_name || 'Manager';
                 } else {
@@ -308,11 +312,11 @@
 
         async function loadTodos() {
             const branchId = localStorage.getItem('active_branch_id') || 'BCH-001';
-            
+
             try {
                 const response = await fetch(`/api/todos/${branchId}`);
                 if (!response.ok) throw new Error('Failed to fetch todos');
-                
+
                 const todos = await response.json();
                 displayTodos(todos);
                 updateProgress(todos);

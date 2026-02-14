@@ -38,6 +38,10 @@
                     <i class="bi bi-person-circle"></i>
                     <span>Branch Profile</span>
                 </a>
+                <a href="branch-location.html" class="nav-item">
+                    <i class="bi bi-geo-alt"></i>
+                    <span>Location</span>
+                </a>
                 <a href="branch-concerns.html" class="nav-item">
                     <i class="bi bi-exclamation-triangle"></i>
                     <span>Concerns</span>
@@ -194,6 +198,12 @@
                                     <span>Generate Report</span>
                                 </button>
                             </div>
+                            <div class="col-md-3 col-sm-6">
+                                <button class="quick-action-btn" onclick="window.location.href='branch-location.html'">
+                                    <i class="bi bi-geo-alt"></i>
+                                    <span>Manage Location</span>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -304,13 +314,13 @@
 
         async function loadBranchInfo() {
             const branchId = localStorage.getItem('active_branch_id') || 'BCH-001';
-            
+
             try {
                 const response = await fetch(`/api/branch/${branchId}`);
                 if (response.ok) {
                     const result = await response.json();
                     const branchData = result.data;
-                    
+
                     document.getElementById('branchName').textContent = branchData.branch_name || 'Unknown';
                     document.getElementById('branchManagerName').textContent = branchData.contact_full_name || 'Manager';
                 } else {
@@ -324,7 +334,7 @@
 
         async function updateDashboardStats() {
             const branchId = localStorage.getItem('active_branch_id') || 'BCH-001';
-            
+
             try {
                 // Fetch data from API
                 const [todosRes, concernsRes] = await Promise.all([
@@ -358,9 +368,9 @@
 
                 // Open concerns
                 const openConcerns = concerns.filter(c => c.status !== 'Resolved').length;
-                
+
                 // Urgent concerns (High priority and not resolved)
-                const urgentConcerns = concerns.filter(c => 
+                const urgentConcerns = concerns.filter(c =>
                     c.priority === 'High' && c.status !== 'Resolved'
                 ).length;
 
@@ -386,13 +396,13 @@
                 const todaysTasks = todos.filter(t => {
                     if (t.completed) return false;
                     if (!t.due_date) return false;
-                    
+
                     const dueDate = new Date(t.due_date);
                     dueDate.setHours(0, 0, 0, 0);
-                    
+
                     return dueDate.getTime() <= today.getTime();
                 }).slice(0, 5);
-                
+
                 displayTodayTasks(todaysTasks);
 
             } catch (error) {
@@ -409,7 +419,7 @@
 
         function displayRecentConcerns(concerns) {
             const container = document.getElementById('recentConcernsList');
-            
+
             if (concerns.length === 0) {
                 container.innerHTML = `
                     <div class="text-center py-5 text-muted">
@@ -439,7 +449,7 @@
 
         function displayTodayTasks(tasks) {
             const container = document.getElementById('todayTasksList');
-            
+
             if (tasks.length === 0) {
                 container.innerHTML = `
                     <div class="text-center py-5 text-muted">
@@ -521,7 +531,7 @@
 
         function formatDate(dateString) {
             if (!dateString) return 'N/A';
-            
+
             const date = new Date(dateString);
             const now = new Date();
             const diffTime = Math.abs(now - date);
@@ -530,7 +540,7 @@
             if (diffDays === 0) return 'Today';
             if (diffDays === 1) return 'Yesterday';
             if (diffDays < 7) return diffDays + ' days ago';
-            
+
             return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
         }
 
@@ -544,7 +554,7 @@
         }
 
         // ================== REPORT GENERATION FUNCTIONS ==================
-        
+
         function generateReport() {
             reportModal.show();
         }
@@ -564,7 +574,7 @@
                 // Fetch report data
                 const response = await fetch(`/api/report/${branchId}`);
                 if (!response.ok) throw new Error('Failed to fetch report data');
-                
+
                 const reportData = await response.json();
 
                 // Filter data by date range
@@ -588,7 +598,7 @@
 
                 // Hide modal
                 reportModal.hide();
-                
+
                 // Show success message
                 setTimeout(() => {
                     alert('✅ Report generated successfully!');
