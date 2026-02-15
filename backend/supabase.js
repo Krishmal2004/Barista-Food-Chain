@@ -447,262 +447,50 @@ app.get('/api/branches/map', async (req,res) => {
 
 import axios from 'axios';
 
-// ML Service URL
-const ML_SERVICE_URL = 'http://localhost:5000';
-
-console.log(`🔗 ML Service URL configured: ${ML_SERVICE_URL}`);
-
-// ==================== REVIEWS & SENTIMENT ROUTES ====================
-
-// Get all reviews
+// Proxy to ML service
 app.get('/api/reviews', async (req, res) => {
     try {
-        const { business_name, sentiment, limit = 100 } = req.query;
-
-        let query = supabase
-            .from('reviews')
-            .select('*')
-            .order('review_date', { ascending: false })
-            .limit(parseInt(limit));
-
-        if (business_name) query = query.eq('business_name', business_name);
-        if (sentiment) query = query.eq('sentiment_score', sentiment);
-
-        const { data, error } = await query;
-
-        if (error) {
-            console.error("Fetch Reviews Error:", error.message);
-            return res.status(400).json({ error: error.message });
-        }
-
-        console.log(`✅ Fetched ${data.length} reviews`);
-        res.status(200).json(data);
+        const response = await fetch(`http://localhost:5000/api/reviews?limit=${req.query.limit || 100}`);
+        const data = await response.json();
+        res.json(data);
     } catch (err) {
-        console.error("Server Error:", err.message);
-        res.status(500).json({ error: "Internal server error" });
+        res.status(500).json({ error: err.message });
     }
 });
 
-// Get review statistics
 app.get('/api/reviews/stats', async (req, res) => {
     try {
-        const { business_name } = req.query;
-
-        let query = supabase.from('reviews').select('*');
-        if (business_name) query = query.eq('business_name', business_name);
-
-        const { data, error } = await query;
-
-        if (error) {
-            console.error("Stats Error:", error.message);
-            return res.status(400).json({ error: error.message });
-        }
-
-        const stats = {
-            total: data.length,
-            positive: data.filter(r => r.sentiment_score === 'positive' || r.sentiment_score === 'Positive').length,
-            neutral: data.filter(r => r.sentiment_score === 'neutral' || r.sentiment_score === 'Neutral').length,
-            negative: data.filter(r => r.sentiment_score === 'negative' || r.sentiment_score === 'Negative').length,
-            avgRating: data.length > 0 
-                ? (data.reduce((sum, r) => sum + (r.review_rating || 0), 0) / data.length).toFixed(2)
-                : 0
-        };
-
-        console.log(`📊 Stats:`, stats);
-        res.status(200).json(stats);
+        const response = await fetch('http://localhost:5000/api/reviews/stats');
+        const data = await response.json();
+        res.json(data);
     } catch (err) {
-        console.error("Stats Error:", err.message);
-        res.status(500).json({ error: "Internal server error" });
+        res.status(500).json({ error: err.message });
     }
 });
 
-// Analyze review with sentiment
 app.post('/api/analyze-review', async (req, res) => {
-    const { 
-        businessName,
-        businessCategory,
-        address,
-        city,
-        reviewerName, 
-        reviewRating, 
-        reviewText,
-        mealType,
-        pricePerPerson
-    } = req.body;
-
-    console.log('📝 Received review data:', {
-        businessName,
-        city,
-        reviewRating,
-        reviewTextLength: reviewText?.length
-    });
-
-    if (!reviewText || !businessName || !city || !reviewRating) {
-        console.error('❌ Missing required fields');
-        return res.status(400).json({ 
-            error: "Business name, city, rating, and review text are required" 
-        });
-    }
-
     try {
-        // 1. Send text to Python sentiment service
-        console.log(`🔮 Analyzing review for ${businessName}...`);
-        console.log(`📡 Calling ML service at: ${ML_SERVICE_URL}/predict`);
-        
-        const aiResponse = await axios.post(`${ML_SERVICE_URL}/predict`, {
-            text: reviewText
-        }, {
-            timeout: 10000,
-            headers: { 'Content-Type': 'application/json' }
+        const response = await fetch('http://localhost:5000/api/analyze-review', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(req.body)
         });
-
-        const { sentiment, confidence, prediction } = aiResponse.data;
-        console.log(`✅ ML Service Response:`, { sentiment, confidence, prediction });
-
-        // 2. Save to Supabase
-        const now = new Date();
-        const reviewData = {
-            business_name: businessName,
-            business_category: businessCategory || 'Coffee Shop',
-            address: address || '',
-            city: city,
-            reviewer_name: reviewerName || 'Anonymous',
-            review_rating: parseInt(reviewRating),
-            review_text: reviewText,
-            clean_review_text: reviewText,
-            review_date: now.toISOString(),
-            meal_type: mealType || null,
-            price_per_person: pricePerPerson || null,
-            sentiment_score: sentiment,
-            year: now.getFullYear(),
-            month: now.getMonth() + 1,
-            day_of_week: now.toLocaleDateString('en-US', { weekday: 'long' }),
-            hour: now.getHours()
-        };
-
-        console.log('💾 Inserting review into database:', reviewData);
-
-        const { data, error } = await supabase
-            .from('reviews')
-            .insert([reviewData])
-            .select()
-            .single();
-
-        if (error) {
-            console.error("❌ Supabase Insert Error:", error.message);
-            return res.status(400).json({ error: error.message });
-        }
-
-        console.log(`✅ Review saved with ID: ${data.id}`);
-
-        res.status(200).json({ 
-            message: "Review analyzed and saved successfully", 
-            sentiment,
-            confidence,
-            data
-        });
-
+        const data = await response.json();
+        res.json(data);
     } catch (err) {
-        console.error("❌ Error in analyze-review:", err.message);
-        console.error("Full error:", err);
-        
-        if (err.code === 'ECONNREFUSED') {
-            return res.status(503).json({ 
-                error: "ML service is not running. Please start Python service on port 5000" 
-            });
-        }
-
-        if (err.response) {
-            console.error("ML Service Error Response:", err.response.data);
-            return res.status(500).json({ 
-                error: "ML service error",
-                details: err.response.data 
-            });
-        }
-        
-        res.status(500).json({ 
-            error: "Failed to process sentiment",
-            details: err.message 
-        });
+        res.status(500).json({ error: err.message });
     }
 });
 
-// Batch analyze existing reviews without sentiment
 app.post('/api/reviews/analyze-all', async (req, res) => {
     try {
-        console.log('📊 Starting batch analysis...');
-
-        // Get reviews without sentiment
-        const { data: reviews, error } = await supabase
-            .from('reviews')
-            .select('*')
-            .is('sentiment_score', null);
-
-        if (error) {
-            console.error("❌ Fetch error:", error.message);
-            throw error;
-        }
-
-        if (reviews.length === 0) {
-            console.log('ℹ️  No reviews need analysis');
-            return res.status(200).json({ 
-                message: "No reviews need analysis",
-                count: 0
-            });
-        }
-
-        console.log(`📊 Found ${reviews.length} reviews to analyze`);
-
-        // Prepare batch
-        const reviewsForML = reviews.map(r => ({
-            id: r.id,
-            text: r.review_text
-        }));
-
-        // Call ML service
-        console.log(`🔮 Sending ${reviewsForML.length} reviews to ML service...`);
-        const mlResponse = await axios.post(`${ML_SERVICE_URL}/predict_batch`, {
-            reviews: reviewsForML
-        }, {
-            timeout: 30000
+        const response = await fetch('http://localhost:5000/api/reviews/analyze-all', {
+            method: 'POST'
         });
-
-        const results = mlResponse.data.results;
-        console.log(`✅ Received ${results.length} predictions`);
-
-        // Update database
-        let updated = 0;
-        for (const result of results) {
-            const { error: updateError } = await supabase
-                .from('reviews')
-                .update({
-                    sentiment_score: result.sentiment,
-                    clean_review_text: reviews.find(r => r.id === result.id)?.review_text
-                })
-                .eq('id', result.id);
-
-            if (!updateError) {
-                updated++;
-                console.log(`✅ Updated review ${result.id}: ${result.sentiment}`);
-            } else {
-                console.error(`❌ Failed to update ${result.id}:`, updateError.message);
-            }
-        }
-
-        console.log(`✅ Batch complete: ${updated}/${reviews.length} reviews updated`);
-
-        res.status(200).json({ 
-            message: `Analyzed ${updated} reviews successfully`,
-            total: reviews.length,
-            updated
-        });
+        const data = await response.json();
+        res.json(data);
     } catch (err) {
-        console.error("❌ Batch Analyze Error:", err.message);
-        console.error("Full error:", err);
-        res.status(500).json({ 
-            error: err.message,
-            details: err.response?.data || 'No additional details'
-        });
+        res.status(500).json({ error: err.message });
     }
 });
 const PORT = process.env.PORT || 3000;
