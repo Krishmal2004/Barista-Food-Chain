@@ -130,6 +130,23 @@
         .sentiment-chart-container {
             height: 300px;
         }
+
+        .confidence-badge {
+            font-size: 11px;
+            padding: 3px 8px;
+            background: #f0f0f0;
+            border-radius: 10px;
+            margin-left: 5px;
+        }
+
+        .location-badge {
+            font-size: 11px;
+            padding: 3px 8px;
+            background: #e3f2fd;
+            color: #1976d2;
+            border-radius: 10px;
+            margin-left: 5px;
+        }
     </style>
 </head>
 
@@ -154,6 +171,10 @@
                 <a href="map.html" class="nav-item">
                     <i class="bi bi-geo-alt"></i>
                     <span>Branch Locations</span>
+                </a>
+                <a href="locations.html" class="nav-item">
+                    <i class="bi bi-pin-map"></i>
+                    <span>Manage Locations</span>
                 </a>
                 <a href="users.html" class="nav-item">
                     <i class="bi bi-people"></i>
@@ -190,7 +211,13 @@
                 </button>
                 <h5 class="mb-0 fw-bold">Reviews Analysis</h5>
                 <div class="topbar-actions">
-                    <button class="btn btn-light rounded-pill">
+                    <button class="btn btn-primary rounded-pill" onclick="openAddReviewModal()">
+                        <i class="bi bi-plus-circle"></i> Add Review
+                    </button>
+                    <button class="btn btn-warning rounded-pill" onclick="analyzeAllReviews()">
+                        <i class="bi bi-robot"></i> Analyze All
+                    </button>
+                    <button class="btn btn-light rounded-pill" onclick="exportReviews()">
                         <i class="bi bi-download"></i> Export
                     </button>
                 </div>
@@ -206,7 +233,7 @@
                                 <i class="bi bi-chat-left-quote-fill"></i>
                             </div>
                             <div class="stat-info">
-                                <h3 class="stat-value">12,458</h3>
+                                <h3 class="stat-value" id="totalReviews">0</h3>
                                 <p class="stat-label">Total Reviews</p>
                             </div>
                         </div>
@@ -218,7 +245,7 @@
                                 <i class="bi bi-emoji-smile-fill"></i>
                             </div>
                             <div class="stat-info">
-                                <h3 class="stat-value">8,125</h3>
+                                <h3 class="stat-value" id="positiveReviews">0</h3>
                                 <p class="stat-label">Positive Reviews</p>
                             </div>
                         </div>
@@ -230,7 +257,7 @@
                                 <i class="bi bi-emoji-neutral-fill"></i>
                             </div>
                             <div class="stat-info">
-                                <h3 class="stat-value">3,114</h3>
+                                <h3 class="stat-value" id="neutralReviews">0</h3>
                                 <p class="stat-label">Neutral Reviews</p>
                             </div>
                         </div>
@@ -242,7 +269,7 @@
                                 <i class="bi bi-emoji-frown-fill"></i>
                             </div>
                             <div class="stat-info">
-                                <h3 class="stat-value">1,219</h3>
+                                <h3 class="stat-value" id="negativeReviews">0</h3>
                                 <p class="stat-label">Negative Reviews</p>
                             </div>
                         </div>
@@ -254,13 +281,7 @@
                     <div class="col-lg-8">
                         <div class="dashboard-card">
                             <div class="card-header">
-                                <h5 class="mb-0">Sentiment Trends</h5>
-                                <select class="form-select form-select-sm" style="width: auto;">
-                                    <option>Last 30 days</option>
-                                    <option>Last 3 months</option>
-                                    <option>Last 6 months</option>
-                                    <option>Last year</option>
-                                </select>
+                                <h5 class="mb-0">Sentiment Distribution</h5>
                             </div>
                             <div class="card-body">
                                 <canvas id="sentimentTrendsChart" height="80"></canvas>
@@ -287,11 +308,11 @@
                     <div class="row g-3 align-items-end">
                         <div class="col-md-3">
                             <label class="form-label fw-semibold">Search Reviews</label>
-                            <input type="text" class="form-control" placeholder="Search by keyword...">
+                            <input type="text" class="form-control" id="searchInput" placeholder="Search by keyword..." onkeyup="applyFilters()">
                         </div>
                         <div class="col-md-2">
                             <label class="form-label fw-semibold">Sentiment</label>
-                            <select class="form-select">
+                            <select class="form-select" id="sentimentFilter" onchange="applyFilters()">
                                 <option value="">All</option>
                                 <option value="positive">Positive</option>
                                 <option value="neutral">Neutral</option>
@@ -300,7 +321,7 @@
                         </div>
                         <div class="col-md-2">
                             <label class="form-label fw-semibold">Rating</label>
-                            <select class="form-select">
+                            <select class="form-select" id="ratingFilter" onchange="applyFilters()">
                                 <option value="">All</option>
                                 <option value="5">5 Stars</option>
                                 <option value="4">4 Stars</option>
@@ -310,17 +331,14 @@
                             </select>
                         </div>
                         <div class="col-md-3">
-                            <label class="form-label fw-semibold">Branch</label>
-                            <select class="form-select">
-                                <option value="">All Branches</option>
-                                <option value="downtown">Downtown Branch</option>
-                                <option value="central">Central Park Cafe</option>
-                                <option value="riverside">Riverside Coffee</option>
+                            <label class="form-label fw-semibold">City</label>
+                            <select class="form-select" id="cityFilter" onchange="applyFilters()">
+                                <option value="">All Cities</option>
                             </select>
                         </div>
                         <div class="col-md-2">
-                            <button class="btn btn-primary w-100">
-                                <i class="bi bi-funnel"></i> Filter
+                            <button class="btn btn-outline-secondary w-100" onclick="resetFilters()">
+                                <i class="bi bi-arrow-clockwise"></i> Reset
                             </button>
                         </div>
                     </div>
@@ -330,169 +348,99 @@
                 <div class="dashboard-card">
                     <div class="card-header">
                         <h5 class="mb-0">Recent Reviews</h5>
-                        <span class="text-muted">Showing 10 of 12,458 reviews</span>
+                        <span class="text-muted" id="reviewsCount">Loading...</span>
                     </div>
-                    <div class="card-body">
-                        <!-- Review Item 1 -->
-                        <div class="review-card">
-                            <div class="review-header">
-                                <div class="review-user">
-                                    <img src="https://i.pravatar.cc/150?img=33" alt="User" class="review-avatar">
-                                    <div class="review-user-info">
-                                        <h6>Sarah Johnson</h6>
-                                        <div class="review-meta">
-                                            <i class="bi bi-shop"></i> Downtown Branch •
-                                            <i class="bi bi-clock"></i> 2 hours ago
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="review-rating">
-                                    <div class="stars">
-                                        <i class="bi bi-star-fill"></i>
-                                        <i class="bi bi-star-fill"></i>
-                                        <i class="bi bi-star-fill"></i>
-                                        <i class="bi bi-star-fill"></i>
-                                        <i class="bi bi-star-fill"></i>
-                                    </div>
-                                    <span class="fw-bold">5.0</span>
-                                </div>
+                    <div class="card-body" id="reviewsContainer">
+                        <div class="text-center py-5">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Loading...</span>
                             </div>
-                            <p class="review-text">
-                                Absolutely amazing coffee! The baristas are so friendly and knowledgeable. I tried their
-                                new seasonal latte and it was perfect. The ambiance is cozy and perfect for working.
-                                Highly recommend this place!
-                            </p>
-                            <div class="review-footer">
-                                <span class="sentiment-badge sentiment-positive">
-                                    <i class="bi bi-emoji-smile-fill"></i> Positive
-                                </span>
-                                <div class="review-stats">
-                                    <div class="review-stat">
-                                        <i class="bi bi-hand-thumbs-up"></i>
-                                        <span>45</span>
-                                    </div>
-                                    <div class="review-stat">
-                                        <i class="bi bi-chat"></i>
-                                        <span>12</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Review Item 2 -->
-                        <div class="review-card">
-                            <div class="review-header">
-                                <div class="review-user">
-                                    <img src="https://i.pravatar.cc/150?img=45" alt="User" class="review-avatar">
-                                    <div class="review-user-info">
-                                        <h6>Michael Chen</h6>
-                                        <div class="review-meta">
-                                            <i class="bi bi-shop"></i> Central Park Cafe •
-                                            <i class="bi bi-clock"></i> 5 hours ago
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="review-rating">
-                                    <div class="stars">
-                                        <i class="bi bi-star-fill"></i>
-                                        <i class="bi bi-star-fill"></i>
-                                        <i class="bi bi-star-fill"></i>
-                                        <i class="bi bi-star"></i>
-                                        <i class="bi bi-star"></i>
-                                    </div>
-                                    <span class="fw-bold">3.0</span>
-                                </div>
-                            </div>
-                            <p class="review-text">
-                                Good coffee quality, but the wait time was quite long during peak hours. The staff could
-                                use more training on efficiency. Otherwise, nice atmosphere.
-                            </p>
-                            <div class="review-footer">
-                                <span class="sentiment-badge sentiment-neutral">
-                                    <i class="bi bi-emoji-neutral-fill"></i> Neutral
-                                </span>
-                                <div class="review-stats">
-                                    <div class="review-stat">
-                                        <i class="bi bi-hand-thumbs-up"></i>
-                                        <span>23</span>
-                                    </div>
-                                    <div class="review-stat">
-                                        <i class="bi bi-chat"></i>
-                                        <span>7</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Review Item 3 -->
-                        <div class="review-card">
-                            <div class="review-header">
-                                <div class="review-user">
-                                    <img src="https://i.pravatar.cc/150?img=22" alt="User" class="review-avatar">
-                                    <div class="review-user-info">
-                                        <h6>Emily Rodriguez</h6>
-                                        <div class="review-meta">
-                                            <i class="bi bi-shop"></i> Riverside Coffee •
-                                            <i class="bi bi-clock"></i> 1 day ago
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="review-rating">
-                                    <div class="stars">
-                                        <i class="bi bi-star-fill"></i>
-                                        <i class="bi bi-star-fill"></i>
-                                        <i class="bi bi-star-fill"></i>
-                                        <i class="bi bi-star-fill"></i>
-                                        <i class="bi bi-star-half"></i>
-                                    </div>
-                                    <span class="fw-bold">4.5</span>
-                                </div>
-                            </div>
-                            <p class="review-text">
-                                Love this cozy spot by the river! Great coffee, excellent pastries, and the view is
-                                unbeatable.
-                                My only complaint is parking can be difficult on weekends.
-                            </p>
-                            <div class="review-footer">
-                                <span class="sentiment-badge sentiment-positive">
-                                    <i class="bi bi-emoji-smile-fill"></i> Positive
-                                </span>
-                                <div class="review-stats">
-                                    <div class="review-stat">
-                                        <i class="bi bi-hand-thumbs-up"></i>
-                                        <span>67</span>
-                                    </div>
-                                    <div class="review-stat">
-                                        <i class="bi bi-chat"></i>
-                                        <span>18</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Pagination -->
-                        <div class="d-flex justify-content-between align-items-center mt-4">
-                            <div class="text-muted">Showing 1-10 of 12,458</div>
-                            <nav>
-                                <ul class="pagination mb-0">
-                                    <li class="page-item disabled">
-                                        <a class="page-link" href="#"><i class="bi bi-chevron-left"></i></a>
-                                    </li>
-                                    <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                                    <li class="page-item"><a class="page-link" href="#">2</a></li>
-                                    <li class="page-item"><a class="page-link" href="#">3</a></li>
-                                    <li class="page-item"><a class="page-link" href="#">...</a></li>
-                                    <li class="page-item"><a class="page-link" href="#">1246</a></li>
-                                    <li class="page-item">
-                                        <a class="page-link" href="#"><i class="bi bi-chevron-right"></i></a>
-                                    </li>
-                                </ul>
-                            </nav>
+                            <p class="mt-2">Loading reviews...</p>
                         </div>
                     </div>
                 </div>
             </div>
         </main>
+    </div>
+
+    <!-- Add Review Modal -->
+    <div class="modal fade" id="addReviewModal" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="bi bi-chat-left-quote-fill me-2"></i>Add New Review
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addReviewForm">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Business Name *</label>
+                                <input type="text" class="form-control" id="businessName" required placeholder="Barista Coffee Shop">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Category</label>
+                                <input type="text" class="form-control" id="businessCategory" placeholder="Coffee Shop">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">City *</label>
+                                <input type="text" class="form-control" id="city" required placeholder="Colombo">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Address</label>
+                                <input type="text" class="form-control" id="address" placeholder="123 Main St">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Reviewer Name</label>
+                                <input type="text" class="form-control" id="reviewerName" placeholder="John Doe">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Rating *</label>
+                                <select class="form-select" id="reviewRating" required>
+                                    <option value="">Select Rating</option>
+                                    <option value="5">⭐⭐⭐⭐⭐ (5 Stars)</option>
+                                    <option value="4">⭐⭐⭐⭐ (4 Stars)</option>
+                                    <option value="3">⭐⭐⭐ (3 Stars)</option>
+                                    <option value="2">⭐⭐ (2 Stars)</option>
+                                    <option value="1">⭐ (1 Star)</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Meal Type</label>
+                                <select class="form-select" id="mealType">
+                                    <option value="">Select Meal Type</option>
+                                    <option value="Breakfast">Breakfast</option>
+                                    <option value="Lunch">Lunch</option>
+                                    <option value="Dinner">Dinner</option>
+                                    <option value="Snack">Snack</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Price Per Person</label>
+                                <input type="text" class="form-control" id="pricePerPerson" placeholder="$10-$20">
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label fw-bold">Review Text *</label>
+                                <textarea class="form-control" id="reviewText" rows="4" required 
+                                          placeholder="Write your review here..."></textarea>
+                            </div>
+                        </div>
+                        <div class="alert alert-info mt-3 mb-0">
+                            <i class="bi bi-robot me-2"></i>
+                            Sentiment will be automatically analyzed using AI when you submit.
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="submitReview()">
+                        <i class="bi bi-check-circle"></i> Analyze & Save
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Bootstrap JS -->
@@ -501,78 +449,331 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script src="js/dashboard.js"></script>
     <script>
-        // Sentiment Trends Chart
-        const trendCtx = document.getElementById('sentimentTrendsChart').getContext('2d');
-        new Chart(trendCtx, {
-            type: 'line',
-            data: {
-                labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
-                datasets: [{
-                    label: 'Positive',
-                    data: [65, 68, 72, 75],
-                    borderColor: '#28a745',
-                    backgroundColor: 'rgba(40, 167, 69, 0.1)',
-                    tension: 0.4,
-                    fill: true
-                }, {
-                    label: 'Neutral',
-                    data: [25, 23, 20, 18],
-                    borderColor: '#ffc107',
-                    backgroundColor: 'rgba(255, 193, 7, 0.1)',
-                    tension: 0.4,
-                    fill: true
-                }, {
-                    label: 'Negative',
-                    data: [10, 9, 8, 7],
-                    borderColor: '#dc3545',
-                    backgroundColor: 'rgba(220, 53, 69, 0.1)',
-                    tension: 0.4,
-                    fill: true
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: true,
-                plugins: {
-                    legend: {
-                        position: 'top'
-                    }
+        let allReviews = [];
+        let filteredReviews = [];
+        let addReviewModal;
+        let sentimentChart;
+        let overallChart;
+
+        document.addEventListener('DOMContentLoaded', async function() {
+            addReviewModal = new bootstrap.Modal(document.getElementById('addReviewModal'));
+            await loadReviews();
+            await loadStats();
+        });
+
+        // Load reviews from backend
+        async function loadReviews() {
+            try {
+                const response = await fetch('/api/reviews?limit=100');
+                if (!response.ok) throw new Error('Failed to fetch reviews');
+                
+                allReviews = await response.json();
+                filteredReviews = allReviews;
+                
+                // Populate city filter
+                const cities = [...new Set(allReviews.map(r => r.city).filter(Boolean))];
+                const cityFilter = document.getElementById('cityFilter');
+                cities.forEach(city => {
+                    cityFilter.innerHTML += `<option value="${city}">${city}</option>`;
+                });
+                
+                displayReviews(filteredReviews);
+            } catch (err) {
+                console.error('Failed to load reviews:', err);
+                document.getElementById('reviewsContainer').innerHTML = `
+                    <div class="text-center py-5 text-danger">
+                        <i class="bi bi-exclamation-triangle fs-1"></i>
+                        <p class="mt-2">Error loading reviews</p>
+                        <small>${err.message}</small>
+                    </div>
+                `;
+            }
+        }
+
+        // Load statistics
+        async function loadStats() {
+            try {
+                const response = await fetch('/api/reviews/stats');
+                const stats = await response.json();
+                
+                document.getElementById('totalReviews').textContent = stats.total;
+                document.getElementById('positiveReviews').textContent = stats.positive;
+                document.getElementById('neutralReviews').textContent = stats.neutral;
+                document.getElementById('negativeReviews').textContent = stats.negative;
+                
+                updateCharts(stats);
+            } catch (err) {
+                console.error('Failed to load stats:', err);
+            }
+        }
+
+        // Display reviews
+        function displayReviews(reviews) {
+            const container = document.getElementById('reviewsContainer');
+            
+            if (reviews.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-5">
+                        <i class="bi bi-inbox fs-1 text-muted"></i>
+                        <p class="mt-2">No reviews found</p>
+                        <button class="btn btn-primary mt-3" onclick="openAddReviewModal()">
+                            <i class="bi bi-plus-circle"></i> Add Your First Review
+                        </button>
+                    </div>
+                `;
+                document.getElementById('reviewsCount').textContent = 'No reviews';
+                return;
+            }
+
+            container.innerHTML = reviews.map(review => {
+                const sentiment = review.sentiment_score || 'neutral';
+                const rating = review.review_rating || 0;
+                const createdAt = review.review_date ? new Date(review.review_date).toLocaleString() : 'Unknown date';
+                
+                return `
+                    <div class="review-card">
+                        <div class="review-header">
+                            <div class="review-user">
+                                <img src="https://ui-avatars.com/api/?name=${encodeURIComponent(review.reviewer_name || 'Anonymous')}&background=random" 
+                                     alt="User" class="review-avatar">
+                                <div class="review-user-info">
+                                    <h6>${review.reviewer_name || 'Anonymous'}</h6>
+                                    <div class="review-meta">
+                                        <i class="bi bi-shop"></i> ${review.business_name || 'Unknown'} •
+                                        <i class="bi bi-geo-alt"></i> ${review.city || 'Unknown'} •
+                                        <i class="bi bi-clock"></i> ${review.review_date ? formatTimeAgo(new Date(review.review_date)) : 'Unknown'}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="review-rating">
+                                ${rating > 0 ? `
+                                    <div class="stars">
+                                        ${'<i class="bi bi-star-fill"></i>'.repeat(rating)}
+                                        ${'<i class="bi bi-star"></i>'.repeat(5 - rating)}
+                                    </div>
+                                    <span class="fw-bold">${rating}.0</span>
+                                ` : '<span class="text-muted">No rating</span>'}
+                            </div>
+                        </div>
+                        <p class="review-text">${review.review_text || 'No review text'}</p>
+                        <div class="review-footer">
+                            <div>
+                                <span class="sentiment-badge sentiment-${sentiment}">
+                                    <i class="bi bi-emoji-${sentiment === 'positive' ? 'smile' : sentiment === 'negative' ? 'frown' : 'neutral'}-fill"></i>
+                                    ${sentiment.charAt(0).toUpperCase() + sentiment.slice(1)}
+                                </span>
+                                ${review.meal_type ? `<span class="location-badge">${review.meal_type}</span>` : ''}
+                                ${review.price_per_person ? `<span class="location-badge">${review.price_per_person}</span>` : ''}
+                            </div>
+                            <div class="review-stats">
+                                <small class="text-muted">${createdAt}</small>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            document.getElementById('reviewsCount').textContent = `Showing ${reviews.length} reviews`;
+        }
+
+        // Apply filters
+        function applyFilters() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const sentiment = document.getElementById('sentimentFilter').value;
+            const rating = document.getElementById('ratingFilter').value;
+            const city = document.getElementById('cityFilter').value;
+
+            filteredReviews = allReviews.filter(review => {
+                const matchSearch = !searchTerm || 
+                    (review.review_text && review.review_text.toLowerCase().includes(searchTerm)) ||
+                    (review.business_name && review.business_name.toLowerCase().includes(searchTerm));
+                const matchSentiment = !sentiment || review.sentiment_score === sentiment;
+                const matchRating = !rating || review.review_rating == rating;
+                const matchCity = !city || review.city === city;
+                
+                return matchSearch && matchSentiment && matchRating && matchCity;
+            });
+
+            displayReviews(filteredReviews);
+        }
+
+        // Reset filters
+        function resetFilters() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('sentimentFilter').value = '';
+            document.getElementById('ratingFilter').value = '';
+            document.getElementById('cityFilter').value = '';
+            filteredReviews = allReviews;
+            displayReviews(filteredReviews);
+        }
+
+        // Open add review modal
+        function openAddReviewModal() {
+            document.getElementById('addReviewForm').reset();
+            addReviewModal.show();
+        }
+
+        // Submit new review
+        async function submitReview() {
+            const businessName = document.getElementById('businessName').value;
+            const businessCategory = document.getElementById('businessCategory').value;
+            const city = document.getElementById('city').value;
+            const address = document.getElementById('address').value;
+            const reviewerName = document.getElementById('reviewerName').value;
+            const reviewRating = document.getElementById('reviewRating').value;
+            const reviewText = document.getElementById('reviewText').value;
+            const mealType = document.getElementById('mealType').value;
+            const pricePerPerson = document.getElementById('pricePerPerson').value;
+
+            if (!businessName || !city || !reviewRating || !reviewText) {
+                alert('❌ Please fill in all required fields (Business Name, City, Rating, and Review Text)');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/analyze-review', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        businessName,
+                        businessCategory: businessCategory || 'Coffee Shop',
+                        city,
+                        address,
+                        reviewerName: reviewerName || 'Anonymous',
+                        reviewRating: parseInt(reviewRating),
+                        reviewText,
+                        mealType,
+                        pricePerPerson
+                    })
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    alert(`✅ Review added successfully!\nSentiment: ${result.sentiment} (${(result.confidence * 100).toFixed(0)}% confidence)`);
+                    addReviewModal.hide();
+                    await loadReviews();
+                    await loadStats();
+                } else {
+                    alert('❌ Failed to add review: ' + result.error);
+                }
+            } catch (err) {
+                console.error('Failed to submit review:', err);
+                alert('❌ Network error. Make sure the ML service is running on port 5000');
+            }
+        }
+
+        // Analyze all reviews
+        async function analyzeAllReviews() {
+            if (!confirm('This will analyze all reviews without sentiment. Continue?')) return;
+
+            try {
+                const response = await fetch('/api/reviews/analyze-all', {
+                    method: 'POST'
+                });
+
+                const result = await response.json();
+                alert(`✅ ${result.message}`);
+                await loadReviews();
+                await loadStats();
+            } catch (err) {
+                console.error('Failed to analyze reviews:', err);
+                alert('❌ Failed to analyze reviews: ' + err.message);
+            }
+        }
+
+        // Export reviews
+        function exportReviews() {
+            const csv = [
+                ['Date', 'Business', 'City', 'Reviewer', 'Rating', 'Review', 'Sentiment', 'Meal Type', 'Price'],
+                ...filteredReviews.map(r => [
+                    r.review_date ? new Date(r.review_date).toLocaleDateString() : 'N/A',
+                    r.business_name || 'N/A',
+                    r.city || 'N/A',
+                    r.reviewer_name || 'Anonymous',
+                    r.review_rating || 'N/A',
+                    (r.review_text || '').replace(/,/g, ';').replace(/\n/g, ' '),
+                    r.sentiment_score || 'N/A',
+                    r.meal_type || 'N/A',
+                    r.price_per_person || 'N/A'
+                ])
+            ].map(row => row.join(',')).join('\n');
+
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `reviews_${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+        }
+
+        // Update charts
+        function updateCharts(stats) {
+            // Doughnut Chart
+            const ctx2 = document.getElementById('overallSentimentChart').getContext('2d');
+            if (overallChart) overallChart.destroy();
+            
+            overallChart = new Chart(ctx2, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Positive', 'Neutral', 'Negative'],
+                    datasets: [{
+                        data: [stats.positive, stats.neutral, stats.negative],
+                        backgroundColor: ['#28a745', '#ffc107', '#dc3545']
+                    }]
                 },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        max: 100,
-                        ticks: {
-                            callback: function (value) {
-                                return value + '%';
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom' }
+                    }
+                }
+            });
+
+            // Bar Chart
+            const ctx1 = document.getElementById('sentimentTrendsChart').getContext('2d');
+            if (sentimentChart) sentimentChart.destroy();
+            
+            sentimentChart = new Chart(ctx1, {
+                type: 'bar',
+                data: {
+                    labels: ['Positive', 'Neutral', 'Negative'],
+                    datasets: [{
+                        label: 'Reviews',
+                        data: [stats.positive, stats.neutral, stats.negative],
+                        backgroundColor: ['#28a745', '#ffc107', '#dc3545']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1
                             }
                         }
                     }
                 }
-            }
-        });
+            });
+        }
 
-        // Overall Sentiment Chart
-        const sentimentCtx = document.getElementById('overallSentimentChart').getContext('2d');
-        new Chart(sentimentCtx, {
-            type: 'doughnut',
-            data: {
-                labels: ['Positive', 'Neutral', 'Negative'],
-                datasets: [{
-                    data: [65, 25, 10],
-                    backgroundColor: ['#28a745', '#ffc107', '#dc3545']
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'bottom'
-                    }
-                }
-            }
-        });
+        // Format time ago
+        function formatTimeAgo(date) {
+            const seconds = Math.floor((new Date() - date) / 1000);
+            if (seconds < 60) return 'Just now';
+            if (seconds < 3600) return Math.floor(seconds / 60) + ' minutes ago';
+            if (seconds < 86400) return Math.floor(seconds / 3600) + ' hours ago';
+            if (seconds < 604800) return Math.floor(seconds / 86400) + ' days ago';
+            if (seconds < 2592000) return Math.floor(seconds / 604800) + ' weeks ago';
+            if (seconds < 31536000) return Math.floor(seconds / 2592000) + ' months ago';
+            return Math.floor(seconds / 31536000) + ' years ago';
+        }
     </script>
 </body>
 
