@@ -100,7 +100,7 @@ npm install
 
 Create a `.env` file in the backend directory:
 ```env
-PORT=5000
+PORT=3000
 DATABASE_URL=your_database_connection_string
 JWT_SECRET=your_jwt_secret_key
 NODE_ENV=development
