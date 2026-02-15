@@ -6,11 +6,10 @@ from sentiment_model import analyze_sentiment
 
 load_dotenv()
 
-supabase = create_client(
-    os.getenv('SUPABASE_URL'),
-    os.getenv('SUPABASE_SERVICE_ROLE_KEY')
-)
+SUPABASE_URL = os.getenv('SUPABASE_URL') or 'https://cxtexkqrairvefvufamh.supabase.co'
+SUPABASE_KEY = os.getenv('SUPABASE_SERVICE_ROLE_KEY') or 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN4dGV4a3FyYWlydmVmdnVmYW1oIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3MDY1ODkwNiwiZXhwIjoyMDg2MjM0OTA2fQ.yexGh7BtwgPhCmq0JOMdq86e-o9JSmkxHI7ZlYTgDaI'
 
+supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 def load_csv_to_database():
     # Read CSV
     df = pd.read_csv('../preprocessed_barista_reviews.csv')
