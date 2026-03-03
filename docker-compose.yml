@@ -1,6 +1,6 @@
 services:
   node-backend:
-    build: ./node-folder
+    build: ./backend
     ports:
       - "3000:3000"
     environment:
@@ -9,6 +9,6 @@ services:
       - ml-service
 
   ml-service:
-    build: ./ml-services
+    build: ./ml-service
     ports:
       - "5000:5000"

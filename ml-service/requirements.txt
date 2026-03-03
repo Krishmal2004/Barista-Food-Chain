@@ -8,3 +8,5 @@ torch
 
 google-genai
 python-dotenv
+
+gunicorn
