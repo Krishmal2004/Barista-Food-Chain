@@ -1,7 +1,10 @@
 flask
 flask-cors
+pandas
+numpy
+tensorflow
 transformers
 torch
-pandas
-supabase
+
+google-genai
 python-dotenv

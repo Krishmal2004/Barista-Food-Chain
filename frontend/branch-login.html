@@ -416,7 +416,10 @@
                             <div class="input-group">
                                 <i class="bi bi-building input-group-icon"></i>
                                 <input type="text" class="form-control with-icon" id="branchName"
-                                    placeholder="Enter your branch name" required>
+                                    list="branchNameOptions" placeholder="Select or type your branch name" required>
+                                <datalist id="branchNameOptions">
+                                    <!-- Populated by JS -->
+                                </datalist>
                             </div>
                         </div>
 
@@ -469,6 +472,28 @@
     <script>
         // Initialize AOS
         AOS.init();
+
+        // Fetch branches for autocomplete
+        async function loadBranchNames() {
+            try {
+                const response = await fetch('/api/reviews/branches');
+                if (response.ok) {
+                    const branches = await response.json();
+                    const datalist = document.getElementById('branchNameOptions');
+                    if (datalist) {
+                        branches.forEach(branch => {
+                            const name = branch.branch_name || branch.business_name || String(branch.branch_id);
+                            const option = document.createElement('option');
+                            option.value = name;
+                            datalist.appendChild(option);
+                        });
+                    }
+                }
+            } catch (error) {
+                console.error('Failed to fetch branch names for autocomplete', error);
+            }
+        }
+        loadBranchNames();
 
         // Toggle Password Visibility
         function togglePassword() {

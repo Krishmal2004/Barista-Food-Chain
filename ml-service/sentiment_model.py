@@ -1,198 +1,162 @@
-import joblib
+import numpy as np
 import os
-from pathlib import Path
 import re
+import pickle
 
-# Get the path to the model file
-MODEL_PATH = Path(__file__).parent / 'sentiment_model.joblib'
-
-# Load your trained model
-print(f"📂 Loading model from: {MODEL_PATH}")
-
+# Try to import TensorFlow/Keras
 try:
-    model_data = joblib.load(MODEL_PATH)
-    print(f"✅ Model loaded successfully!")
-    
-    # Check what's in the model file
-    if isinstance(model_data, dict):
-        # Model saved as dictionary with model and vectorizer
-        model = model_data.get('model')
-        vectorizer = model_data.get('vectorizer')
-        print(f"✅ Found model and vectorizer in dictionary")
-        
-        # Print model info if available
-        if 'accuracy' in model_data:
-            print(f"📊 Model accuracy: {model_data['accuracy']:.2%}")
-        if 'classes' in model_data:
-            print(f"🏷️  Classes: {model_data['classes']}")
-            
-    else:
-        # Model saved directly (might need to check the structure)
-        print(f"⚠️  Model structure: {type(model_data)}")
-        model = model_data
-        vectorizer = None
-        
-except FileNotFoundError:
-    print(f"❌ ERROR: Model file not found at: {MODEL_PATH}")
-    print("\n🔍 Please make sure 'sentiment_model.joblib' is in the ml-service folder:")
-    print(f"   Expected location: {MODEL_PATH}")
-    print("\n💡 Current directory contents:")
-    for file in Path(__file__).parent.glob('*'):
-        print(f"   - {file.name}")
-    model = None
-    vectorizer = None
-    
-except Exception as e:
-    print(f"❌ Error loading model: {e}")
-    print(f"❌ Error type: {type(e).__name__}")
-    model = None
-    vectorizer = None
+    from tensorflow.keras.models import load_model
+    from tensorflow.keras.preprocessing.sequence import pad_sequences
+    KERAS_AVAILABLE = True
+except ImportError:
+    try:
+        from keras.models import load_model
+        from keras.preprocessing.sequence import pad_sequences
+        KERAS_AVAILABLE = True
+    except ImportError:
+        KERAS_AVAILABLE = False
+
+MODEL_DIR = os.path.dirname(os.path.abspath(__file__))
+MODEL_PATH = os.path.join(MODEL_DIR, 'lstm_sentiment_model.keras')
+TOKENIZER_PATH = os.path.join(MODEL_DIR, 'tokenizer.pickle')
+
+# Global variables for the model and tokenizer
+model = None
+tokenizer = None
+MAX_SEQUENCE_LENGTH = 200  # Must match what was used during training
 
 
-def preprocess_text(text: str) -> str:
-    """
-    Preprocess text before sentiment analysis
-    (Should match the preprocessing used during training)
-    """
-    if not text:
+def clean_text(text):
+    """Clean review text the same way as in the notebook preprocessing."""
+    if not text or not isinstance(text, str):
         return ""
-    
-    # Convert to lowercase
-    text = str(text).lower()
-    
-    # Remove URLs
-    text = re.sub(r'http\S+|www\S+|https\S+', '', text, flags=re.MULTILINE)
-    
-    # Remove special characters but keep basic punctuation
-    text = re.sub(r'[^a-zA-Z\s.,!?]', '', text)
-    
-    # Remove extra whitespace
-    text = ' '.join(text.split())
-    
+    text = text.lower()
+    text = re.sub(r'[^a-zA-Z\s]', '', text)
+    text = re.sub(r'\s+', ' ', text).strip()
     return text
 
 
-def analyze_sentiment(text: str) -> dict:
-    """
-    Analyze sentiment of text using your trained model
-    Returns: {'sentiment': 'positive/neutral/negative', 'confidence': 0.95}
-    """
-    if not text or text.strip() == '':
-        return {'sentiment': 'neutral', 'confidence': 0.0}
-    
-    # Check if model is loaded
-    if model is None:
-        print("⚠️ Model not loaded, returning neutral sentiment")
-        return {'sentiment': 'neutral', 'confidence': 0.0}
-    
+def load_lstm_model():
+    """Load the LSTM model and tokenizer."""
+    global model, tokenizer
+
+    if not KERAS_AVAILABLE:
+        print("WARNING: TensorFlow/Keras not available. Using fallback sentiment analysis.")
+        return False
+
     try:
-        # Preprocess the text
-        processed_text = preprocess_text(text)
-        
-        if not processed_text:
-            return {'sentiment': 'neutral', 'confidence': 0.0}
-        
-        # Transform text using vectorizer
-        if vectorizer is not None:
-            text_vectorized = vectorizer.transform([processed_text])
+        if os.path.exists(MODEL_PATH):
+            model = load_model(MODEL_PATH)
+            print(f"LSTM model loaded from {MODEL_PATH}")
         else:
-            # If no vectorizer, use processed text directly
-            text_vectorized = [processed_text]
-        
-        # Get prediction
-        prediction = model.predict(text_vectorized)[0]
-        
-        # Get confidence scores
-        try:
-            probabilities = model.predict_proba(text_vectorized)[0]
-            confidence = float(max(probabilities))
-        except AttributeError:
-            # If model doesn't have predict_proba
-            confidence = 0.85
-        
-        # Convert prediction to standard format
-        if isinstance(prediction, str):
-            sentiment = prediction.lower()
-        elif isinstance(prediction, (int, float, np.integer)):
-            # Map numeric predictions to labels
-            # Common mappings:
-            # 0 = negative, 1 = neutral, 2 = positive OR
-            # 0 = negative, 1 = positive
-            prediction = int(prediction)
-            
-            # Try to use model's classes if available
-            if hasattr(model, 'classes_'):
-                sentiment = str(model.classes_[prediction]).lower()
-            else:
-                # Default mapping (adjust based on your model)
-                sentiment_map = {
-                    0: 'negative',
-                    1: 'neutral',
-                    2: 'positive'
-                }
-                sentiment = sentiment_map.get(prediction, 'neutral')
+            print(f"WARNING: Model file not found at {MODEL_PATH}")
+            return False
+
+        if os.path.exists(TOKENIZER_PATH):
+            with open(TOKENIZER_PATH, 'rb') as f:
+                tokenizer = pickle.load(f)
+            print(f"Tokenizer loaded from {TOKENIZER_PATH}")
         else:
-            sentiment = str(prediction).lower()
-        
-        # Ensure sentiment is one of the expected values
-        if sentiment not in ['positive', 'neutral', 'negative']:
-            # Try to map common variations
-            if 'pos' in sentiment:
-                sentiment = 'positive'
-            elif 'neg' in sentiment:
-                sentiment = 'negative'
-            else:
-                sentiment = 'neutral'
-        
-        return {
-            'sentiment': sentiment,
-            'confidence': float(confidence)
-        }
-        
+            print(f"WARNING: Tokenizer not found at {TOKENIZER_PATH}. Will use fallback.")
+            return False
+
+        return True
     except Exception as e:
-        print(f"❌ Error analyzing sentiment: {e}")
-        import traceback
-        traceback.print_exc()
-        return {'sentiment': 'neutral', 'confidence': 0.0}
+        print(f"Error loading LSTM model: {e}")
+        return False
 
 
-# Test the model when this file is run directly
-if __name__ == '__main__':
-    print("\n" + "="*60)
-    print("🧪 TESTING SENTIMENT MODEL")
-    print("="*60)
-    
-    if model is None:
-        print("\n❌ Cannot test - model not loaded!")
-        print("\n📋 Troubleshooting steps:")
-        print("1. Check if sentiment_model.joblib exists in ml-service folder")
-        print("2. Verify the file is not corrupted")
-        print("3. Check if you have the required libraries (scikit-learn, joblib)")
-    else:
-        test_reviews = [
-            "This coffee is amazing! Best I've ever had!",
-            "Terrible service, would not recommend at all",
-            "The place is okay, nothing special",
-            "Great atmosphere and very friendly staff",
-            "Horrible experience, worst barista ever",
-            "Pretty good coffee, nice location"
-        ]
-        
-        print("\n📝 Testing with sample reviews:\n")
-        
-        for i, review in enumerate(test_reviews, 1):
-            result = analyze_sentiment(review)
-            
-            # Color coding for terminal
-            emoji = {
-                'positive': '😊',
-                'neutral': '😐',
-                'negative': '😞'
+def fallback_sentiment(text):
+    """
+    Simple keyword-based fallback sentiment analysis.
+    Returns a score between -1 and 1.
+    """
+    if not text:
+        return 0.0
+
+    text = text.lower()
+
+    positive_words = [
+        'good', 'great', 'excellent', 'amazing', 'wonderful', 'fantastic',
+        'love', 'best', 'perfect', 'delicious', 'friendly', 'nice', 'cozy',
+        'clean', 'recommend', 'outstanding', 'superb', 'awesome', 'brilliant',
+        'satisfied', 'happy', 'fresh', 'warm', 'welcoming', 'pleasant',
+        'comfortable', 'attentive', 'professional', 'exceptional'
+    ]
+    negative_words = [
+        'bad', 'worst', 'terrible', 'horrible', 'poor', 'awful', 'disappointing',
+        'rude', 'dirty', 'slow', 'cold', 'stale', 'overpriced', 'expensive',
+        'disgusting', 'tasteless', 'unfriendly', 'unprofessional', 'mediocre',
+        'dissatisfied', 'disappointed', 'uncomfortable', 'noisy', 'crowded'
+    ]
+
+    positive_count = sum(1 for word in positive_words if word in text)
+    negative_count = sum(1 for word in negative_words if word in text)
+
+    total = positive_count + negative_count
+    if total == 0:
+        return 0.0
+
+    return (positive_count - negative_count) / total
+
+
+def analyze_sentiment(text):
+    """
+    Analyze the sentiment of the given text using LSTM model or fallback.
+    Returns a dict with sentiment label and score.
+    """
+    cleaned = clean_text(text)
+
+    if model is not None and tokenizer is not None:
+        try:
+            seq = tokenizer.texts_to_sequences([cleaned])
+            padded = pad_sequences(seq, maxlen=MAX_SEQUENCE_LENGTH)
+            prediction = model.predict(padded, verbose=0)
+
+            # Handle different output shapes
+            if prediction.shape[-1] == 3:
+                # Multi-class: [negative, neutral, positive]
+                label_idx = np.argmax(prediction[0])
+                labels = ['negative', 'neutral', 'positive']
+                label = labels[label_idx]
+                confidence = float(prediction[0][label_idx])
+                score = float(prediction[0][2] - prediction[0][0])  # positive - negative
+            elif prediction.shape[-1] == 1:
+                # Binary/regression output
+                score = float(prediction[0][0])
+                if score > 0.6:
+                    label = 'positive'
+                elif score < 0.4:
+                    label = 'negative'
+                else:
+                    label = 'neutral'
+                confidence = abs(score - 0.5) * 2
+            else:
+                score = float(prediction[0][0])
+                label = 'positive' if score > 0 else ('negative' if score < 0 else 'neutral')
+                confidence = abs(score)
+
+            return {
+                'sentiment': label,
+                'score': round(score, 4),
+                'confidence': round(confidence, 4),
+                'method': 'lstm'
             }
-            
-            print(f"{i}. Text: {review}")
-            print(f"   {emoji.get(result['sentiment'], '❓')} Sentiment: {result['sentiment'].upper()}")
-            print(f"   📊 Confidence: {result['confidence']:.2%}")
-            print()
-    
-    print("="*60)
+        except Exception as e:
+            print(f"LSTM prediction error: {e}")
+
+    # Fallback
+    score = fallback_sentiment(cleaned)
+    if score > 0.1:
+        label = 'positive'
+    elif score < -0.1:
+        label = 'negative'
+    else:
+        label = 'neutral'
+
+    return {
+        'sentiment': label,
+        'score': round(score, 4),
+        'confidence': round(abs(score), 4),
+        'method': 'fallback'
+    }

@@ -4,16 +4,38 @@
 document.addEventListener('DOMContentLoaded', () => {
     const registrationForm = document.getElementById('branchRegistrationForm');
 
+    // Fetch branches for autocomplete
+    async function loadBranchNames() {
+        try {
+            const response = await fetch('/api/reviews/branches');
+            if (response.ok) {
+                const branches = await response.json();
+                const datalist = document.getElementById('branchNameOptions');
+                if (datalist) {
+                    branches.forEach(branch => {
+                        const name = branch.branch_name || branch.business_name || String(branch.branch_id);
+                        const option = document.createElement('option');
+                        option.value = name;
+                        datalist.appendChild(option);
+                    });
+                }
+            }
+        } catch (error) {
+            console.error('Failed to fetch branch names for autocomplete', error);
+        }
+    }
+    loadBranchNames();
+
     if (registrationForm) {
         registrationForm.addEventListener('submit', async function (e) {
             e.preventDefault();
-            
+
             const platforms = [];
             ['platformGoogle', 'platformYelp', 'platformFacebook', 'platformTripadvisor', 'platformZomato', 'platformOther']
-            .forEach(id => {
-                const checkbox = document.getElementById(id);
-                if (checkbox.checked) platforms.push(checkbox.value);
-            });
+                .forEach(id => {
+                    const checkbox = document.getElementById(id);
+                    if (checkbox.checked) platforms.push(checkbox.value);
+                });
             // Get form data
             const formData = {
                 businessName: document.getElementById('businessName').value,
@@ -49,20 +71,20 @@ document.addEventListener('DOMContentLoaded', () => {
             try {
                 const response = await fetch('http://localhost:3000/api/register-branch', {
                     method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(formData)
                 });
                 const result = await response.json();
-                if(response.ok) {
+                if (response.ok) {
                     alert("Sucess! Your branch has been registered");
                     window.location.href = 'index.html';
                 } else {
-                    alert("Error: "+result.error);
-                } 
+                    alert("Error: " + result.error);
+                }
             } catch (error) {
-                console.error("Network Error: ",error);
+                console.error("Network Error: ", error);
                 alert("Could not connect to the server.");
-            }finally {
+            } finally {
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = '<i class="bi bi-rocket-takeoff me-2"></i> Submit Registration';
             }

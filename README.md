@@ -175,6 +175,7 @@ npm run dev
 - `PUT /api/inventory/:id` - Update inventory
 - `POST /api/inventory/restock` - Restock items
 
+
 ## 🧪 Testing
 
 Run tests for the backend:

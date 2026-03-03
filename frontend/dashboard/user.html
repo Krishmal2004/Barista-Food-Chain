@@ -31,9 +31,17 @@
                     <i class="bi bi-speedometer2"></i>
                     <span>Dashboard</span>
                 </a>
+                <a href="reports.html" class="nav-item">
+                    <i class="bi bi-file-earmark-bar-graph"></i>
+                    <span>Custom Reports</span>
+                </a>
                 <a href="reviews.html" class="nav-item">
                     <i class="bi bi-chat-left-quote"></i>
                     <span>Reviews Analysis</span>
+                </a>
+                <a href="chatbot.html" class="nav-item">
+                    <i class="bi bi-robot"></i>
+                    <span>AI Chatbot</span>
                 </a>
                 <a href="map.html" class="nav-item">
                     <i class="bi bi-geo-alt"></i>
@@ -157,11 +165,11 @@
                             <div class="card-header">
                                 <h5 class="mb-0">Review Trends</h5>
                                 <div class="card-actions">
-                                    <select class="form-select form-select-sm">
-                                        <option>Last 7 days</option>
-                                        <option>Last 30 days</option>
-                                        <option>Last 3 months</option>
-                                        <option>Last year</option>
+                                    <select class="form-select form-select-sm" id="trendTimeFilter">
+                                        <option value="7">Last 7 days</option>
+                                        <option value="30">Last 30 days</option>
+                                        <option value="90">Last 3 months</option>
+                                        <option value="365">Last year</option>
                                     </select>
                                 </div>
                             </div>
@@ -211,50 +219,12 @@
                                 <a href="map.html" class="btn btn-sm btn-link">View Map</a>
                             </div>
                             <div class="card-body">
-                                <div class="branch-list">
-                                    <div class="branch-item">
-                                        <div class="branch-rank">1</div>
-                                        <div class="branch-info">
-                                            <div class="branch-name">Barista Wattala Diner</div>
-                                            <div class="branch-location">542 A Negombo Rd, Wattala</div>
+                                <div class="branch-list" id="topBranchesList">
+                                    <div class="text-center py-4">
+                                        <div class="spinner-border text-primary" role="status">
+                                            <span class="visually-hidden">Loading...</span>
                                         </div>
-                                        <div class="branch-stats">
-                                            <div class="rating">
-                                                <i class="bi bi-star-fill text-warning"></i>
-                                                <span>4.6</span>
-                                            </div>
-                                            <div class="reviews-count">241 reviews</div>
-                                        </div>
-                                    </div>
-
-                                    <div class="branch-item">
-                                        <div class="branch-rank">2</div>
-                                        <div class="branch-info">
-                                            <div class="branch-name">Barista Wellawatte</div>
-                                            <div class="branch-location">No 519 Galle Rd, Colombo</div>
-                                        </div>
-                                        <div class="branch-stats">
-                                            <div class="rating">
-                                                <i class="bi bi-star-fill text-warning"></i>
-                                                <span>4.2</span>
-                                            </div>
-                                            <div class="reviews-count">15 reviews</div>
-                                        </div>
-                                    </div>
-
-                                    <div class="branch-item">
-                                        <div class="branch-rank">3</div>
-                                        <div class="branch-info">
-                                            <div class="branch-name">Barista Wattala at Kelly Felder</div>
-                                            <div class="branch-location">811 Negombo Rd, Wattala</div>
-                                        </div>
-                                        <div class="branch-stats">
-                                            <div class="rating">
-                                                <i class="bi bi-star-fill text-warning"></i>
-                                                <span>3.8</span>
-                                            </div>
-                                            <div class="reviews-count">11 reviews</div>
-                                        </div>
+                                        <p class="mt-2 text-muted">Loading top branches...</p>
                                     </div>
                                 </div>
                             </div>

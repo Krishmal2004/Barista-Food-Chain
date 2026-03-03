@@ -147,6 +147,216 @@
             border-radius: 10px;
             margin-left: 5px;
         }
+
+        /* Branch Visualization Styles */
+        .branch-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 20px;
+        }
+
+        .branch-viz-card {
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9ff 100%);
+            border-radius: 16px;
+            padding: 22px;
+            border: 1px solid #e8ecf4;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .branch-viz-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #6366f1, #8b5cf6, #a78bfa);
+            border-radius: 16px 16px 0 0;
+        }
+
+        .branch-viz-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 30px rgba(99, 102, 241, 0.15);
+            border-color: #c7d2fe;
+        }
+
+        .branch-viz-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 16px;
+        }
+
+        .branch-viz-name {
+            font-weight: 700;
+            font-size: 15px;
+            color: #1e293b;
+            margin-bottom: 2px;
+        }
+
+        .branch-viz-city {
+            font-size: 12px;
+            color: #64748b;
+        }
+
+        .branch-viz-rating {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            background: #fef3c7;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 14px;
+            color: #92400e;
+        }
+
+        .branch-viz-stats {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .branch-viz-stat {
+            flex: 1;
+            text-align: center;
+            background: #f1f5f9;
+            border-radius: 10px;
+            padding: 10px 6px;
+        }
+
+        .branch-viz-stat-value {
+            font-size: 20px;
+            font-weight: 800;
+            color: #1e293b;
+        }
+
+        .branch-viz-stat-label {
+            font-size: 10px;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 2px;
+        }
+
+        .sentiment-bar-container {
+            margin-top: 10px;
+        }
+
+        .sentiment-bar-label {
+            font-size: 11px;
+            font-weight: 600;
+            color: #475569;
+            margin-bottom: 6px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .sentiment-bar {
+            height: 10px;
+            border-radius: 5px;
+            background: #e2e8f0;
+            overflow: hidden;
+            display: flex;
+        }
+
+        .sentiment-bar-positive {
+            background: linear-gradient(90deg, #22c55e, #4ade80);
+            transition: width 0.8s ease;
+        }
+
+        .sentiment-bar-neutral {
+            background: linear-gradient(90deg, #eab308, #facc15);
+            transition: width 0.8s ease;
+        }
+
+        .sentiment-bar-negative {
+            background: linear-gradient(90deg, #ef4444, #f87171);
+            transition: width 0.8s ease;
+        }
+
+        .sentiment-legend {
+            display: flex;
+            gap: 12px;
+            margin-top: 8px;
+            justify-content: center;
+        }
+
+        .sentiment-legend-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 10px;
+            color: #64748b;
+        }
+
+        .sentiment-legend-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        /* Aspect Score Styles */
+        .aspect-scores {
+            margin-top: 14px;
+            padding-top: 14px;
+            border-top: 1px solid #e8ecf4;
+        }
+
+        .aspect-scores-title {
+            font-size: 11px;
+            font-weight: 700;
+            color: #475569;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 10px;
+        }
+
+        .aspect-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .aspect-icon {
+            width: 22px;
+            text-align: center;
+            font-size: 13px;
+            flex-shrink: 0;
+        }
+
+        .aspect-label {
+            width: 72px;
+            font-size: 11px;
+            font-weight: 600;
+            color: #475569;
+            flex-shrink: 0;
+        }
+
+        .aspect-bar-track {
+            flex: 1;
+            height: 8px;
+            background: #e2e8f0;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .aspect-bar-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.8s ease;
+        }
+
+        .aspect-value {
+            width: 32px;
+            text-align: right;
+            font-size: 12px;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
     </style>
 </head>
 
@@ -164,15 +374,23 @@
                     <i class="bi bi-speedometer2"></i>
                     <span>Dashboard</span>
                 </a>
+                <a href="reports.html" class="nav-item">
+                    <i class="bi bi-file-earmark-bar-graph"></i>
+                    <span>Custom Reports</span>
+                </a>
                 <a href="reviews.html" class="nav-item active">
                     <i class="bi bi-chat-left-quote"></i>
                     <span>Reviews Analysis</span>
+                </a>
+                <a href="chatbot.html" class="nav-item">
+                    <i class="bi bi-robot"></i>
+                    <span>AI Chatbot</span>
                 </a>
                 <a href="map.html" class="nav-item">
                     <i class="bi bi-geo-alt"></i>
                     <span>Branch Locations</span>
                 </a>
-                <a href="locations.html" class="nav-item">
+                <a href="branch-location.html" class="nav-item">
                     <i class="bi bi-pin-map"></i>
                     <span>Manage Locations</span>
                 </a>
@@ -303,12 +521,61 @@
                     </div>
                 </div>
 
+                <!-- Branch Visualization Section -->
+                <div class="dashboard-card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="bi bi-building me-2"></i>Branch Performance</h5>
+                        <div class="card-actions">
+                            <select class="form-select form-select-sm" id="branchSortBy" onchange="sortBranches()"
+                                style="width:auto;">
+                                <option value="reviews">Most Reviews</option>
+                                <option value="rating">Highest Rating</option>
+                                <option value="positive">Most Positive</option>
+                                <option value="negative">Most Negative</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="card-body" id="branchVisualization">
+                        <div class="text-center py-4">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                            <p class="mt-2 text-muted">Loading branch data...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Branch Comparison Chart -->
+                <div class="row g-4 mb-4">
+                    <div class="col-lg-7">
+                        <div class="dashboard-card">
+                            <div class="card-header">
+                                <h5 class="mb-0"><i class="bi bi-bar-chart me-2"></i>Branch Comparison</h5>
+                            </div>
+                            <div class="card-body">
+                                <canvas id="branchComparisonChart" height="100"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-5">
+                        <div class="dashboard-card">
+                            <div class="card-header">
+                                <h5 class="mb-0"><i class="bi bi-pie-chart me-2"></i>Branch Review Share</h5>
+                            </div>
+                            <div class="card-body">
+                                <canvas id="branchShareChart" height="200"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Filter Bar -->
                 <div class="filter-bar">
                     <div class="row g-3 align-items-end">
                         <div class="col-md-3">
                             <label class="form-label fw-semibold">Search Reviews</label>
-                            <input type="text" class="form-control" id="searchInput" placeholder="Search by keyword..." onkeyup="applyFilters()">
+                            <input type="text" class="form-control" id="searchInput" placeholder="Search by keyword..."
+                                onkeyup="applyFilters()">
                         </div>
                         <div class="col-md-2">
                             <label class="form-label fw-semibold">Sentiment</label>
@@ -378,7 +645,8 @@
                         <div class="row g-3">
                             <div class="col-md-6">
                                 <label class="form-label fw-bold">Business Name *</label>
-                                <input type="text" class="form-control" id="businessName" required placeholder="Barista Coffee Shop">
+                                <input type="text" class="form-control" id="businessName" required
+                                    placeholder="Barista Coffee Shop">
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label fw-bold">Category</label>
@@ -423,8 +691,8 @@
                             </div>
                             <div class="col-12">
                                 <label class="form-label fw-bold">Review Text *</label>
-                                <textarea class="form-control" id="reviewText" rows="4" required 
-                                          placeholder="Write your review here..."></textarea>
+                                <textarea class="form-control" id="reviewText" rows="4" required
+                                    placeholder="Write your review here..."></textarea>
                             </div>
                         </div>
                         <div class="alert alert-info mt-3 mb-0">
@@ -451,14 +719,18 @@
     <script>
         let allReviews = [];
         let filteredReviews = [];
+        let allBranches = [];
         let addReviewModal;
         let sentimentChart;
         let overallChart;
+        let branchComparisonChart;
+        let branchShareChart;
 
-        document.addEventListener('DOMContentLoaded', async function() {
+        document.addEventListener('DOMContentLoaded', async function () {
             addReviewModal = new bootstrap.Modal(document.getElementById('addReviewModal'));
             await loadReviews();
             await loadStats();
+            await loadBranches();
         });
 
         // Load reviews from backend
@@ -466,17 +738,17 @@
             try {
                 const response = await fetch('/api/reviews?limit=100');
                 if (!response.ok) throw new Error('Failed to fetch reviews');
-                
+
                 allReviews = await response.json();
                 filteredReviews = allReviews;
-                
+
                 // Populate city filter
                 const cities = [...new Set(allReviews.map(r => r.city).filter(Boolean))];
                 const cityFilter = document.getElementById('cityFilter');
                 cities.forEach(city => {
                     cityFilter.innerHTML += `<option value="${city}">${city}</option>`;
                 });
-                
+
                 displayReviews(filteredReviews);
             } catch (err) {
                 console.error('Failed to load reviews:', err);
@@ -495,12 +767,12 @@
             try {
                 const response = await fetch('/api/reviews/stats');
                 const stats = await response.json();
-                
+
                 document.getElementById('totalReviews').textContent = stats.total;
                 document.getElementById('positiveReviews').textContent = stats.positive;
                 document.getElementById('neutralReviews').textContent = stats.neutral;
                 document.getElementById('negativeReviews').textContent = stats.negative;
-                
+
                 updateCharts(stats);
             } catch (err) {
                 console.error('Failed to load stats:', err);
@@ -510,7 +782,7 @@
         // Display reviews
         function displayReviews(reviews) {
             const container = document.getElementById('reviewsContainer');
-            
+
             if (reviews.length === 0) {
                 container.innerHTML = `
                     <div class="text-center py-5">
@@ -526,10 +798,10 @@
             }
 
             container.innerHTML = reviews.map(review => {
-                const sentiment = review.sentiment_score || 'neutral';
+                const sentiment = review.sentiment_label || (review.sentiment_score > 0.1 ? 'positive' : review.sentiment_score < -0.1 ? 'negative' : 'neutral');
                 const rating = review.review_rating || 0;
                 const createdAt = review.review_date ? new Date(review.review_date).toLocaleString() : 'Unknown date';
-                
+
                 return `
                     <div class="review-card">
                         <div class="review-header">
@@ -584,13 +856,14 @@
             const city = document.getElementById('cityFilter').value;
 
             filteredReviews = allReviews.filter(review => {
-                const matchSearch = !searchTerm || 
+                const matchSearch = !searchTerm ||
                     (review.review_text && review.review_text.toLowerCase().includes(searchTerm)) ||
                     (review.business_name && review.business_name.toLowerCase().includes(searchTerm));
-                const matchSentiment = !sentiment || review.sentiment_score === sentiment;
+                const reviewSentiment = review.sentiment_label || (review.sentiment_score > 0.1 ? 'positive' : review.sentiment_score < -0.1 ? 'negative' : 'neutral');
+                const matchSentiment = !sentiment || reviewSentiment === sentiment;
                 const matchRating = !rating || review.review_rating == rating;
                 const matchCity = !city || review.city === city;
-                
+
                 return matchSearch && matchSentiment && matchRating && matchCity;
             });
 
@@ -712,7 +985,7 @@
             // Doughnut Chart
             const ctx2 = document.getElementById('overallSentimentChart').getContext('2d');
             if (overallChart) overallChart.destroy();
-            
+
             overallChart = new Chart(ctx2, {
                 type: 'doughnut',
                 data: {
@@ -734,7 +1007,7 @@
             // Bar Chart
             const ctx1 = document.getElementById('sentimentTrendsChart').getContext('2d');
             if (sentimentChart) sentimentChart.destroy();
-            
+
             sentimentChart = new Chart(ctx1, {
                 type: 'bar',
                 data: {
@@ -773,6 +1046,274 @@
             if (seconds < 2592000) return Math.floor(seconds / 604800) + ' weeks ago';
             if (seconds < 31536000) return Math.floor(seconds / 2592000) + ' months ago';
             return Math.floor(seconds / 31536000) + ' years ago';
+        }
+
+        // ======= BRANCH VISUALIZATION =======
+
+        async function loadBranches() {
+            try {
+                const response = await fetch('/api/reviews/branches');
+                if (!response.ok) throw new Error('Failed to fetch branches');
+
+                allBranches = await response.json();
+                console.log(`✅ Loaded ${allBranches.length} branches`);
+
+                displayBranchCards(allBranches);
+                renderBranchComparisonChart(allBranches);
+                renderBranchShareChart(allBranches);
+            } catch (err) {
+                console.error('Failed to load branches:', err);
+                document.getElementById('branchVisualization').innerHTML = `
+                    <div class="text-center py-4 text-danger">
+                        <i class="bi bi-exclamation-triangle fs-3"></i>
+                        <p class="mt-2">Failed to load branch data</p>
+                    </div>
+                `;
+            }
+        }
+
+        function displayBranchCards(branches) {
+            const container = document.getElementById('branchVisualization');
+
+            if (branches.length === 0) {
+                container.innerHTML = '<p class="text-center text-muted py-4">No branch data available</p>';
+                return;
+            }
+
+            const colors = ['#6366f1', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981', '#3b82f6', '#ef4444', '#14b8a6', '#f97316', '#84cc16'];
+
+            container.innerHTML = `
+                <div class="branch-grid">
+                    ${branches.map((b, i) => {
+                const total = b.positive + b.neutral + b.negative;
+                const posPct = total > 0 ? (b.positive / total * 100).toFixed(1) : 0;
+                const neuPct = total > 0 ? (b.neutral / total * 100).toFixed(1) : 0;
+                const negPct = total > 0 ? (b.negative / total * 100).toFixed(1) : 0;
+                const color = colors[i % colors.length];
+
+                // Aspect score helper
+                function aspectBar(icon, label, value, max, unit, colorGrad) {
+                    if (value === null || value === undefined) return '';
+                    const pct = Math.min((value / max) * 100, 100);
+                    const scoreColor = pct >= 80 ? '#22c55e' : pct >= 60 ? '#eab308' : '#ef4444';
+                    return `
+                        <div class="aspect-row">
+                            <div class="aspect-icon">${icon}</div>
+                            <div class="aspect-label">${label}</div>
+                            <div class="aspect-bar-track">
+                                <div class="aspect-bar-fill" style="width:${pct}%;background:${colorGrad || scoreColor};"></div>
+                            </div>
+                            <div class="aspect-value" style="color:${scoreColor};">${value}${unit}</div>
+                        </div>`;
+                }
+
+                return `
+                        <div class="branch-viz-card" style="--accent-color: ${color}">
+                            <div style="position:absolute;top:0;left:0;right:0;height:4px;background:${color};border-radius:16px 16px 0 0;"></div>
+                            <div class="branch-viz-header">
+                                <div>
+                                    <div class="branch-viz-name">${b.branch_name}</div>
+                                    <div class="branch-viz-city"><i class="bi bi-geo-alt"></i> ${b.city}</div>
+                                </div>
+                                <div class="branch-viz-rating">
+                                    <i class="bi bi-star-fill" style="color:#f59e0b;"></i>
+                                    ${b.avg_rating}
+                                </div>
+                            </div>
+
+                            <div class="branch-viz-stats">
+                                <div class="branch-viz-stat">
+                                    <div class="branch-viz-stat-value">${b.total_reviews.toLocaleString()}</div>
+                                    <div class="branch-viz-stat-label">Reviews</div>
+                                </div>
+                                <div class="branch-viz-stat" style="background:#dcfce7;">
+                                    <div class="branch-viz-stat-value" style="color:#16a34a;">${b.positive}</div>
+                                    <div class="branch-viz-stat-label">Positive</div>
+                                </div>
+                                <div class="branch-viz-stat" style="background:#fef9c3;">
+                                    <div class="branch-viz-stat-value" style="color:#ca8a04;">${b.neutral}</div>
+                                    <div class="branch-viz-stat-label">Neutral</div>
+                                </div>
+                                <div class="branch-viz-stat" style="background:#fee2e2;">
+                                    <div class="branch-viz-stat-value" style="color:#dc2626;">${b.negative}</div>
+                                    <div class="branch-viz-stat-label">Negative</div>
+                                </div>
+                            </div>
+
+                            <div class="sentiment-bar-container">
+                                <div class="sentiment-bar-label">
+                                    <span>Sentiment Breakdown</span>
+                                    <span style="color:#22c55e;">${posPct}% positive</span>
+                                </div>
+                                <div class="sentiment-bar">
+                                    <div class="sentiment-bar-positive" style="width:${posPct}%"></div>
+                                    <div class="sentiment-bar-neutral" style="width:${neuPct}%"></div>
+                                    <div class="sentiment-bar-negative" style="width:${negPct}%"></div>
+                                </div>
+                                <div class="sentiment-legend">
+                                    <div class="sentiment-legend-item">
+                                        <div class="sentiment-legend-dot" style="background:#22c55e;"></div>
+                                        Positive ${posPct}%
+                                    </div>
+                                    <div class="sentiment-legend-item">
+                                        <div class="sentiment-legend-dot" style="background:#eab308;"></div>
+                                        Neutral ${neuPct}%
+                                    </div>
+                                    <div class="sentiment-legend-item">
+                                        <div class="sentiment-legend-dot" style="background:#ef4444;"></div>
+                                        Negative ${negPct}%
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="aspect-scores">
+                                <div class="aspect-scores-title">Detailed Ratings</div>
+                                ${aspectBar('🏠', 'Atmosphere', b.atmosphere_score, 5, '/5')}
+                                ${aspectBar('🍽️', 'Food & Drink', b.food_score, 5, '/5')}
+                                ${aspectBar('👥', 'Service', b.service_score, 5, '/5')}
+                                ${b.price_avg ? `
+                                <div class="aspect-row">
+                                    <div class="aspect-icon">💰</div>
+                                    <div class="aspect-label">Avg Price</div>
+                                    <div class="aspect-bar-track">
+                                        <div class="aspect-bar-fill" style="width:${Math.min(b.price_avg / 5000 * 100, 100)}%;background:linear-gradient(90deg,#6366f1,#8b5cf6);"></div>
+                                    </div>
+                                    <div class="aspect-value" style="color:#6366f1;">Rs.${Math.round(b.price_avg)}</div>
+                                </div>` : ''}
+                            </div>
+                        </div>
+                    `;
+            }).join('')}
+                </div>
+            `;
+        }
+
+        function renderBranchComparisonChart(branches) {
+            const ctx = document.getElementById('branchComparisonChart');
+            if (!ctx) return;
+
+            if (branchComparisonChart) branchComparisonChart.destroy();
+
+            const labels = branches.map(b => b.branch_name.replace('Barista ', ''));
+
+            branchComparisonChart = new Chart(ctx.getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Positive',
+                            data: branches.map(b => b.positive),
+                            backgroundColor: '#22c55e',
+                            borderRadius: 4,
+                        },
+                        {
+                            label: 'Neutral',
+                            data: branches.map(b => b.neutral),
+                            backgroundColor: '#eab308',
+                            borderRadius: 4,
+                        },
+                        {
+                            label: 'Negative',
+                            data: branches.map(b => b.negative),
+                            backgroundColor: '#ef4444',
+                            borderRadius: 4,
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: { usePointStyle: true, padding: 15 }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                afterBody(items) {
+                                    const idx = items[0].dataIndex;
+                                    const b = branches[idx];
+                                    return `Total: ${b.total_reviews} | Avg Rating: ${b.avg_rating}`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            stacked: true,
+                            ticks: { font: { size: 11 } }
+                        },
+                        y: {
+                            stacked: true,
+                            beginAtZero: true,
+                            title: { display: true, text: 'Number of Reviews' }
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderBranchShareChart(branches) {
+            const ctx = document.getElementById('branchShareChart');
+            if (!ctx) return;
+
+            if (branchShareChart) branchShareChart.destroy();
+
+            const colors = ['#6366f1', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981', '#3b82f6', '#ef4444', '#14b8a6', '#f97316', '#84cc16'];
+
+            branchShareChart = new Chart(ctx.getContext('2d'), {
+                type: 'doughnut',
+                data: {
+                    labels: branches.map(b => b.branch_name.replace('Barista ', '')),
+                    datasets: [{
+                        data: branches.map(b => b.total_reviews),
+                        backgroundColor: colors.slice(0, branches.length),
+                        borderWidth: 2,
+                        borderColor: '#fff',
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { usePointStyle: true, font: { size: 11 }, padding: 10 }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label(item) {
+                                    const total = branches.reduce((s, b) => s + b.total_reviews, 0);
+                                    const pct = (item.raw / total * 100).toFixed(1);
+                                    return `${item.label}: ${item.raw.toLocaleString()} (${pct}%)`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function sortBranches() {
+            const sortBy = document.getElementById('branchSortBy').value;
+            let sorted = [...allBranches];
+
+            switch (sortBy) {
+                case 'rating':
+                    sorted.sort((a, b) => b.avg_rating - a.avg_rating);
+                    break;
+                case 'positive':
+                    sorted.sort((a, b) => b.positive_pct - a.positive_pct);
+                    break;
+                case 'negative':
+                    sorted.sort((a, b) => b.negative_pct - a.negative_pct);
+                    break;
+                default:
+                    sorted.sort((a, b) => b.total_reviews - a.total_reviews);
+            }
+
+            displayBranchCards(sorted);
         }
     </script>
 </body>

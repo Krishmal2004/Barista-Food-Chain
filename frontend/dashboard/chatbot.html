@@ -1,0 +1,1167 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Chatbot | Barista Coffee Chain</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <!-- Google Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <!-- Custom Dashboard CSS -->
+    <link rel="stylesheet" href="css/dashboard.css">
+    <style>
+        /* ========== Chatbot Page Styles ========== */
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            height: calc(100vh - var(--topbar-height) - 60px);
+            max-height: calc(100vh - var(--topbar-height) - 60px);
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+        }
+
+        /* Chat Header */
+        .chat-header {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            padding: 20px 25px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            border-bottom: 2px solid rgba(192, 160, 98, 0.3);
+        }
+
+        .chat-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #c0a062, #d4b67a);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: #1a1a2e;
+            box-shadow: 0 4px 15px rgba(192, 160, 98, 0.4);
+            animation: pulse-soft 2s infinite;
+        }
+
+        @keyframes pulse-soft {
+
+            0%,
+            100% {
+                box-shadow: 0 4px 15px rgba(192, 160, 98, 0.4);
+            }
+
+            50% {
+                box-shadow: 0 4px 25px rgba(192, 160, 98, 0.7);
+            }
+        }
+
+        .chat-header-info h5 {
+            color: #fff;
+            margin: 0;
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .chat-header-info p {
+            color: rgba(255, 255, 255, 0.7);
+            margin: 0;
+            font-size: 0.8rem;
+        }
+
+        .model-badge {
+            background: rgba(192, 160, 98, 0.2);
+            color: #d4b67a;
+            border: 1px solid rgba(192, 160, 98, 0.3);
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            margin-left: auto;
+            letter-spacing: 0.5px;
+        }
+
+        /* Messages Area */
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+            scroll-behavior: smooth;
+        }
+
+        .chat-messages::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .chat-messages::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .chat-messages::-webkit-scrollbar-thumb {
+            background: rgba(192, 160, 98, 0.3);
+            border-radius: 10px;
+        }
+
+        /* Message Bubbles */
+        .message {
+            display: flex;
+            gap: 12px;
+            max-width: 85%;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(15px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message.user {
+            align-self: flex-end;
+            flex-direction: row-reverse;
+        }
+
+        .message-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+            flex-shrink: 0;
+        }
+
+        .message.bot .message-avatar {
+            background: linear-gradient(135deg, #c0a062, #d4b67a);
+            color: #1a1a2e;
+        }
+
+        .message.user .message-avatar {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: #fff;
+        }
+
+        .message-bubble {
+            padding: 14px 18px;
+            border-radius: 18px;
+            line-height: 1.6;
+            font-size: 0.92rem;
+            position: relative;
+        }
+
+        .message.bot .message-bubble {
+            background: #fff;
+            color: #333;
+            border-bottom-left-radius: 4px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+        }
+
+        .message.user .message-bubble {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: #fff;
+            border-bottom-right-radius: 4px;
+            box-shadow: 0 2px 10px rgba(99, 102, 241, 0.3);
+        }
+
+        .message-time {
+            font-size: 0.7rem;
+            color: #999;
+            margin-top: 5px;
+            display: block;
+        }
+
+        .message.user .message-time {
+            color: rgba(255, 255, 255, 0.6);
+            text-align: right;
+        }
+
+        /* Typing Indicator */
+        .typing-indicator {
+            display: flex;
+            gap: 4px;
+            padding: 10px 16px;
+            background: #fff;
+            border-radius: 18px;
+            border-bottom-left-radius: 4px;
+            width: fit-content;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+        }
+
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #c0a062;
+            animation: bounce 1.4s infinite ease-in-out;
+        }
+
+        .typing-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes bounce {
+
+            0%,
+            80%,
+            100% {
+                transform: scale(0.6);
+                opacity: 0.4;
+            }
+
+            40% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        /* Quick Suggestions */
+        .quick-suggestions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .quick-btn {
+            background: linear-gradient(135deg, rgba(192, 160, 98, 0.1), rgba(192, 160, 98, 0.05));
+            border: 1px solid rgba(192, 160, 98, 0.3);
+            color: #6f4e37;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.82rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .quick-btn:hover {
+            background: linear-gradient(135deg, #c0a062, #d4b67a);
+            color: #fff;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(192, 160, 98, 0.3);
+        }
+
+        /* Chat Input */
+        .chat-input-area {
+            padding: 20px 25px;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(20px);
+            border-top: 1px solid rgba(0, 0, 0, 0.06);
+        }
+
+        .chat-input-wrapper {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .chat-input {
+            flex: 1;
+            border: 2px solid #e5e7eb;
+            border-radius: 25px;
+            padding: 14px 22px;
+            font-size: 0.95rem;
+            font-family: var(--font-body);
+            outline: none;
+            transition: all 0.3s ease;
+            background: #fff;
+        }
+
+        .chat-input:focus {
+            border-color: #c0a062;
+            box-shadow: 0 0 0 3px rgba(192, 160, 98, 0.15);
+        }
+
+        .chat-input::placeholder {
+            color: #aaa;
+        }
+
+        .chat-send-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: none;
+            background: linear-gradient(135deg, #c0a062, #d4b67a);
+            color: #1a1a2e;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 15px rgba(192, 160, 98, 0.3);
+        }
+
+        .chat-send-btn:hover {
+            transform: scale(1.08);
+            box-shadow: 0 6px 20px rgba(192, 160, 98, 0.5);
+        }
+
+        .chat-send-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* ===== Response Card Styles ===== */
+        .response-card {
+            background: linear-gradient(135deg, #f8f9ff, #f0f4ff);
+            border: 1px solid #e0e7ff;
+            border-radius: 14px;
+            padding: 18px;
+            margin-top: 12px;
+        }
+
+        .response-card-title {
+            font-weight: 700;
+            font-size: 0.95rem;
+            color: #1e293b;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Sentiment Bar */
+        .sentiment-mini-bar {
+            display: flex;
+            height: 10px;
+            border-radius: 5px;
+            overflow: hidden;
+            margin: 8px 0;
+            background: #e2e8f0;
+        }
+
+        .sentiment-mini-bar .pos {
+            background: linear-gradient(90deg, #22c55e, #4ade80);
+        }
+
+        .sentiment-mini-bar .neu {
+            background: linear-gradient(90deg, #eab308, #facc15);
+        }
+
+        .sentiment-mini-bar .neg {
+            background: linear-gradient(90deg, #ef4444, #f87171);
+        }
+
+        .sentiment-stats {
+            display: flex;
+            gap: 15px;
+            margin-top: 8px;
+            font-size: 0.82rem;
+        }
+
+        .sentiment-stat {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .stat-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .stat-dot.positive {
+            background: #22c55e;
+        }
+
+        .stat-dot.neutral {
+            background: #eab308;
+        }
+
+        .stat-dot.negative {
+            background: #ef4444;
+        }
+
+        /* Aspect Scores */
+        .aspect-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        .aspect-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.82rem;
+        }
+
+        .aspect-icon {
+            font-size: 1rem;
+            width: 20px;
+            text-align: center;
+        }
+
+        .aspect-bar-mini {
+            flex: 1;
+            height: 6px;
+            background: #e2e8f0;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .aspect-bar-fill-mini {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 0.8s ease;
+        }
+
+        .aspect-val {
+            font-weight: 700;
+            font-size: 0.82rem;
+            width: 28px;
+            text-align: right;
+        }
+
+        /* Product Cards */
+        .product-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .product-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            border: 1px solid;
+        }
+
+        .product-chip.positive {
+            background: #d4edda;
+            color: #155724;
+            border-color: #c3e6cb;
+        }
+
+        .product-chip.negative {
+            background: #f8d7da;
+            color: #721c24;
+            border-color: #f5c6cb;
+        }
+
+        .product-chip.neutral {
+            background: #fff3cd;
+            color: #856404;
+            border-color: #ffeaa7;
+        }
+
+        .product-mentions {
+            font-size: 0.7rem;
+            opacity: 0.7;
+        }
+
+        /* Sample Reviews */
+        .sample-review {
+            background: #f8fafc;
+            border-left: 3px solid;
+            padding: 10px 14px;
+            margin-top: 8px;
+            border-radius: 0 8px 8px 0;
+            font-size: 0.82rem;
+            font-style: italic;
+            color: #475569;
+        }
+
+        .sample-review.positive {
+            border-left-color: #22c55e;
+        }
+
+        .sample-review.negative {
+            border-left-color: #ef4444;
+        }
+
+        /* Branch Ranking */
+        .branch-rank-list {
+            margin-top: 10px;
+        }
+
+        .branch-rank-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px;
+            border-radius: 10px;
+            margin-bottom: 6px;
+            background: #f8fafc;
+            transition: all 0.2s ease;
+        }
+
+        .branch-rank-item:hover {
+            background: #f0f4ff;
+        }
+
+        .rank-number {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #c0a062, #d4b67a);
+            color: #1a1a2e;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 0.85rem;
+        }
+
+        .rank-info {
+            flex: 1;
+        }
+
+        .rank-name {
+            font-weight: 600;
+            font-size: 0.88rem;
+            color: #1e293b;
+        }
+
+        .rank-meta {
+            font-size: 0.75rem;
+            color: #64748b;
+        }
+
+        .rank-rating {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-weight: 700;
+            color: #92400e;
+            font-size: 0.9rem;
+        }
+
+        /* Capabilities List */
+        .capability-list {
+            list-style: none;
+            padding: 0;
+            margin-top: 8px;
+        }
+
+        .capability-list li {
+            padding: 8px 0;
+            font-size: 0.88rem;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .capability-list li:last-child {
+            border-bottom: none;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .chat-container {
+                border-radius: 0;
+                height: calc(100vh - var(--topbar-height) - 20px);
+            }
+
+            .message {
+                max-width: 95%;
+            }
+
+            .aspect-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="dashboard-wrapper">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <i class="bi bi-cup-hot-fill text-gold fs-2"></i>
+                <h4 class="mb-0 fw-bold">Barista Chain</h4>
+            </div>
+
+            <nav class="sidebar-nav">
+                <a href="user.html" class="nav-item">
+                    <i class="bi bi-speedometer2"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="reports.html" class="nav-item">
+                    <i class="bi bi-file-earmark-bar-graph"></i>
+                    <span>Custom Reports</span>
+                </a>
+                <a href="reviews.html" class="nav-item">
+                    <i class="bi bi-chat-left-quote"></i>
+                    <span>Reviews Analysis</span>
+                </a>
+                <a href="chatbot.html" class="nav-item active">
+                    <i class="bi bi-robot"></i>
+                    <span>AI Chatbot</span>
+                </a>
+                <a href="map.html" class="nav-item">
+                    <i class="bi bi-geo-alt"></i>
+                    <span>Branch Locations</span>
+                </a>
+                <a href="branch-location.html" class="nav-item">
+                    <i class="bi bi-pin-map"></i>
+                    <span>Manage Locations</span>
+                </a>
+                <a href="users.html" class="nav-item">
+                    <i class="bi bi-people"></i>
+                    <span>Registered Users</span>
+                </a>
+                <div class="nav-divider"></div>
+                <a href="#" class="nav-item">
+                    <i class="bi bi-gear"></i>
+                    <span>Settings</span>
+                </a>
+                <a href="../index.html" class="nav-item">
+                    <i class="bi bi-box-arrow-left"></i>
+                    <span>Logout</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="user-profile">
+                    <img src="https://i.pravatar.cc/150?img=12" alt="User" class="profile-img">
+                    <div class="user-info">
+                        <div class="user-name">John Doe</div>
+                        <div class="user-role">Administrator</div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Top Navigation Bar -->
+            <nav class="topbar">
+                <button class="btn btn-link sidebar-toggle" id="sidebarToggle">
+                    <i class="bi bi-list fs-4"></i>
+                </button>
+                <h5 class="mb-0 fw-bold"><i class="bi bi-robot me-2"></i>AI Sentiment Chatbot</h5>
+                <div class="topbar-actions">
+                    <span class="badge bg-success rounded-pill" id="statusBadge">
+                        <i class="bi bi-circle-fill me-1" style="font-size: 0.5rem;"></i>Online
+                    </span>
+                </div>
+            </nav>
+
+            <!-- Content Area -->
+            <div class="content-area">
+                <div class="chat-container">
+                    <!-- Chat Header -->
+                    <div class="chat-header">
+                        <div class="chat-avatar">
+                            <i class="bi bi-robot"></i>
+                        </div>
+                        <div class="chat-header-info">
+                            <h5>Barista AI Assistant</h5>
+                            <p>Powered by Gemini 2.5</p>
+                        </div>
+                        <span class="model-badge" id="modelBadge">
+                            <i class="bi bi-cpu me-1"></i>Loading...
+                        </span>
+                    </div>
+
+                    <!-- Messages Area -->
+                    <div class="chat-messages" id="chatMessages">
+                        <!-- Welcome message will be injected by JS -->
+                    </div>
+
+                    <!-- Chat Input -->
+                    <div class="chat-input-area">
+                        <div class="chat-input-wrapper">
+                            <input type="text" class="chat-input" id="chatInput"
+                                placeholder="Ask about a branch, product sentiment, or customer feedback..."
+                                autocomplete="off">
+                            <button class="chat-send-btn" id="sendBtn" onclick="sendMessage()">
+                                <i class="bi bi-send-fill"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/dashboard.js"></script>
+    <script>
+        // ===== Chatbot Frontend Logic =====
+        const chatMessages = document.getElementById('chatMessages');
+        const chatInput = document.getElementById('chatInput');
+        const sendBtn = document.getElementById('sendBtn');
+        const modelBadge = document.getElementById('modelBadge');
+        let isProcessing = false;
+        let activeBranchContext = null;
+
+        // Sidebar toggle
+        document.getElementById('sidebarToggle')?.addEventListener('click', () => {
+            document.getElementById('sidebar')?.classList.toggle('active');
+        });
+
+        // Send message on Enter key
+        chatInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+
+        // Initialize with welcome message
+        document.addEventListener('DOMContentLoaded', () => {
+            checkBotHealth();
+            sendBotMessage({
+                type: 'greeting',
+                message: "Hello! 👋 I'm your **Barista Coffee Chain AI** assistant. I analyze customer reviews and sentiment for all your branches using advanced NLP models.",
+                suggestions: [
+                    "How is Barista Wattala?",
+                    "Which branch has the best reviews?",
+                    "What do customers say about coffee?",
+                    "Which branch needs improvement?"
+                ]
+            });
+        });
+
+        // ===== Check Bot Health =====
+        async function checkBotHealth() {
+            try {
+                const response = await fetch('/api/health');
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.gemini_loaded) {
+                        modelBadge.innerHTML = '<i class="bi bi-stars me-1"></i>Gemini 2.5 Active';
+                        modelBadge.style.color = '#fff';
+                        modelBadge.style.background = 'linear-gradient(135deg, #4ade80, #22c55e)';
+                        modelBadge.style.borderColor = '#16a34a';
+                    } else if (data.model_loaded) {
+                        modelBadge.innerHTML = '<i class="bi bi-cpu me-1"></i>Pretrained AI';
+                    } else {
+                        modelBadge.innerHTML = '<i class="bi bi-gear me-1"></i>Keyword-Based';
+                    }
+                }
+            } catch (err) {
+                console.error('Failed to check bot health:', err);
+                modelBadge.innerHTML = '<i class="bi bi-exclamation-triangle me-1"></i>Offline';
+            }
+        }
+
+        // ===== Send User Message =====
+        async function sendMessage() {
+            const text = chatInput.value.trim();
+            if (!text || isProcessing) return;
+
+            // Add user message
+            addUserBubble(text);
+            chatInput.value = '';
+            isProcessing = true;
+            sendBtn.disabled = true;
+
+            // Show typing indicator
+            const typingEl = showTyping();
+
+            try {
+                const response = await fetch('/api/chatbot', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        message: text,
+                        context: { active_branch: activeBranchContext }
+                    })
+                });
+
+                if (!response.ok) throw new Error('Server error');
+
+                const data = await response.json();
+                removeTyping(typingEl);
+                sendBotMessage(data);
+
+                // Update model badge
+                if (data.model_used || data.model_status) {
+                    const model = data.model_used || data.model_status;
+                    if (model === 'gemini') {
+                        modelBadge.innerHTML = '<i class="bi bi-stars me-1"></i>Gemini 2.5 Active';
+                        modelBadge.style.color = '#fff';
+                        modelBadge.style.background = 'linear-gradient(135deg, #4ade80, #22c55e)';
+                        modelBadge.style.borderColor = '#16a34a';
+                    } else {
+                        modelBadge.innerHTML = model === 'pretrained'
+                            ? '<i class="bi bi-cpu me-1"></i>Pretrained AI'
+                            : '<i class="bi bi-gear me-1"></i>Keyword-Based';
+                    }
+                }
+            } catch (err) {
+                removeTyping(typingEl);
+                addBotBubble('Sorry, I encountered an error connecting to the AI service. Please make sure both the Flask ML service (port 5000) and the backend (port 3000) are running. 🔧');
+                console.error('Chatbot error:', err);
+            }
+
+            isProcessing = false;
+            sendBtn.disabled = false;
+            chatInput.focus();
+        }
+
+        // ===== Add User Message Bubble =====
+        function addUserBubble(text) {
+            const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            const html = `
+                <div class="message user">
+                    <div class="message-avatar"><i class="bi bi-person-fill"></i></div>
+                    <div class="message-bubble">
+                        ${escapeHtml(text)}
+                        <span class="message-time">${time}</span>
+                    </div>
+                </div>
+            `;
+            chatMessages.insertAdjacentHTML('beforeend', html);
+            scrollToBottom();
+        }
+
+        // ===== Add Simple Bot Bubble =====
+        function addBotBubble(htmlContent) {
+            const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            const html = `
+                <div class="message bot">
+                    <div class="message-avatar"><i class="bi bi-robot"></i></div>
+                    <div class="message-bubble">
+                        ${htmlContent}
+                        <span class="message-time">${time}</span>
+                    </div>
+                </div>
+            `;
+            chatMessages.insertAdjacentHTML('beforeend', html);
+            scrollToBottom();
+        }
+
+        // ===== Send Complex Bot Message =====
+        function sendBotMessage(data) {
+            const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            let contentHtml = '';
+
+            if (data.branch && data.branch.name) {
+                activeBranchContext = data.branch.name;
+            }
+
+            switch (data.type) {
+                case 'greeting':
+                case 'help':
+                    contentHtml = renderGreetingOrHelp(data);
+                    break;
+                case 'branch_analysis':
+                    contentHtml = renderBranchAnalysis(data);
+                    break;
+                case 'best_branch':
+                case 'worst_branch':
+                case 'compare':
+                    contentHtml = renderBranchRanking(data);
+                    break;
+                case 'general_analysis':
+                    contentHtml = renderGeneralAnalysis(data);
+                    break;
+                case 'not_found':
+                    contentHtml = renderNotFound(data);
+                    break;
+                default:
+                    contentHtml = formatMarkdown(data.message || 'I received your message.');
+                    break;
+            }
+
+            const html = `
+                <div class="message bot">
+                    <div class="message-avatar"><i class="bi bi-robot"></i></div>
+                    <div class="message-bubble">
+                        ${contentHtml}
+                        <span class="message-time">${time}</span>
+                    </div>
+                </div>
+            `;
+            chatMessages.insertAdjacentHTML('beforeend', html);
+            scrollToBottom();
+        }
+
+        // ===== Renderers =====
+
+        function renderGreetingOrHelp(data) {
+            let html = formatMarkdown(data.message);
+
+            if (data.capabilities) {
+                html += '<ul class="capability-list">';
+                data.capabilities.forEach(c => {
+                    html += `<li>${formatMarkdown(c)}</li>`;
+                });
+                html += '</ul>';
+            }
+
+            if (data.suggestions) {
+                html += '<div class="quick-suggestions">';
+                data.suggestions.forEach(s => {
+                    html += `<button class="quick-btn" onclick="quickAsk('${escapeHtml(s)}')">${escapeHtml(s)}</button>`;
+                });
+                html += '</div>';
+            }
+
+            return html;
+        }
+
+        function renderBranchAnalysis(data) {
+            let html = formatMarkdown(data.message);
+
+            // Branch info card
+            if (data.branch) {
+                html += `
+                    <div class="response-card">
+                        <div class="response-card-title">
+                            <i class="bi bi-building"></i> ${escapeHtml(data.branch.name)}
+                            <span style="font-weight: 400; font-size: 0.8rem; color: #64748b;">— ${escapeHtml(data.branch.city)}</span>
+                        </div>
+                        <div style="display: flex; gap: 20px; font-size: 0.85rem; margin-bottom: 10px;">
+                            <span><strong>${data.branch.total_reviews}</strong> reviews</span>
+                            <span>⭐ <strong>${data.branch.avg_rating}</strong>/5</span>
+                        </div>
+                `;
+
+                // Sentiment bar
+                if (data.sentiment) {
+                    const s = data.sentiment;
+                    const total = s.analyzed || 1;
+                    const posW = (s.positive / total * 100).toFixed(1);
+                    const neuW = (s.neutral / total * 100).toFixed(1);
+                    const negW = (s.negative / total * 100).toFixed(1);
+
+                    html += `
+                        <div class="sentiment-mini-bar">
+                            <div class="pos" style="width: ${posW}%"></div>
+                            <div class="neu" style="width: ${neuW}%"></div>
+                            <div class="neg" style="width: ${negW}%"></div>
+                        </div>
+                        <div class="sentiment-stats">
+                            <span class="sentiment-stat"><span class="stat-dot positive"></span> ${s.positive} Positive (${s.positive_pct}%)</span>
+                            <span class="sentiment-stat"><span class="stat-dot neutral"></span> ${s.neutral} Neutral</span>
+                            <span class="sentiment-stat"><span class="stat-dot negative"></span> ${s.negative} Negative (${s.negative_pct}%)</span>
+                        </div>
+                    `;
+                }
+
+                // Aspect scores
+                if (data.aspects && Object.keys(data.aspects).length > 0) {
+                    html += `
+                        <div style="margin-top: 14px;">
+                            <div class="response-card-title" style="font-size: 0.85rem;">
+                                <i class="bi bi-bar-chart"></i> Aspect Scores
+                            </div>
+                            <div class="aspect-grid">
+                    `;
+                    const aspectIcons = { food: '🍕', service: '👨‍🍳', atmosphere: '✨', price: '💰' };
+                    const aspectColors = { food: '#22c55e', service: '#3b82f6', atmosphere: '#a855f7', price: '#f59e0b' };
+                    for (const [key, val] of Object.entries(data.aspects)) {
+                        const pct = Math.min(val / 5 * 100, 100);
+                        html += `
+                            <div class="aspect-item">
+                                <span class="aspect-icon">${aspectIcons[key] || '📊'}</span>
+                                <span style="width: 70px; font-weight: 600; text-transform: capitalize;">${key}</span>
+                                <div class="aspect-bar-mini">
+                                    <div class="aspect-bar-fill-mini" style="width: ${pct}%; background: ${aspectColors[key] || '#6366f1'};"></div>
+                                </div>
+                                <span class="aspect-val">${val}</span>
+                            </div>
+                        `;
+                    }
+                    html += '</div></div>';
+                }
+
+                html += '</div>'; // close response-card
+            }
+
+            // Product mentions
+            if (data.products && data.products.length > 0) {
+                html += `
+                    <div class="response-card" style="margin-top: 10px;">
+                        <div class="response-card-title">
+                            <i class="bi bi-tag"></i> Product Mentions
+                        </div>
+                        <div class="product-grid">
+                `;
+                data.products.forEach(p => {
+                    html += `
+                        <span class="product-chip ${p.sentiment}">
+                            ${escapeHtml(p.product)}
+                            <span class="product-mentions">(${p.mentions})</span>
+                            ${p.sentiment === 'positive' ? '👍' : p.sentiment === 'negative' ? '👎' : '➖'}
+                        </span>
+                    `;
+                });
+                html += '</div></div>';
+            }
+
+            // Sample reviews
+            if (data.sample_reviews) {
+                const { positive, negative } = data.sample_reviews;
+                if ((positive && positive.length > 0) || (negative && negative.length > 0)) {
+                    html += `<div class="response-card" style="margin-top: 10px;">
+                        <div class="response-card-title"><i class="bi bi-quote"></i> Sample Reviews</div>`;
+
+                    if (positive && positive.length > 0) {
+                        html += `<div style="font-size: 0.78rem; font-weight: 600; color: #22c55e; margin-bottom: 4px;">👍 Positive</div>`;
+                        positive.slice(0, 2).forEach(r => {
+                            html += `<div class="sample-review positive">"${escapeHtml(r.text)}..."</div>`;
+                        });
+                    }
+                    if (negative && negative.length > 0) {
+                        html += `<div style="font-size: 0.78rem; font-weight: 600; color: #ef4444; margin-top: 10px; margin-bottom: 4px;">👎 Negative</div>`;
+                        negative.slice(0, 2).forEach(r => {
+                            html += `<div class="sample-review negative">"${escapeHtml(r.text)}..."</div>`;
+                        });
+                    }
+                    html += '</div>';
+                }
+            }
+
+            return html;
+        }
+
+        function renderBranchRanking(data) {
+            let html = formatMarkdown(data.message);
+
+            if (data.branches && data.branches.length > 0) {
+                html += '<div class="response-card"><div class="branch-rank-list">';
+                data.branches.forEach((b, i) => {
+                    html += `
+                        <div class="branch-rank-item" onclick="quickAsk('Tell me about ${escapeHtml(b.branch_name)}')" style="cursor: pointer;">
+                            <div class="rank-number">${i + 1}</div>
+                            <div class="rank-info">
+                                <div class="rank-name">${escapeHtml(b.branch_name)}</div>
+                                <div class="rank-meta">${b.city || ''} · ${b.total_reviews} reviews</div>
+                            </div>
+                            <div class="rank-rating">
+                                <i class="bi bi-star-fill" style="color: #f59e0b; font-size: 0.8rem;"></i>
+                                ${b.avg_rating}
+                            </div>
+                        </div>
+                    `;
+                });
+                html += '</div></div>';
+            }
+
+            return html;
+        }
+
+        function renderGeneralAnalysis(data) {
+            let html = formatMarkdown(data.message);
+
+            if (data.products && data.products.length > 0) {
+                html += `
+                    <div class="response-card">
+                        <div class="response-card-title"><i class="bi bi-tag"></i> Product Sentiment Across All Branches</div>
+                        <div class="product-grid">
+                `;
+                data.products.forEach(p => {
+                    html += `
+                        <span class="product-chip ${p.sentiment}">
+                            ${escapeHtml(p.product)}
+                            <span class="product-mentions">(${p.mentions})</span>
+                            ${p.sentiment === 'positive' ? '👍' : p.sentiment === 'negative' ? '👎' : '➖'}
+                        </span>
+                    `;
+                });
+                html += '</div></div>';
+            }
+
+            if (data.suggestions) {
+                html += '<div class="quick-suggestions">';
+                data.suggestions.forEach(s => {
+                    html += `<button class="quick-btn" onclick="quickAsk('${escapeHtml(s)}')">${escapeHtml(s)}</button>`;
+                });
+                html += '</div>';
+            }
+
+            return html;
+        }
+
+        function renderNotFound(data) {
+            let html = formatMarkdown(data.message);
+
+            if (data.suggestions) {
+                html += '<div class="quick-suggestions">';
+                data.suggestions.forEach(s => {
+                    html += `<button class="quick-btn" onclick="quickAsk('${escapeHtml(s)}')">${escapeHtml(s)}</button>`;
+                });
+                html += '</div>';
+            }
+
+            return html;
+        }
+
+        // ===== Utility Functions =====
+
+        function quickAsk(text) {
+            chatInput.value = text;
+            sendMessage();
+        }
+
+        function showTyping() {
+            const el = document.createElement('div');
+            el.className = 'message bot';
+            el.id = 'typingIndicator';
+            el.innerHTML = `
+                <div class="message-avatar"><i class="bi bi-robot"></i></div>
+                <div class="typing-indicator">
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                </div>
+            `;
+            chatMessages.appendChild(el);
+            scrollToBottom();
+            return el;
+        }
+
+        function removeTyping(el) {
+            if (el && el.parentNode) el.parentNode.removeChild(el);
+        }
+
+        function scrollToBottom() {
+            setTimeout(() => {
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }, 50);
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function formatMarkdown(text) {
+            if (!text) return '';
+            return text
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                .replace(/\n/g, '<br>');
+        }
+    </script>
+</body>
+
+</html>

@@ -326,7 +326,7 @@
                 }
             } catch (err) {
                 console.error("Failed to load profile:", err);
-                alert(`Error loading profile: ${err.message}`);
+                // Silently fallback to default data instead of alerting the user
                 loadDefaultData();
             }
         }

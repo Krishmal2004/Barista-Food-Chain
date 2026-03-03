@@ -133,7 +133,7 @@
             justify-content: center;
             font-size: 16px;
             border: 3px solid white;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.3);
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
         }
 
         .no-locations {
@@ -158,9 +158,17 @@
                     <i class="bi bi-speedometer2"></i>
                     <span>Dashboard</span>
                 </a>
+                <a href="reports.html" class="nav-item">
+                    <i class="bi bi-file-earmark-bar-graph"></i>
+                    <span>Custom Reports</span>
+                </a>
                 <a href="reviews.html" class="nav-item">
                     <i class="bi bi-chat-left-quote"></i>
                     <span>Reviews Analysis</span>
+                </a>
+                <a href="chatbot.html" class="nav-item">
+                    <i class="bi bi-robot"></i>
+                    <span>AI Chatbot</span>
                 </a>
                 <a href="map.html" class="nav-item active">
                     <i class="bi bi-geo-alt"></i>
@@ -215,7 +223,8 @@
                         <div class="branch-sidebar">
                             <div class="p-3 border-bottom">
                                 <h6 class="mb-3 fw-bold">All Branches (<span id="branchCount">0</span>)</h6>
-                                <input type="text" class="form-control" id="searchBranch" placeholder="Search branches..." onkeyup="filterBranches()">
+                                <input type="text" class="form-control" id="searchBranch"
+                                    placeholder="Search branches..." onkeyup="filterBranches()">
                             </div>
 
                             <div id="branchList">
@@ -276,13 +285,13 @@
         async function loadBranches() {
             try {
                 const response = await fetch('/api/branches/map');
-                
+
                 if (!response.ok) {
                     throw new Error('Failed to fetch branches');
                 }
 
                 allBranches = await response.json();
-                
+
                 console.log('Loaded branches:', allBranches);
 
                 if (allBranches.length === 0) {
@@ -394,7 +403,7 @@
         function focusBranch(lat, lng, name) {
             if (lat && lng) {
                 map.setView([lat, lng], 15);
-                
+
                 // Highlight selected branch in sidebar
                 document.querySelectorAll('.branch-list-item').forEach(item => {
                     item.classList.remove('active');
@@ -414,7 +423,7 @@
         // Filter branches by search
         function filterBranches() {
             const searchTerm = document.getElementById('searchBranch').value.toLowerCase();
-            const filtered = allBranches.filter(branch => 
+            const filtered = allBranches.filter(branch =>
                 branch.branch_name.toLowerCase().includes(searchTerm) ||
                 (branch.address && branch.address.toLowerCase().includes(searchTerm)) ||
                 (branch.city && branch.city.toLowerCase().includes(searchTerm))
