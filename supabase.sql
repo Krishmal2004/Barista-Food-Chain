@@ -100,3 +100,12 @@ CREATE INDEX idx_reviews_sentiment ON reviews(sentiment_score);
 CREATE INDEX idx_reviews_city ON reviews(city);
 CREATE INDEX idx_reviews_date ON reviews(review_date DESC);
 CREATE INDEX idx_reviews_rating ON reviews(review_rating);
+
+-- Create Custome Reports 
+CREATE TABLE custom_reports (
+  id text primary key,
+  title text not null,
+  widgets jsonb not null default '[]'::jsonb,
+  created_at timestamp with time zone default timezone('utc'::text, now()) not null,
+  updated_at timestamp with time zone default timezone('utc'::text, now()) not null
+);
