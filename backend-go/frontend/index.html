@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Barista Review | Share Your Experience</title>
+    <meta name="description"
+        content="Share your Barista café experience. Rate your visit, leave feedback, and help us serve you better." />
+    <link rel="stylesheet" href="style.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap"
+        rel="stylesheet" />
+</head>
+
+<body>
+
+    <!-- Animated background particles -->
+    <div class="bg-orb bg-orb--1"></div>
+    <div class="bg-orb bg-orb--2"></div>
+    <div class="bg-orb bg-orb--3"></div>
+
+    <div class="page-wrapper">
+
+        <!-- Header -->
+        <header class="header">
+            <div class="header__logo">
+                <div class="header__logo-icon">☕</div>
+                <span class="header__logo-text">Barista</span>
+            </div>
+            <p class="header__tagline">Share Your Experience</p>
+        </header>
+
+        <!-- Review Form Card -->
+        <main class="main">
+            <div class="card" id="reviewCard">
+
+                <!-- Card Header -->
+                <div class="card__header">
+                    <h1 class="card__title">Leave a Review</h1>
+                    <p class="card__subtitle">Your feedback helps us craft a better brew for everyone.</p>
+                </div>
+
+                <!-- Form -->
+                <form class="form" id="reviewForm" novalidate>
+
+                    <!-- Row: Location & Date -->
+                    <div class="form__row">
+                        <div class="form__group" id="group-location">
+                            <label class="form__label" for="location">
+                                <span class="form__label-icon">📍</span> Shop Location
+                            </label>
+                            <div class="form__select-wrapper">
+                                <select class="form__select" id="location" name="location" required>
+                                    <option value="" disabled selected>Select a branch</option>
+                                    <option value="colombo-fort">Colombo Fort</option>
+                                    <option value="colombo-colpetty">Colpetty</option>
+                                    <option value="kandy-center">Kandy City Centre</option>
+                                    <option value="galle-face">Galle Face</option>
+                                    <option value="negombo">Negombo</option>
+                                    <option value="nugegoda">Nugegoda</option>
+                                    <option value="moratuwa">Moratuwa</option>
+                                    <option value="wattala">Wattala</option>
+                                </select>
+                                <span class="form__select-arrow">⌄</span>
+                            </div>
+                            <span class="form__error" id="error-location">Please select a shop location.</span>
+                        </div>
+
+                        <div class="form__group" id="group-date">
+                            <label class="form__label" for="visitDate">
+                                <span class="form__label-icon">📅</span> Visit Date
+                            </label>
+                            <input class="form__input" type="date" id="visitDate" name="visitDate" required />
+                            <span class="form__error" id="error-date">Please select your visit date.</span>
+                        </div>
+                    </div>
+
+                    <!-- Visit Time -->
+                    <div class="form__group" id="group-time">
+                        <label class="form__label" for="visitTime">
+                            <span class="form__label-icon">🕐</span> Visit Time
+                        </label>
+                        <div class="form__time-grid">
+                            <input class="form__input" type="time" id="visitTime" name="visitTime" required />
+                            <div class="form__time-slots">
+                                <button type="button" class="form__time-slot" data-time="07:00">7 AM</button>
+                                <button type="button" class="form__time-slot" data-time="09:00">9 AM</button>
+                                <button type="button" class="form__time-slot" data-time="12:00">12 PM</button>
+                                <button type="button" class="form__time-slot" data-time="15:00">3 PM</button>
+                                <button type="button" class="form__time-slot" data-time="18:00">6 PM</button>
+                                <button type="button" class="form__time-slot" data-time="20:00">8 PM</button>
+                            </div>
+                        </div>
+                        <span class="form__error" id="error-time">Please select your visit time.</span>
+                    </div>
+
+                    <!-- Star Rating -->
+                    <div class="form__group" id="group-rating">
+                        <label class="form__label">
+                            <span class="form__label-icon">⭐</span> Overall Rating
+                        </label>
+                        <div class="rating" id="starRating" role="group" aria-label="Star rating">
+                            <button type="button" class="rating__star" data-value="1" aria-label="1 star">★</button>
+                            <button type="button" class="rating__star" data-value="2" aria-label="2 stars">★</button>
+                            <button type="button" class="rating__star" data-value="3" aria-label="3 stars">★</button>
+                            <button type="button" class="rating__star" data-value="4" aria-label="4 stars">★</button>
+                            <button type="button" class="rating__star" data-value="5" aria-label="5 stars">★</button>
+                        </div>
+                        <p class="rating__label" id="ratingLabel">Tap a star to rate</p>
+                        <input type="hidden" id="ratingValue" name="rating" value="" />
+                        <span class="form__error" id="error-rating">Please select a rating.</span>
+                    </div>
+
+
+
+                    <!-- Review Text -->
+                    <div class="form__group" id="group-review">
+                        <label class="form__label" for="reviewText">
+                            <span class="form__label-icon">✍️</span> Your Review
+                        </label>
+                        <textarea class="form__textarea" id="reviewText" name="reviewText" rows="5"
+                            placeholder="Tell us about your experience — what did you love, what could we improve?"
+                            maxlength="1000" required></textarea>
+                        <div class="form__textarea-footer">
+                            <span class="form__error" id="error-review">Please write at least 10 characters.</span>
+                            <span class="form__char-count"><span id="charCount">0</span>/1000</span>
+                        </div>
+                    </div>
+
+                    <!-- Name (optional) -->
+                    <div class="form__group">
+                        <label class="form__label" for="customerName">
+                            <span class="form__label-icon">👤</span> Your Name <span
+                                class="form__optional">(optional)</span>
+                        </label>
+                        <input class="form__input" type="text" id="customerName" name="customerName"
+                            placeholder="e.g. Amal Perera" maxlength="60" />
+                    </div>
+
+                    <!-- Submit -->
+                    <button class="btn-submit" type="submit" id="submitBtn">
+                        <span class="btn-submit__text">Submit Review</span>
+                        <span class="btn-submit__icon">→</span>
+                        <span class="btn-submit__loader" id="submitLoader" hidden></span>
+                    </button>
+
+                </form>
+            </div>
+
+            <!-- Success State -->
+            <div class="success-card" id="successCard" hidden>
+                <div class="success-card__icon">✅</div>
+                <h2 class="success-card__title">Thank You!</h2>
+                <p class="success-card__message">Your review has been submitted successfully. We appreciate your
+                    feedback and will use it to improve your future experience.</p>
+                <button class="btn-reset" id="resetBtn">Submit Another Review</button>
+            </div>
+
+        </main>
+
+        <footer class="footer">
+            <p>© 2026 Barista Coffee Chain · All rights reserved</p>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
