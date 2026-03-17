@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Staff Directory | Barista Coffee Chain</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <!-- Google Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@300;400;500;600&display=swap"
+        rel="stylesheet">
+    <!-- Custom Dashboard CSS -->
+    <link rel="stylesheet" href="css/dashboard.css">
+    <style>
+        .text-gold {
+            color: #d4af37;
+        }
+        .staff-table th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+            color: #495057;
+        }
+        .role-badge {
+            font-size: 0.85em;
+            padding: 0.4em 0.8em;
+        }
+        .btn-icon {
+            width: 32px;
+            height: 32px;
+            padding: 0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="dashboard-wrapper">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <i class="bi bi-shop-window text-gold fs-2"></i>
+                <h4 class="mb-0 fw-bold">Branch Portal</h4>
+            </div>
+
+            <nav class="sidebar-nav">
+                <a href="branch-dashboard.html" class="nav-item">
+                    <i class="bi bi-speedometer2"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="branch-profile.html" class="nav-item">
+                    <i class="bi bi-person-circle"></i>
+                    <span>Branch Profile</span>
+                </a>
+                <a href="branch-location.html" class="nav-item">
+                    <i class="bi bi-geo-alt"></i>
+                    <span>Location</span>
+                </a>
+                <a href="branch-concerns.html" class="nav-item">
+                    <i class="bi bi-exclamation-triangle"></i>
+                    <span>Concerns</span>
+                </a>
+                <a href="branch-todo.html" class="nav-item">
+                    <i class="bi bi-check2-square"></i>
+                    <span>Todo List</span>
+                </a>
+                <a href="branch-add-staff.html" class="nav-item">
+                    <i class="bi bi-person-plus"></i>
+                    <span>Add Staff</span>
+                </a>
+                <a href="branch-show-staff.html" class="nav-item active">
+                    <i class="bi bi-people"></i>
+                    <span>Staff Directory</span>
+                </a>
+                <div class="nav-divider"></div>
+                <a href="#" class="nav-item">
+                    <i class="bi bi-gear"></i>
+                    <span>Settings</span>
+                </a>
+                <a href="../branch-login.html" class="nav-item" onclick="return confirmLogout()">
+                    <i class="bi bi-box-arrow-left"></i>
+                    <span>Logout</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="user-profile">
+                    <img src="https://i.pravatar.cc/150?img=33" alt="Manager" class="profile-img">
+                    <div class="user-info">
+                        <div class="user-name" id="branchManagerName">Branch Manager</div>
+                        <div class="user-role" id="branchName">Loading...</div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Top Navigation Bar -->
+            <nav class="topbar">
+                <button class="btn btn-link sidebar-toggle" id="sidebarToggle">
+                    <i class="bi bi-list fs-4"></i>
+                </button>
+                <h5 class="mb-0 fw-bold">Staff Directory</h5>
+                <div class="topbar-actions">
+                    <button class="btn btn-light rounded-pill">
+                        <i class="bi bi-bell"></i>
+                        <span class="badge bg-danger" id="notificationCount">0</span>
+                    </button>
+                </div>
+            </nav>
+
+            <!-- Content Area -->
+            <div class="content-area">
+                <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
+                    <div>
+                        <h4 class="mb-1">Branch Staff</h4>
+                        <p class="text-muted small mb-0">Manage and view all staff members assigned to this branch.</p>
+                    </div>
+                    <div>
+                        <a href="branch-add-staff.html" class="btn btn-primary shadow-sm">
+                            <i class="bi bi-plus-lg me-2"></i>Add New Staff
+                        </a>
+                    </div>
+                </div>
+
+                <div class="dashboard-card shadow-sm border-0 rounded-4 overflow-hidden">
+                    <div class="card-header bg-white border-bottom py-3 px-4 d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0 fw-semibold"><i class="bi bi-person-lines-fill text-gold me-2"></i>Staff List</h6>
+                        <div class="input-group" style="width: 250px;">
+                            <span class="input-group-text bg-light border-end-0"><i class="bi bi-search text-muted"></i></span>
+                            <input type="text" class="form-control border-start-0 bg-light" placeholder="Search staff..." id="searchInput">
+                        </div>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle staff-table mb-0">
+                                <thead>
+                                    <tr>
+                                        <th class="ps-4 py-3">Full Name</th>
+                                        <th class="py-3">Role</th>
+                                        <th class="py-3">Contact Info</th>
+                                        <th class="py-3">Hire Date</th>
+                                        <th class="py-3">Status</th>
+                                        <th class="pe-4 py-3 text-end">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="staffTableBody">
+                                    <!-- Staff rows will be populated here by JavaScript -->
+                                    <tr>
+                                        <td colspan="6" class="text-center py-5">
+                                            <div class="spinner-border text-primary" role="status">
+                                                <span class="visually-hidden">Loading...</span>
+                                            </div>
+                                            <p class="mt-2 text-muted">Loading staff members...</p>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="card-footer bg-white border-top py-3 px-4 d-flex justify-content-between align-items-center">
+                        <p class="text-muted small mb-0" id="staffCountText">Showing 0 staff members</p>
+                        <nav aria-label="Page navigation">
+                            <ul class="pagination pagination-sm mb-0">
+                                <li class="page-item disabled"><a class="page-link" href="#">Previous</a></li>
+                                <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                                <li class="page-item disabled"><a class="page-link" href="#">Next</a></li>
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Custom Dashboard JS -->
+    <script src="js/dashboard.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            loadBranchInfo();
+            loadStaffMembers();
+            
+            // Search functionality
+            document.getElementById('searchInput').addEventListener('input', function(e) {
+                const searchTerm = e.target.value.toLowerCase();
+                const rows = document.querySelectorAll('#staffTableBody tr:not(.no-results)');
+                
+                rows.forEach(row => {
+                    const text = row.textContent.toLowerCase();
+                    row.style.display = text.includes(searchTerm) ? '' : 'none';
+                });
+            });
+        });
+
+        async function loadBranchInfo() {
+            const branchId = localStorage.getItem('active_branch_id') || 'BCH-001';
+
+            try {
+                const response = await fetch(`/api/branch/${branchId}`);
+                if (response.ok) {
+                    const result = await response.json();
+                    const branchData = result.data;
+
+                    document.getElementById('branchName').textContent = branchData.branch_name || 'Unknown';
+                    document.getElementById('branchManagerName').textContent = branchData.contact_full_name || 'Manager';
+                } else {
+                    document.getElementById('branchName').textContent = 'Downtown Branch';
+                    document.getElementById('branchManagerName').textContent = 'Branch Manager';
+                }
+            } catch (error) {
+                console.error("Failed to load branch info:", error);
+            }
+        }
+
+        async function loadStaffMembers() {
+            const branchId = localStorage.getItem('active_branch_id') || 'BCH-001';
+            const tableBody = document.getElementById('staffTableBody');
+
+            try {
+                const response = await fetch(`/api/staff/${branchId}`);
+                
+                if (!response.ok) {
+                    throw new Error('Failed to fetch staff data');
+                }
+
+                const staffMembers = await response.json();
+                renderStaffTable(staffMembers);
+
+            } catch (error) {
+                console.error("Error loading staff members:", error);
+                
+                // Fallback dummy data for preview if API fails
+                const dummyData = [
+                    { id: 1, staff_id: 'EMP-001', full_name: 'John Doe', role: 'Senior Barista', email: 'john@coffee.com', phone: '+1 (555) 123-4567', hire_date: '2025-01-15', status: 'active' },
+                    { id: 2, staff_id: 'EMP-002', full_name: 'Jane Smith', role: 'Shift Supervisor', email: 'jane@coffee.com', phone: '+1 (555) 987-6543', hire_date: '2024-11-01', status: 'active' },
+                    { id: 3, staff_id: 'EMP-003', full_name: 'Mike Johnson', role: 'Barista', email: 'mike@coffee.com', phone: '+1 (555) 456-7890', hire_date: '2025-02-20', status: 'active' },
+                    { id: 4, staff_id: 'EMP-004', full_name: 'Sarah Williams', role: 'Cashier', email: 'sarah@coffee.com', phone: '+1 (555) 345-6789', hire_date: '2025-03-05', status: 'active' },
+                ];
+                
+                renderStaffTable(dummyData);
+            }
+        }
+
+        function renderStaffTable(staffMembers) {
+            const tableBody = document.getElementById('staffTableBody');
+            
+            document.getElementById('staffCountText').textContent = `Showing ${staffMembers.length} staff members`;
+
+            if (staffMembers.length === 0) {
+                tableBody.innerHTML = `
+                    <tr class="no-results">
+                        <td colspan="6" class="text-center py-5 text-muted">
+                            <i class="bi bi-people fs-1 text-light-subtle d-block mb-3"></i>
+                            No staff members found for this branch.<br>
+                            <a href="branch-add-staff.html" class="btn btn-sm btn-outline-primary mt-3">Add First Staff Member</a>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tableBody.innerHTML = staffMembers.map(staff => {
+                const badgeColorClass = getRoleBadgeColor(staff.role);
+                const initals = getInitials(staff.full_name);
+                
+                return `
+                <tr>
+                    <td class="ps-4">
+                        <div class="d-flex align-items-center">
+                            <div class="bg-light rounded-circle text-primary me-3 d-flex justify-content-center align-items-center fw-bold" style="width: 40px; height: 40px; font-size: 0.9em;">
+                                ${initals}
+                            </div>
+                            <div>
+                                <div class="fw-semibold text-dark">${staff.full_name}</div>
+                                <div class="text-muted small">ID: ${staff.staff_id || 'N/A'}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="badge ${badgeColorClass} role-badge border">
+                            ${staff.role}
+                        </span>
+                    </td>
+                    <td>
+                        <div class="small"><i class="bi bi-envelope text-muted me-2"></i><a href="mailto:${staff.email}" class="text-decoration-none text-dark">${staff.email}</a></div>
+                        <div class="mt-1 small"><i class="bi bi-telephone text-muted me-2"></i>${staff.phone}</div>
+                    </td>
+                    <td>
+                        <div class="small text-dark">
+                            <i class="bi bi-calendar-check text-muted me-2"></i>
+                            ${new Date(staff.hire_date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
+                        </div>
+                    </td>
+                    <td>
+                        <span class="badge ${staff.status === 'active' ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger'} rounded-pill border">
+                            <i class="bi ${staff.status === 'active' ? 'bi-check-circle-fill' : 'bi-x-circle-fill'} me-1"></i>
+                            ${staff.status ? staff.status.charAt(0).toUpperCase() + staff.status.slice(1) : 'Active'}
+                        </span>
+                    </td>
+                    <td class="pe-4 text-end">
+                        <button class="btn btn-light btn-icon border" title="Edit" onclick="editStaff('${staff.id}')">
+                            <i class="bi bi-pencil text-primary"></i>
+                        </button>
+                        <button class="btn btn-light btn-icon border ms-1" title="Delete" onclick="deleteStaff('${staff.id}', '${staff.full_name}')">
+                            <i class="bi bi-trash text-danger"></i>
+                        </button>
+                    </td>
+                </tr>
+            `}).join('');
+        }
+
+        function getRoleBadgeColor(role) {
+            const roles = {
+                'Barista': 'bg-info-subtle text-info-emphasis',
+                'Senior Barista': 'bg-primary-subtle text-primary-emphasis',
+                'Shift Supervisor': 'bg-warning-subtle text-warning-emphasis',
+                'Cashier': 'bg-success-subtle text-success-emphasis',
+                'Cleaner': 'bg-secondary-subtle text-secondary-emphasis'
+            };
+            return roles[role] || 'bg-light text-dark';
+        }
+
+        function getInitials(name) {
+            if (!name) return 'U';
+            return name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+        }
+
+        function editStaff(id) {
+            alert('Edit functionality for staff ID: ' + id + ' will be implemented here.');
+        }
+
+        async function deleteStaff(id, name) {
+            if (confirm('Are you sure you want to remove ' + name + ' from the staff directory?')) {
+                try {
+                    const response = await fetch(`/api/staff/${id}`, {
+                        method: 'DELETE'
+                    });
+                    
+                    if (response.ok) {
+                        alert('✅ ' + name + ' has been removed successfully.');
+                        loadStaffMembers(); // Reload table
+                    } else {
+                        throw new Error('Failed to delete');
+                    }
+                } catch (error) {
+                    console.error("Error deleting staff:", error);
+                    alert('❌ Dummy Action: ' + name + ' removed (API failed/not connected).');
+                    loadStaffMembers(); // In a real app we might not reload if it failed
+                }
+            }
+        }
+        
+        function confirmLogout() {
+            if (confirm('Are you sure you want to logout?')) {
+                localStorage.removeItem('branch_authenticated');
+                localStorage.removeItem('active_branch_id');
+                return true;
+            }
+            return false;
+        }
+    </script>
+</body>
+
+</html>
