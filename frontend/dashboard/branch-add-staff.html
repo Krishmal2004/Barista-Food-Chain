@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Staff | Barista Coffee Chain</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <!-- Google Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@300;400;500;600&display=swap"
+        rel="stylesheet">
+    <!-- Custom Dashboard CSS -->
+    <link rel="stylesheet" href="css/dashboard.css">
+    <style>
+        .text-gold {
+            color: #d4af37; /* A classy gold color commonly used in barista themes */
+        }
+    </style>
+</head>
+
+<body>
+    <div class="dashboard-wrapper">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <i class="bi bi-shop-window text-gold fs-2"></i>
+                <h4 class="mb-0 fw-bold">Branch Portal</h4>
+            </div>
+
+            <nav class="sidebar-nav">
+                <a href="branch-dashboard.html" class="nav-item">
+                    <i class="bi bi-speedometer2"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="branch-profile.html" class="nav-item">
+                    <i class="bi bi-person-circle"></i>
+                    <span>Branch Profile</span>
+                </a>
+                <a href="branch-location.html" class="nav-item">
+                    <i class="bi bi-geo-alt"></i>
+                    <span>Location</span>
+                </a>
+                <a href="branch-concerns.html" class="nav-item">
+                    <i class="bi bi-exclamation-triangle"></i>
+                    <span>Concerns</span>
+                </a>
+                <a href="branch-todo.html" class="nav-item">
+                    <i class="bi bi-check2-square"></i>
+                    <span>Todo List</span>
+                </a>
+                <a href="branch-add-staff.html" class="nav-item active">
+                    <i class="bi bi-person-plus"></i>
+                    <span>Add Staff</span>
+                </a>
+                <div class="nav-divider"></div>
+                <a href="#" class="nav-item">
+                    <i class="bi bi-gear"></i>
+                    <span>Settings</span>
+                </a>
+                <a href="../branch-login.html" class="nav-item" onclick="return confirmLogout()">
+                    <i class="bi bi-box-arrow-left"></i>
+                    <span>Logout</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="user-profile">
+                    <img src="https://i.pravatar.cc/150?img=33" alt="Manager" class="profile-img">
+                    <div class="user-info">
+                        <div class="user-name" id="branchManagerName">Branch Manager</div>
+                        <div class="user-role" id="branchName">Loading...</div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Top Navigation Bar -->
+            <nav class="topbar">
+                <button class="btn btn-link sidebar-toggle" id="sidebarToggle">
+                    <i class="bi bi-list fs-4"></i>
+                </button>
+                <h5 class="mb-0 fw-bold">Add New Staff Member</h5>
+                <div class="topbar-actions">
+                    <button class="btn btn-light rounded-pill">
+                        <i class="bi bi-bell"></i>
+                        <span class="badge bg-danger" id="notificationCount">0</span>
+                    </button>
+                </div>
+            </nav>
+
+            <!-- Content Area -->
+            <div class="content-area">
+                <div class="row justify-content-center">
+                    <div class="col-lg-8">
+                        <div class="dashboard-card shadow-sm border-0 rounded-4">
+                            <div class="card-header bg-white border-bottom-0 pt-4 pb-2 px-4">
+                                <h5 class="mb-0"><i class="bi bi-person-plus-fill text-gold me-2"></i>Staff Information Form</h5>
+                                <p class="text-muted small mt-2 mb-0">Fill out the details below to register a new staff member to this branch.</p>
+                            </div>
+                            <div class="card-body p-4">
+                                <form id="addStaffForm">
+                                    <div class="row g-4">
+                                        <!-- Staff Name -->
+                                        <div class="col-md-6">
+                                            <label for="staffName" class="form-label fw-semibold">Staff Member Name</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text bg-light border-end-0"><i class="bi bi-person text-muted"></i></span>
+                                                <input type="text" class="form-control border-start-0" id="staffName" placeholder="e.g. John Doe" required>
+                                            </div>
+                                        </div>
+
+                                        <!-- Staff ID -->
+                                        <div class="col-md-6">
+                                            <label for="staffId" class="form-label fw-semibold">Staff Member ID</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text bg-light border-end-0"><i class="bi bi-person-badge text-muted"></i></span>
+                                                <input type="text" class="form-control border-start-0" id="staffId" placeholder="e.g. EMP-001" required>
+                                            </div>
+                                        </div>
+
+                                        <!-- Phone Number -->
+                                        <div class="col-md-6">
+                                            <label for="phoneNumber" class="form-label fw-semibold">Phone Number</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text bg-light border-end-0"><i class="bi bi-telephone text-muted"></i></span>
+                                                <input type="tel" class="form-control border-start-0" id="phoneNumber" placeholder="e.g. +1 (555) 000-0000" required>
+                                            </div>
+                                        </div>
+
+                                        <!-- Email Address -->
+                                        <div class="col-md-6">
+                                            <label for="staffEmail" class="form-label fw-semibold">Email Address</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text bg-light border-end-0"><i class="bi bi-envelope text-muted"></i></span>
+                                                <input type="email" class="form-control border-start-0" id="staffEmail" placeholder="e.g. john@coffee.com" required>
+                                            </div>
+                                        </div>
+
+                                        <!-- Job Role -->
+                                        <div class="col-md-6">
+                                            <label for="jobRole" class="form-label fw-semibold">Job Role</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text bg-light border-end-0"><i class="bi bi-briefcase text-muted"></i></span>
+                                                <select class="form-select border-start-0" id="jobRole" required>
+                                                    <option value="" disabled selected>Select a role...</option>
+                                                    <option value="Barista">Barista</option>
+                                                    <option value="Senior Barista">Senior Barista</option>
+                                                    <option value="Shift Supervisor">Shift Supervisor</option>
+                                                    <option value="Cashier">Cashier</option>
+                                                    <option value="Cleaner">Cleaner</option>
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                        <!-- Hire Date -->
+                                        <div class="col-md-6">
+                                            <label for="staffHireDate" class="form-label fw-semibold">Hire Date</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text bg-light border-end-0"><i class="bi bi-calendar text-muted"></i></span>
+                                                <input type="date" class="form-control border-start-0" id="staffHireDate" required>
+                                            </div>
+                                        </div>
+
+                                        <!-- Home Address -->
+                                        <div class="col-12">
+                                            <label for="homeAddress" class="form-label fw-semibold">Home Address</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text bg-light border-end-0 align-items-start pt-2"><i class="bi bi-geo-alt text-muted"></i></span>
+                                                <textarea class="form-control border-start-0" id="homeAddress" rows="3" placeholder="123 Coffee St, City, Country" required></textarea>
+                                            </div>
+                                        </div>
+
+                                        <!-- Submit Buttons -->
+                                        <div class="col-12 mt-4 pt-2 border-top">
+                                            <div class="d-flex justify-content-end gap-3">
+                                                <button type="reset" class="btn btn-light border px-4">Clear Form</button>
+                                                <button type="submit" class="btn btn-primary px-4"><i class="bi bi-check2-circle me-2"></i>Add Staff Member</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Custom Dashboard JS -->
+    <script src="js/dashboard.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            loadBranchInfo();
+
+            // Handle Form Submission
+            document.getElementById('addStaffForm').addEventListener('submit', async function (e) {
+                e.preventDefault();
+                
+                const branchId = localStorage.getItem('active_branch_id') || 'BCH-001';
+                
+                const staffData = {
+                    branch_id: branchId,
+                    full_name: document.getElementById('staffName').value,
+                    role: document.getElementById('jobRole').value,
+                    email: document.getElementById('staffEmail').value,
+                    phone: document.getElementById('phoneNumber').value,
+                    hire_date: document.getElementById('staffHireDate').value,
+                    status: 'active'
+                };
+
+                try {
+                    const response = await fetch('/api/staff', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(staffData)
+                    });
+
+                    const result = await response.json();
+
+                    if (response.ok) {
+                        alert('✅ Success: Staff Member "' + staffData.full_name + '" added successfully!');
+                        document.getElementById('addStaffForm').reset();
+                        // Uncomment to redirect after success:
+                        // window.location.href = 'branch-staff.html';
+                    } else {
+                        alert('❌ Error: ' + (result.error || 'Failed to add staff member'));
+                    }
+                } catch (err) {
+                    console.error("Error saving staff:", err);
+                    alert('❌ Network error. Please try again.');
+                }
+            });
+        });
+
+        async function loadBranchInfo() {
+            const branchId = localStorage.getItem('active_branch_id') || 'BCH-001';
+
+            try {
+                const response = await fetch(`/api/branch/${branchId}`);
+                if (response.ok) {
+                    const result = await response.json();
+                    const branchData = result.data;
+
+                    document.getElementById('branchName').textContent = branchData.branch_name || 'Unknown';
+                    document.getElementById('branchManagerName').textContent = branchData.contact_full_name || 'Manager';
+                } else {
+                    document.getElementById('branchName').textContent = 'Downtown Branch';
+                    document.getElementById('branchManagerName').textContent = 'Branch Manager';
+                }
+            } catch (error) {
+                console.error("Failed to load branch info:", error);
+            }
+        }
+        
+        function confirmLogout() {
+            if (confirm('Are you sure you want to logout?')) {
+                localStorage.removeItem('branch_authenticated');
+                localStorage.removeItem('active_branch_id');
+                return true;
+            }
+            return false;
+        }
+    </script>
+</body>
+
+</html>

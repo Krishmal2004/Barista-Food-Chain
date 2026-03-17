@@ -15,6 +15,9 @@
         rel="stylesheet">
     <!-- Custom Dashboard CSS -->
     <link rel="stylesheet" href="css/dashboard.css">
+    <!-- import the PDF download libraries-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
     <style>
         .user-table-card {
             background: white;
@@ -407,8 +410,7 @@
                         </div>
                         <div class="mb-3">
                             <label class="form-label fw-bold">Email *</label>
-                            <input type="email" class="form-control" id="addEmail" required
-                                placeholder="john@example.com">
+                            <input type="email" class="form-control" id="addEmail" required placeholder="john@example.com">
                         </div>
                         <div class="mb-3">
                             <label class="form-label fw-bold">Password *</label>
@@ -462,6 +464,7 @@
         // Open Add User Modal
         function openAddUserModal() {
             document.getElementById('addUserForm').reset();
+            document.getElementById('addEmail').disabled = false;
             addUserModal.show();
         }
 
@@ -730,26 +733,42 @@
         }
 
         function exportUsers() {
-            const csv = [
-                ['Name', 'Email', 'Role', 'Status', 'Created'],
-                ...allUsers.map(u => {
-                    const meta = u.user_metadata || {};
-                    return [
-                        meta.full_name || 'N/A',
-                        u.email,
-                        meta.role || 'user',
-                        u.email_confirmed_at ? 'Active' : 'Pending',
-                        new Date(u.created_at).toLocaleDateString()
-                    ];
-                })
-            ].map(row => row.join(',')).join('\n');
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
 
-            const blob = new Blob([csv], { type: 'text/csv' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `users_export_${new Date().toISOString().split('T')[0]}.csv`;
-            a.click();
+            // Add the title
+            doc.setFontSize(18);
+            doc.text('Barista Coffee Chain - Registered Users', 14, 20);
+            doc.setFontSize(11);
+            doc.setTextColor(100);
+
+            // Adding export data
+            const dataStr = new Date().toLocaleDateString();
+            doc.text(`Report Generated: ${dataStr}`, 14, 30);
+
+            // Mapping user data
+            const tableData = allUsers.map(u => {
+                const meta = u.user_metadata || {};
+                return [
+                    meta.full_name || 'N/A',
+                    u.email,
+                    meta.role || 'user',
+                    u.email_confirmed_at ? 'Active' : 'Pending',
+                    new Date(u.created_at).toLocaleDateString()
+                ];
+            });
+
+            // Create table
+            doc.autoTable({
+                startY: 35,
+                head: [['Name', 'Email', 'Role', 'Status', 'Joined Date']],
+                body: tableData,
+                theme: 'striped',
+                headStyles: { fillColor: [106, 27, 154] }
+            });
+
+            // Save the PDF
+            doc.save(`users_export_${new Date().toISOString().split('T')[0]}.pdf`);
         }
 
         function formatTimeAgo(date) {

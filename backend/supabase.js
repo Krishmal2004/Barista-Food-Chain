@@ -18,6 +18,7 @@ import {MapData} from './MapData.js';
 import {ReviewAnalysis} from './ReviewAnalysis.js';
 import {ChatBot} from './ChatBot.js';
 import {DashboardAnalytics} from './DashboardAnalytics.js';
+import { AddStaffMemberRoutes } from './AddStaffMember.js';
 dotenv.config();
 
 // __ dirname in ES modules
@@ -51,6 +52,7 @@ MapData(supabase,app);
 ReviewAnalysis(supabase,app);
 ChatBot(supabase,app);
 DashboardAnalytics(supabase,app);
+AddStaffMemberRoutes(supabase,app);
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`Backend runnning on http://localhost:${PORT}`);
