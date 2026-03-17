@@ -35,6 +35,25 @@ export function ShowStaffMemberRoutes(supabase,app) {
             res.status(500).json({ error: "Internal server error" });
         }
     });
+    app.put('/api/staff/:id', async (req, res) => {
+        const {id} = req.params;
+        const updates = req.body;
+        const { full_name,role, email, phone, hire_date, status } = req.body;
+        try {
+            const {data,error} = await supabase
+                .from('staff')
+                .update(updates)
+                .eq('id', id)
+                .select();
+            if (error) {
+                console.error("Update Staff Error:", error.message);
+                return res.status(400).json({ error: error.message });
+            }
+            res.status(200).json(data[0]);
+        } catch (err) {
+            res.status(500).json({ error: "Internal server error" });
+        }
+    });
 
     app.post('/api/staff', async (req, res) => {
         const { branch_id, full_name,member_id, role, email, phone, hire_date, status } = req.body;
