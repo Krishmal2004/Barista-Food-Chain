@@ -19,13 +19,14 @@ export function AddStaffMemberRoutes(supabase,app) {
     });
 
     app.post('/api/staff', async (req, res) => {
-        const { branch_id, full_name, role, email, phone, hire_date, status } = req.body;
+        const { branch_id, full_name,member_id, role, email, phone, hire_date, status } = req.body;
         
         const { data, error } = await supabase
             .from('staff')
             .insert([{ 
                 branch_id, 
                 full_name, 
+                member_id,
                 role, 
                 email, 
                 phone, 
