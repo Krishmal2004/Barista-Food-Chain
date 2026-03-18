@@ -3,6 +3,7 @@ FROM node:20
 
 # Create app directory
 WORKDIR /usr/src/app
+
 # Install app dependencies
 COPY package*.json ./
 RUN npm install
@@ -11,7 +12,7 @@ RUN npm install
 COPY . .
 
 # Expose the port your app runs on
-EXPOSE 3000
+EXPOSE 3001
 
 # Start the app
 CMD [ "npm", "start" ]
