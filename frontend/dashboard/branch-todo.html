@@ -16,6 +16,17 @@
         rel="stylesheet">
     <!-- Custom Dashboard CSS -->
     <link rel="stylesheet" href="css/dashboard.css">
+    <style>
+        .task-clickable {
+            cursor: pointer;
+            transition: background-color 0.2s;
+            padding: 5px;
+            border-radius: 5px;
+        }
+        .task-clickable:hover {
+            background-color: rgba(0,0,0,0.03);
+        }
+    </style>
 </head>
 
 <body>
@@ -102,13 +113,13 @@
                 <div class="dashboard-card mb-4">
                     <div class="card-body">
                         <form id="quickAddForm" onsubmit="quickAddTask(event)">
-                            <div class="row g-3 align-items-end">
-                                <div class="col-md-4">
+                            <div class="row g-3 align-items-end mb-3">
+                                <div class="col-md-3">
                                     <label class="form-label fw-bold">Task Title</label>
                                     <input type="text" class="form-control" id="quickTaskTitle"
                                         placeholder="What needs to be done?" required>
                                 </div>
-                                <div class="col-md-2">
+                                <div class="col-md-3">
                                     <label class="form-label fw-bold">Category</label>
                                     <select class="form-select" id="quickTaskCategory" required>
                                         <option value="Daily Operations">Daily Operations</option>
@@ -117,7 +128,7 @@
                                         <option value="Customer Service">Customer Service</option>
                                     </select>
                                 </div>
-                                <div class="col-md-2">
+                                <div class="col-md-3">
                                     <label class="form-label fw-bold">Priority</label>
                                     <select class="form-select" id="quickTaskPriority" required>
                                         <option value="Low">Low</option>
@@ -125,9 +136,21 @@
                                         <option value="High">High</option>
                                     </select>
                                 </div>
-                                <div class="col-md-2">
+                                <div class="col-md-3">
                                     <label class="form-label fw-bold">Due Date</label>
                                     <input type="date" class="form-control" id="quickTaskDue">
+                                </div>
+                            </div>
+                            <div class="row g-3 align-items-end">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold">Notes</label>
+                                    <input type="text" class="form-control" id="quickTaskNotes" placeholder="Add detailed instructions or notes here...">
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label fw-bold">Assign to Staff</label>
+                                    <select class="form-select" id="quickTaskStaff">
+                                        <option value="">— Unassigned —</option>
+                                    </select>
                                 </div>
                                 <div class="col-md-2">
                                     <button type="submit" class="btn btn-primary w-100">
@@ -226,12 +249,12 @@
         </main>
     </div>
 
-    <!-- Edit Task Modal -->
+    <!-- View/Edit Task Modal -->
     <div class="modal fade" id="editTaskModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Edit Task</h5>
+                    <h5 class="modal-title">Task Details</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
@@ -243,7 +266,7 @@
                         </div>
                         <div class="mb-3">
                             <label class="form-label fw-bold">Notes</label>
-                            <textarea class="form-control" id="editTaskNotes" rows="3"></textarea>
+                            <textarea class="form-control" id="editTaskNotes" rows="4" placeholder="Task descriptions and notes..."></textarea>
                         </div>
                         <div class="row g-3">
                             <div class="col-md-6">
@@ -267,11 +290,17 @@
                                 <label class="form-label fw-bold">Due Date</label>
                                 <input type="date" class="form-control" id="editTaskDue">
                             </div>
+                            <div class="col-12 mt-2">
+                                <label class="form-label fw-bold">Assign to Staff</label>
+                                <select class="form-select" id="editTaskStaff">
+                                    <option value="">— Unassigned —</option>
+                                </select>
+                            </div>
                         </div>
                     </form>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <div class="modal-footer border-top-0 pt-0">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                     <button type="button" class="btn btn-primary" onclick="saveEditedTask()">Save Changes</button>
                 </div>
             </div>
@@ -285,11 +314,13 @@
     <script>
         let currentFilter = 'All';
         let editTaskModal;
+        let allLoadedTodos = []; // Keep a reference to all fetched items to easily load into View/Edit Modal
 
         document.addEventListener('DOMContentLoaded', function () {
             editTaskModal = new bootstrap.Modal(document.getElementById('editTaskModal'));
             loadBranchInfo();
             loadTodos();
+            loadStaff();
             setDefaultDueDate();
         });
 
@@ -305,7 +336,6 @@
                     document.getElementById('sidebarBranchName').textContent = branchData.branch_name || 'Unknown';
                     document.getElementById('sidebarManagerName').textContent = branchData.contact_full_name || 'Manager';
                 } else {
-                    // Fallback to default
                     document.getElementById('sidebarBranchName').textContent = 'Downtown Branch';
                     document.getElementById('sidebarManagerName').textContent = 'Branch Manager';
                 }
@@ -319,6 +349,40 @@
             document.getElementById('quickTaskDue').value = today;
         }
 
+        async function loadStaff() {
+            const branchId = localStorage.getItem('active_branch_id') || 'BCH-001';
+            try {
+                const response = await fetch(`/api/staff/${branchId}`);
+                let staffList = [];
+                if (response.ok) {
+                    staffList = await response.json();
+                } else {
+                    throw new Error('API error');
+                }
+                window.branchStaff = staffList;
+            } catch (error) {
+                window.branchStaff = [
+                    { member_id: 'EMP-001', full_name: 'John Doe' },
+                    { member_id: 'EMP-002', full_name: 'Jane Smith' },
+                    { member_id: 'EMP-003', full_name: 'Mike Johnson' },
+                    { member_id: 'EMP-004', full_name: 'Sarah Williams' }
+                ];
+            }
+            populateStaffDropdowns();
+        }
+
+        function populateStaffDropdowns() {
+            const staff = window.branchStaff || [];
+            const options = ['<option value="">— Unassigned —</option>',
+                ...staff.map(s => `<option value="${s.member_id}">${s.full_name} (${s.member_id})</option>`)
+            ].join('');
+
+            ['quickTaskStaff', 'editTaskStaff'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.innerHTML = options;
+            });
+        }
+
         async function loadTodos() {
             const branchId = localStorage.getItem('active_branch_id') || 'BCH-001';
 
@@ -327,23 +391,23 @@
                 if (!response.ok) throw new Error('Failed to fetch todos');
 
                 const todos = await response.json();
+                allLoadedTodos = todos; // Store locally for Viewing/Editing
                 displayTodos(todos);
                 updateProgress(todos);
             } catch (error) {
                 console.error("Failed to load tasks:", error);
+                allLoadedTodos = [];
                 displayTodos([]);
                 updateProgress([]);
             }
         }
 
         function displayTodos(todos) {
-            // Filter todos based on current filter
             let filteredTodos = todos;
             if (currentFilter !== 'All') {
                 filteredTodos = filterTodosByType(todos, currentFilter);
             }
 
-            // Separate by category
             const categories = {
                 'Daily Operations': [],
                 'Staff Management': [],
@@ -357,7 +421,6 @@
                 }
             });
 
-            // Display each category
             displayCategory('dailyOperationsList', 'dailyCount', categories['Daily Operations']);
             displayCategory('staffManagementList', 'staffCount', categories['Staff Management']);
             displayCategory('inventoryList', 'inventoryCount', categories['Inventory']);
@@ -377,19 +440,20 @@
 
             container.innerHTML = todos.map(todo => `
                 <div class="todo-item ${todo.completed ? 'completed' : ''}">
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" ${todo.completed ? 'checked' : ''} 
+                    <div class="form-check d-flex align-items-center mb-0 w-100">
+                        <input class="form-check-input mt-0 me-2" type="checkbox" ${todo.completed ? 'checked' : ''} 
                                onchange="toggleComplete('${todo.id}', ${!todo.completed})">
-                        <label class="form-check-label flex-grow-1" onclick="editTask('${todo.id}')">
-                            <div class="todo-title">${todo.title}</div>
-                            ${todo.notes ? `<div class="todo-notes">${todo.notes}</div>` : ''}
-                            <div class="todo-meta">
+                        <label class="form-check-label flex-grow-1 task-clickable" onclick="editTask('${todo.id}')" title="Click to view/edit details">
+                            <div class="todo-title text-dark">${todo.title}</div>
+                            ${todo.notes ? `<div class="todo-notes text-muted small mt-1 text-truncate" style="max-width: 90%;">${todo.notes}</div>` : ''}
+                            <div class="todo-meta mt-2">
                                 <span class="badge priority-badge-${todo.priority.toLowerCase()}">${todo.priority}</span>
                                 ${todo.due_date ? `<span><i class="bi bi-calendar"></i> ${formatDate(todo.due_date)}</span>` : ''}
+                                ${(todo.assigned_staff_id || todo.assignedStaffId) ? `<span class="badge bg-light text-dark border"><i class="bi bi-person-fill me-1"></i>${todo.assigned_staff_name || todo.assignedStaffName || todo.assigned_staff_id || todo.assignedStaffId}</span>` : ''}
                             </div>
                         </label>
                     </div>
-                    <button class="btn btn-sm btn-link text-danger" onclick="deleteTask('${todo.id}')">
+                    <button class="btn btn-sm btn-link text-danger ms-2" onclick="deleteTask('${todo.id}')">
                         <i class="bi bi-trash"></i>
                     </button>
                 </div>
@@ -400,14 +464,22 @@
             event.preventDefault();
 
             const branchId = localStorage.getItem('active_branch_id') || 'BCH-001';
+            const memberId = localStorage.getItem('member_id') || 'DEFAULT-MEMBER';
+
+            const staffEl = document.getElementById('quickTaskStaff');
+            const assignedStaffId = staffEl ? staffEl.value : '';
+            const assignedStaffName = staffEl && staffEl.selectedIndex > 0 ? staffEl.options[staffEl.selectedIndex].text : '';
 
             const newTask = {
+                memberId: memberId, 
                 branchId: branchId,
                 title: document.getElementById('quickTaskTitle').value,
                 category: document.getElementById('quickTaskCategory').value,
                 priority: document.getElementById('quickTaskPriority').value,
                 dueDate: document.getElementById('quickTaskDue').value,
-                notes: ''
+                notes: document.getElementById('quickTaskNotes').value, // Gather Notes input
+                assignedStaffId: assignedStaffId,
+                assignedStaffName: assignedStaffName
             };
 
             try {
@@ -418,7 +490,6 @@
                 });
 
                 if (response.ok) {
-                    // FIXED: Changed from .rest() to .reset()
                     document.getElementById('quickAddForm').reset();
                     setDefaultDueDate();
                     await loadTodos();
@@ -433,37 +504,65 @@
         }
 
         function editTask(id) {
-            const branchId = localStorage.getItem('active_branch_id') || 'BCH-001';
-            const todos = JSON.parse(localStorage.getItem('branch_todos_' + branchId)) || [];
-            const task = todos.find(t => t.id === id);
+            // Find task from fetched state rather than localstorage
+            const task = allLoadedTodos.find(t => String(t.id) === String(id));
 
             if (task) {
                 document.getElementById('editTaskId').value = task.id;
-                document.getElementById('editTaskTitle').value = task.title;
-                document.getElementById('editTaskNotes').value = task.notes || '';
-                document.getElementById('editTaskCategory').value = task.category;
-                document.getElementById('editTaskPriority').value = task.priority;
-                document.getElementById('editTaskDue').value = task.dueDate || '';
+                document.getElementById('editTaskTitle').value = task.title || '';
+                document.getElementById('editTaskNotes').value = task.notes || task.task_description || '';
+                document.getElementById('editTaskCategory').value = task.category || 'Daily Operations';
+                document.getElementById('editTaskPriority').value = task.priority || 'Medium';
+                
+                // Format date for inputs
+                let dateStr = task.due_date || task.dueDate || '';
+                if(dateStr.includes('T')) {
+                    dateStr = dateStr.split('T')[0];
+                }
+                document.getElementById('editTaskDue').value = dateStr;
+                
+                const editStaffEl = document.getElementById('editTaskStaff');
+                if (editStaffEl) editStaffEl.value = task.assigned_staff_id || task.assignedStaffId || '';
+                
                 editTaskModal.show();
             }
         }
 
-        function saveEditedTask() {
-            const branchId = localStorage.getItem('active_branch_id') || 'BCH-001';
-            const todos = JSON.parse(localStorage.getItem('branch_todos_' + branchId)) || [];
+        async function saveEditedTask() {
             const id = document.getElementById('editTaskId').value;
+            const staffEl = document.getElementById('editTaskStaff');
+            const assignedStaffId = staffEl ? staffEl.value : null;
+            const assignedStaffName = staffEl && staffEl.selectedIndex > 0 ? staffEl.options[staffEl.selectedIndex].text : '';
 
-            const taskIndex = todos.findIndex(t => t.id === id);
-            if (taskIndex !== -1) {
-                todos[taskIndex].title = document.getElementById('editTaskTitle').value;
-                todos[taskIndex].notes = document.getElementById('editTaskNotes').value;
-                todos[taskIndex].category = document.getElementById('editTaskCategory').value;
-                todos[taskIndex].priority = document.getElementById('editTaskPriority').value;
-                todos[taskIndex].dueDate = document.getElementById('editTaskDue').value;
+            // Using PATCH to update exactly what was changed
+            const updatedData = {
+                title: document.getElementById('editTaskTitle').value,
+                notes: document.getElementById('editTaskNotes').value,
+                category: document.getElementById('editTaskCategory').value,
+                priority: document.getElementById('editTaskPriority').value,
+                due_date: document.getElementById('editTaskDue').value,
+                assigned_staff_id: assignedStaffId,
+                assigned_staff_name: assignedStaffName
+            };
 
-                localStorage.setItem('branch_todos_' + branchId, JSON.stringify(todos));
-                editTaskModal.hide();
-                loadTodos();
+            try {
+                // Fix: Point to the correct /api/todos/update/:id route
+                const response = await fetch(`/api/todos/update/${id}`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(updatedData)
+                });
+
+                if (response.ok) {
+                    editTaskModal.hide();
+                    await loadTodos();
+                } else {
+                    const result = await response.json();
+                    alert('Failed to save changes: ' + (result.error || 'Unknown Error'));
+                }
+            } catch (err) {
+                console.error("Network Error:", err);
+                alert("Failed to reach server. Please try again.");
             }
         }
 
