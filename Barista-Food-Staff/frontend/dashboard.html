@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Barista Staff | Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --caramel: #c9874f;
+      --gold:    #d4a055;
+      --cream:   #f5e9d9;
+      --muted:   rgba(245,233,217,0.45);
+      --border:  rgba(255,255,255,0.10);
+      --surface: rgba(255,255,255,0.05);
+      --green:   #2ecc71;
+      --yellow:  #f1c40f;
+      --red:     #e74c3c;
+    }
+
+    body {
+      font-family: 'Outfit', sans-serif;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #1a0a02 0%, #2c1505 60%, #3b1f0a 100%);
+      color: var(--cream);
+      padding: 0;
+    }
+
+    .bokeh { position: fixed; border-radius: 50%; filter: blur(80px); opacity: 0.12; pointer-events: none; }
+    .bokeh-1 { width: 500px; height: 500px; background: var(--caramel); top: -120px; left: -120px; }
+    .bokeh-2 { width: 350px; height: 350px; background: var(--gold);    bottom: -80px; right: -80px; }
+
+    nav {
+      position: sticky; top: 0; z-index: 50;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 16px 40px;
+      background: rgba(15,7,5,0.7);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-brand {
+      display: flex; align-items: center; gap: 10px;
+      font-size: 1.05rem; font-weight: 700; color: var(--cream);
+    }
+    .nav-brand .cup {
+      width: 36px; height: 36px; border-radius: 10px;
+      background: linear-gradient(135deg, var(--caramel), var(--gold));
+      display: flex; align-items: center; justify-content: center;
+    }
+    .nav-brand .cup svg { width: 20px; height: 20px; fill: #fff; }
+    .nav-right { display: flex; align-items: center; gap: 16px; }
+    .clock-chip {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 20px; padding: 6px 16px;
+      font-size: 0.8rem; color: var(--muted);
+    }
+    #liveClock { font-weight: 600; color: var(--cream); }
+    .sign-out {
+      display: flex; align-items: center; gap: 7px;
+      padding: 8px 18px; border-radius: 10px;
+      border: 1px solid rgba(231,76,60,0.3);
+      background: rgba(231,76,60,0.08);
+      color: var(--red); font-family: 'Outfit', sans-serif;
+      font-size: 0.84rem; font-weight: 600; cursor: pointer;
+      transition: background 0.2s;
+    }
+    .sign-out:hover { background: rgba(231,76,60,0.18); }
+    .sign-out svg { width: 15px; height: 15px; stroke: currentColor; fill: none; stroke-width: 2; }
+
+    .page { max-width: 1100px; margin: 0 auto; padding: 40px 32px 60px; position: relative; z-index: 1; }
+
+    .greeting { margin-bottom: 32px; }
+    .greeting h1 { font-size: 1.7rem; font-weight: 700; }
+    .greeting h1 span { color: var(--caramel); }
+    .greeting p  { color: var(--muted); font-size: 0.88rem; margin-top: 4px; }
+
+    .columns {
+      display: grid;
+      grid-template-columns: 380px 1fr;
+      gap: 24px;
+      align-items: start;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      padding: 30px;
+      backdrop-filter: blur(14px);
+    }
+    .card-head {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 24px;
+    }
+    .card-title {
+      font-size: 1rem; font-weight: 700;
+      display: flex; align-items: center; gap: 9px;
+    }
+    .card-title svg { width: 19px; height: 19px; stroke: var(--caramel); fill: none; stroke-width: 1.8; }
+
+    .avatar-block {
+      display: flex; align-items: center; gap: 16px;
+      background: rgba(201,135,79,0.09);
+      border-radius: 16px; padding: 18px; margin-bottom: 24px;
+    }
+    .avatar {
+      width: 62px; height: 62px; border-radius: 50%; flex-shrink: 0;
+      background: linear-gradient(135deg, var(--caramel), var(--gold));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.55rem; font-weight: 700; color: #fff;
+      box-shadow: 0 6px 20px rgba(201,135,79,0.4);
+    }
+    .avatar-meta .name { font-size: 1.05rem; font-weight: 700; margin-bottom: 2px; }
+    .avatar-meta .role { font-size: 0.78rem; color: var(--caramel); font-weight: 500; }
+    .badge-online {
+      display: inline-flex; align-items: center; gap: 5px;
+      margin-top: 6px; padding: 2px 10px; border-radius: 20px;
+      font-size: 0.72rem; font-weight: 600;
+      background: rgba(46,204,113,0.15); color: var(--green);
+    }
+    .badge-online .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+    .info-list { display: flex; flex-direction: column; gap: 0; }
+    .info-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 13px 0; border-bottom: 1px solid var(--border);
+    }
+    .info-row:last-child { border-bottom: none; }
+    .info-label {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 0.8rem; color: var(--muted);
+    }
+    .info-label svg { width: 14px; height: 14px; stroke: var(--caramel); fill: none; stroke-width: 1.8; }
+    .info-value { font-size: 0.87rem; font-weight: 500; }
+
+    .filters { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+    .chip {
+      padding: 5px 14px; border-radius: 20px; font-size: 0.77rem; font-weight: 500;
+      border: 1px solid var(--border); background: transparent;
+      color: var(--muted); cursor: pointer; transition: all 0.2s;
+    }
+    .chip.active { background: rgba(201,135,79,0.18); border-color: var(--caramel); color: var(--caramel); }
+
+    .task-list { display: flex; flex-direction: column; gap: 9px; max-height: 400px; overflow-y: auto; padding-right: 2px; }
+    .task-list::-webkit-scrollbar { width: 4px; }
+    .task-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+    .task-item {
+      display: flex; align-items: center; gap: 12px;
+      padding: 13px 15px; border-radius: 13px;
+      background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+      transition: background 0.2s;
+      animation: fadeUp 0.25s ease both;
+      cursor: pointer;
+    }
+    @keyframes fadeUp { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+    .task-item:hover { background: rgba(255,255,255,0.07); }
+    .task-item.done { opacity: 0.48; }
+    .task-item.done .task-text { text-decoration: line-through; }
+
+    .check-box {
+      width: 22px; height: 22px; border-radius: 7px; flex-shrink: 0;
+      border: 2px solid var(--border); background: transparent; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.2s, border-color 0.2s;
+    }
+    .check-box:hover { border-color: var(--caramel); }
+    .check-box.ticked { background: var(--green); border-color: var(--green); }
+    .check-box svg { width: 13px; height: 13px; stroke: #fff; fill: none; stroke-width: 2.5; }
+
+    .task-body { flex: 1; min-width: 0; }
+    .task-text { font-size: 0.88rem; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .task-sub  { font-size: 0.74rem; color: var(--muted); margin-top: 2px; }
+
+    .pdot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .pdot.high   { background: var(--red); }
+    .pdot.medium { background: var(--yellow); }
+    .pdot.low    { background: var(--green); }
+
+    .empty {
+      text-align: center; color: var(--muted); font-size: 0.85rem;
+      padding: 36px 0;
+    }
+
+    .prog-wrap { margin-top: 20px; }
+    .prog-row  { display: flex; justify-content: space-between; font-size: 0.78rem; color: var(--muted); margin-bottom: 7px; }
+    .prog-bar  { height: 7px; background: rgba(255,255,255,0.08); border-radius: 10px; overflow: hidden; }
+    .prog-fill { height: 100%; border-radius: 10px; background: linear-gradient(90deg, var(--caramel), var(--gold)); transition: width 0.5s ease; }
+
+    .stat-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 20px; }
+    .stat-box {
+      background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+      border-radius: 14px; padding: 14px; text-align: center;
+    }
+    .stat-val { font-size: 1.5rem; font-weight: 700; color: var(--caramel); }
+    .stat-lbl { font-size: 0.73rem; color: var(--muted); margin-top: 2px; }
+
+    .loading { text-align: center; color: var(--muted); padding: 20px; }
+    .error { color: var(--red); padding: 15px; background: rgba(231,76,60,0.1); border-radius: 8px; margin-bottom: 16px; }
+
+    /* ── Task Detail Modal ── */
+    .modal-overlay {
+      position: fixed; inset: 0; z-index: 200;
+      background: rgba(0,0,0,0.65);
+      backdrop-filter: blur(6px);
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.22s ease;
+    }
+    .modal-overlay.open { opacity: 1; pointer-events: auto; }
+
+    .modal-card {
+      background: linear-gradient(145deg, #241006, #2f1507);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 24px;
+      padding: 36px 32px 30px;
+      width: min(480px, 92vw);
+      position: relative;
+      transform: translateY(18px) scale(0.97);
+      transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+      box-shadow: 0 30px 80px rgba(0,0,0,0.5);
+    }
+    .modal-overlay.open .modal-card { transform: translateY(0) scale(1); }
+
+    .modal-close {
+      position: absolute; top: 16px; right: 16px;
+      width: 32px; height: 32px; border-radius: 50%;
+      border: 1px solid var(--border); background: var(--surface);
+      color: var(--muted); font-size: 1.1rem; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.2s;
+    }
+    .modal-close:hover { background: rgba(255,255,255,0.1); color: var(--cream); }
+
+    .modal-label { font-size: 0.72rem; font-weight: 600; letter-spacing: 0.08em; color: var(--caramel); text-transform: uppercase; margin-bottom: 8px; }
+    .modal-title { font-size: 1.15rem; font-weight: 700; line-height: 1.4; margin-bottom: 20px; }
+
+    .modal-meta { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 24px; }
+    .meta-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 5px 13px; border-radius: 20px; font-size: 0.76rem; font-weight: 600;
+      border: 1px solid var(--border);
+    }
+    .meta-badge.priority-high   { background: rgba(231,76,60,0.15);  color: var(--red);    border-color: rgba(231,76,60,0.3); }
+    .meta-badge.priority-medium { background: rgba(241,196,15,0.12); color: var(--yellow); border-color: rgba(241,196,15,0.3); }
+    .meta-badge.priority-low    { background: rgba(46,204,113,0.12); color: var(--green);  border-color: rgba(46,204,113,0.3); }
+    .meta-badge.status-done     { background: rgba(46,204,113,0.12); color: var(--green);  border-color: rgba(46,204,113,0.3); }
+    .meta-badge.status-pending  { background: rgba(255,255,255,0.05); color: var(--muted); }
+    .meta-badge .dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+
+    .modal-divider { border: none; border-top: 1px solid var(--border); margin: 0 0 20px; }
+
+    .modal-info-row { display: flex; justify-content: space-between; font-size: 0.82rem; padding: 9px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+    .modal-info-row:last-of-type { border-bottom: none; }
+    .modal-info-row span:first-child { color: var(--muted); }
+    .modal-info-row span:last-child  { font-weight: 500; }
+
+    .modal-actions { margin-top: 26px; display: flex; gap: 10px; }
+    .btn-complete {
+      flex: 1; padding: 13px; border-radius: 12px; border: none;
+      font-family: 'Outfit', sans-serif; font-size: 0.9rem; font-weight: 700;
+      cursor: pointer; transition: all 0.2s;
+      background: linear-gradient(135deg, var(--caramel), var(--gold));
+      color: #fff;
+      box-shadow: 0 6px 20px rgba(201,135,79,0.35);
+    }
+    .btn-complete:hover { transform: translateY(-1px); box-shadow: 0 10px 28px rgba(201,135,79,0.45); }
+    .btn-complete:active { transform: translateY(0); }
+    .btn-complete.undo {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      box-shadow: none;
+    }
+    .btn-complete.undo:hover { background: rgba(255,255,255,0.1); color: var(--cream); box-shadow: none; }
+
+    @media (max-width: 780px) {
+      .columns { grid-template-columns: 1fr; }
+      nav { padding: 14px 20px; }
+      .page { padding: 24px 18px 48px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="bokeh bokeh-1"></div>
+<div class="bokeh bokeh-2"></div>
+
+<!-- Task Detail Modal -->
+<div class="modal-overlay" id="taskModal" onclick="handleOverlayClick(event)">
+  <div class="modal-card">
+    <button class="modal-close" onclick="closeModal()" title="Close">✕</button>
+    <div class="modal-label">Task Details</div>
+    <div class="modal-title" id="modalTitle">—</div>
+    <div class="modal-meta" id="modalMeta"></div>
+    <hr class="modal-divider">
+    <div id="modalInfoRows"></div>
+    <div class="modal-actions">
+      <button class="btn-complete" id="modalCompleteBtn" onclick="modalToggleTask()">✓ Mark as Complete</button>
+    </div>
+  </div>
+</div>
+
+<nav>
+  <div class="nav-brand">
+    <div class="cup">
+      <svg viewBox="0 0 64 64"><path d="M10 20h36l-4 24H14L10 20z"/><path d="M46 26h6a6 6 0 0 1 0 12h-6"/></svg>
+    </div>
+    Barista Staff Portal
+  </div>
+  <div class="nav-right">
+    <div class="clock-chip"><span id="liveClock"></span></div>
+    <button class="sign-out" onclick="signOut()">
+      <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      Sign Out
+    </button>
+  </div>
+</nav>
+
+<div class="page">
+  <div class="greeting">
+    <h1>Welcome back, <span id="greetName">Loading</span> ☕</h1>
+    <p id="greetDate">Loading date…</p>
+  </div>
+
+  <div id="errorDiv" class="error" style="display:none;"></div>
+
+  <div class="columns">
+    <!-- PROFILE CARD -->
+    <div class="card">
+      <div class="card-head">
+        <div class="card-title">
+          <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          Profile Details
+        </div>
+      </div>
+
+      <div class="avatar-block">
+        <div class="avatar" id="avatarInit">A</div>
+        <div class="avatar-meta">
+          <div class="name" id="profileName">Loading…</div>
+          <div class="role" id="profileRole">Loading…</div>
+          <span class="badge-online"><span class="dot"></span> On Shift</span>
+        </div>
+      </div>
+
+      <div class="info-list">
+        <div class="info-row">
+          <span class="info-label"><svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="4"/></svg> Staff ID</span>
+          <span class="info-value" id="infoMemberId">-</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label"><svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/></svg> Email</span>
+          <span class="info-value" id="infoEmail">-</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label"><svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2A19.79 19.79 0 0 1 11.27 18a19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.11-7.52A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg> Phone</span>
+          <span class="info-value" id="infoPhone">-</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg> Branch</span>
+          <span class="info-value" id="infoBranch">-</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/></svg> Joined</span>
+          <span class="info-value" id="infoJoined">-</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- TASK CARD -->
+    <div class="card">
+      <div class="card-head">
+        <div class="card-title">
+          <svg viewBox="0 0 24 24"><polyline points="9 11 12 14 22 4"/></svg>
+          My Tasks
+        </div>
+        <span id="remaining" style="font-size:0.79rem;color:var(--muted)"></span>
+      </div>
+
+      <div class="filters">
+        <button class="chip active" data-f="all" onclick="setFilter(this)">All</button>
+        <button class="chip" data-f="todo" onclick="setFilter(this)">To Do</button>
+        <button class="chip" data-f="done" onclick="setFilter(this)">Done</button>
+      </div>
+
+      <div class="task-list" id="taskList"><div class="loading">Loading tasks…</div></div>
+
+      <div class="stat-row">
+        <div class="stat-box">
+          <div class="stat-val" id="statTotal">0</div>
+          <div class="stat-lbl">Total</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-val" id="statDone">0</div>
+          <div class="stat-lbl">Completed</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-val" id="statPending">0</div>
+          <div class="stat-lbl">Pending</div>
+        </div>
+      </div>
+
+      <div class="prog-wrap">
+        <div class="prog-row">
+          <span>Overall Progress</span>
+          <span id="progLabel">0%</span>
+        </div>
+        <div class="prog-bar">
+          <div class="prog-fill" id="progFill" style="width:0%"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Get staff info from localStorage (set during login)
+  const staffInfo = JSON.parse(localStorage.getItem('staffMember') || '{}');
+  const memberId = staffInfo.member_id;
+
+  if (!memberId) {
+    window.location.href = '/index.html';
+  }
+
+  let tasks = [];
+  let filter = 'all';
+
+  // Clock & Date
+  function tick() {
+    const n = new Date();
+    document.getElementById('liveClock').textContent =
+      n.toLocaleTimeString('en-MY', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    document.getElementById('greetDate').textContent =
+      n.toLocaleDateString('en-MY', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+  }
+  tick();
+  setInterval(tick, 1000);
+
+  // Load Profile
+  async function loadProfile() {
+    try {
+      const res = await fetch(`/api/dashboard/profile/${memberId}`);
+      const data = await res.json();
+
+      if (!res.ok) throw new Error(data.error);
+
+      const { profile } = data;
+      document.getElementById('greetName').textContent = profile.name.split(' ')[0];
+      document.getElementById('avatarInit').textContent = profile.avatar_initials;
+      document.getElementById('profileName').textContent = profile.name;
+      document.getElementById('profileRole').textContent = profile.role;
+      document.getElementById('infoMemberId').textContent = profile.member_id;
+      document.getElementById('infoEmail').textContent = profile.email;
+      document.getElementById('infoPhone').textContent = profile.phone;
+      document.getElementById('infoBranch').textContent = profile.branch;
+      document.getElementById('infoJoined').textContent = new Date(profile.joined_date).toLocaleDateString('en-MY', { day: 'numeric', month: 'short', year: 'numeric' });
+    } catch (err) {
+      console.error('Profile load error:', err);
+      showError('Failed to load profile');
+    }
+  }
+
+  // Load Tasks
+  async function loadTasks() {
+    try {
+      const res = await fetch(`/api/dashboard/tasks/${memberId}`);
+      const data = await res.json();
+
+      if (!res.ok) throw new Error(data.error);
+
+      // Keep all attributes, ensure we spread appropriately
+      tasks = data.tasks.map(t => ({
+        ...t,
+        id: t.id,
+        text: t.text,
+        done: t.done,
+        priority: t.priority
+      }));
+
+      render();
+    } catch (err) {
+      console.error('Tasks load error:', err);
+      showError('Failed to load tasks');
+    }
+  }
+
+  // Render Tasks
+  function render() {
+    const list = document.getElementById('taskList');
+    const filtered = tasks.filter(t =>
+      filter === 'all'    ? true :
+      filter === 'todo'   ? !t.done :
+      filter === 'done'   ? t.done :
+      t.priority === filter
+    );
+
+    if (!filtered.length) {
+      list.innerHTML = '<div class="empty">No tasks here yet 🎉</div>';
+    } else {
+      list.innerHTML = filtered.map(t => `
+        <div class="task-item ${t.done ? 'done' : ''}" onclick="openTask('${t.id}')">
+          <div class="check-box ${t.done ? 'ticked' : ''}" onclick="event.stopPropagation(); toggleTask('${t.id}')">
+            ${t.done ? '<svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>' : ''}
+          </div>
+          <div class="task-body">
+            <div class="task-text">${t.text}</div>
+            <div class="task-sub">Added: ${t.added || 'Unknown'}</div>
+          </div>
+          <div class="pdot ${t.priority}" title="${t.priority} priority"></div>
+        </div>`).join('');
+    }
+
+    const done  = tasks.filter(t => t.done).length;
+    const total = tasks.length;
+    const pct   = total ? Math.round(done / total * 100) : 0;
+    document.getElementById('progFill').style.width = pct + '%';
+    document.getElementById('progLabel').textContent = pct + '%';
+    document.getElementById('statTotal').textContent   = total;
+    document.getElementById('statDone').textContent    = done;
+    document.getElementById('statPending').textContent = total - done;
+    document.getElementById('remaining').textContent   = (total - done) + ' remaining';
+  }
+
+  // Toggle Task Status
+  async function toggleTask(id) {
+    const task = tasks.find(t => t.id == id);
+    if (!task) return;
+
+    try {
+      const newStatus = task.done ? 'pending' : 'completed';
+      const res = await fetch(`/api/dashboard/tasks/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: newStatus })
+      });
+
+      if (!res.ok) throw new Error('Failed to update task');
+
+      task.done = !task.done;
+      render();
+    } catch (err) {
+      console.error('Task update error:', err);
+      showError('Failed to update task');
+    }
+  }
+
+  // Set Filter
+  function setFilter(el) {
+    document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+    el.classList.add('active');
+    filter = el.dataset.f;
+    render();
+  }
+
+  // ── Modal Logic ──
+  let activeTaskId = null;
+
+  function openTask(id) {
+    const task = tasks.find(t => t.id == id); // Loose equality ensures string IDs parse correctly against numeric ones
+    if (!task) return;
+    activeTaskId = id;
+
+    document.getElementById('modalTitle').textContent = task.text;
+
+    const priorityLabel = task.priority ? task.priority.charAt(0).toUpperCase() + task.priority.slice(1) : 'Normal';
+    const dot = '<span class="dot"></span>';
+    document.getElementById('modalMeta').innerHTML = `
+      <span class="meta-badge priority-${task.priority || 'medium'}">${dot} ${priorityLabel} Priority</span>
+      <span class="meta-badge status-${task.done ? 'done' : 'pending'}">${dot} ${task.done ? 'Completed' : 'Pending'}</span>
+    `;
+
+    document.getElementById('modalInfoRows').innerHTML = `
+      <div class="modal-info-row"><span>Date Added</span><span>${task.added || 'N/A'}</span></div>
+      ${task.due ? `<div class="modal-info-row"><span>Due Date</span><span>${task.due}</span></div>` : ''}
+      ${task.notes ? `<div class="modal-info-row"><span>Description</span><span>${task.notes}</span></div>` : '<div class="modal-info-row"><span>Description</span><span>No additional details</span></div>'}
+    `;
+
+    const btn = document.getElementById('modalCompleteBtn');
+    if (task.done) {
+      btn.textContent = '↩ Mark as Incomplete';
+      btn.classList.add('undo');
+    } else {
+      btn.textContent = '✓ Mark as Complete';
+      btn.classList.remove('undo');
+    }
+
+    document.getElementById('taskModal').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeModal() {
+    document.getElementById('taskModal').classList.remove('open');
+    document.body.style.overflow = '';
+    activeTaskId = null;
+  }
+
+  function handleOverlayClick(e) {
+    if (e.target === document.getElementById('taskModal')) closeModal();
+  }
+
+  async function modalToggleTask() {
+    if (activeTaskId === null) return;
+    await toggleTask(activeTaskId);
+    // Refresh modal with updated state
+    openTask(activeTaskId);
+  }
+
+  // Close modal on Escape key
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+  // Sign Out
+  function signOut() {
+    localStorage.removeItem('staffMember');
+    window.location.href = '/index.html';
+  }
+
+  // Error Display
+  function showError(message) {
+    const errorDiv = document.getElementById('errorDiv');
+    errorDiv.textContent = message;
+    errorDiv.style.display = 'block';
+    setTimeout(() => {
+      errorDiv.style.display = 'none';
+    }, 5000);
+  }
+
+  // Initialize
+  loadProfile();
+  loadTasks();
+</script>
+</body>
+</html>
