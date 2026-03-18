@@ -20,6 +20,8 @@ import {ChatBot} from './ChatBot.js';
 import {DashboardAnalytics} from './DashboardAnalytics.js';
 import { AddStaffMemberRoutes } from './AddStaffMember.js';
 import { ShowStaffMemberRoutes } from './ShowStaffMemeber.js';
+import {ConcernAnalysis} from './ConcernsAnalysis.js';
+import { ConcernMessagesRoutes } from './concernMessages.js';
 dotenv.config();
 
 // __ dirname in ES modules
@@ -55,6 +57,8 @@ ChatBot(supabase,app);
 DashboardAnalytics(supabase,app);
 AddStaffMemberRoutes(supabase,app);
 ShowStaffMemberRoutes(supabase,app);
+ConcernAnalysis(supabase,app);
+ConcernMessagesRoutes(supabase,app);
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`Backend runnning on http://localhost:${PORT}`);

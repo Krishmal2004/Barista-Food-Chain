@@ -15,6 +15,167 @@
         rel="stylesheet">
     <!-- Custom Dashboard CSS -->
     <link rel="stylesheet" href="css/dashboard.css">
+    <style>
+        .concern-card {
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .concern-card:hover {
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .concern-card.priority-high {
+            border-left: 5px solid #dc3545;
+        }
+
+        .concern-card.priority-medium {
+            border-left: 5px solid #ffc107;
+        }
+
+        .concern-card.priority-low {
+            border-left: 5px solid #28a745;
+        }
+
+        .concern-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 15px;
+        }
+
+        .concern-title {
+            margin: 0;
+            font-size: 18px;
+            font-weight: 600;
+            flex: 1;
+        }
+
+        .concern-badges {
+            display: flex;
+            gap: 8px;
+        }
+
+        .badge {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+        }
+
+        .priority-badge-high {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .priority-badge-medium {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .priority-badge-low {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-badge-open {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .status-badge-inprogress {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-badge-resolved {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .concern-description {
+            color: #6c757d;
+            margin: 10px 0;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .concern-meta {
+            display: flex;
+            gap: 20px;
+            font-size: 12px;
+            color: #6c757d;
+            margin: 15px 0;
+        }
+
+        .concern-meta span {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .concern-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #e9ecef;
+        }
+
+        .btn-filter {
+            padding: 8px 16px;
+            border: 1px solid #dee2e6;
+            background: white;
+            border-radius: 8px;
+            color: #495057;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .btn-filter:hover {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .btn-filter.active {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .dashboard-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        /* Chat Modal Styles */
+        .chat-modal-content { border-radius: 16px; border: 0; overflow: hidden; }
+        .chat-header-info { background: #f8f9fa; padding: 15px 20px; border-bottom: 1px solid #dee2e6; }
+        .chat-container { height: 400px; overflow-y: auto; padding: 20px; background: #fafafa; display: flex; flex-direction: column; gap: 15px; }
+        .chat-message { max-width: 80%; display: flex; flex-direction: column; }
+        .chat-message.system { align-self: center; align-items: center; max-width: 100%; }
+        .system-text { background: #e9ecef; color: #495057; padding: 4px 12px; border-radius: 12px; font-size: 12px; }
+        .chat-message.sent { align-self: flex-end; align-items: flex-end; }
+        .chat-message.received { align-self: flex-start; align-items: flex-start; }
+        .message-bubble { padding: 10px 15px; border-radius: 15px; font-size: 14px; position: relative; }
+        .sent .message-bubble { background: var(--primary-color, #2c3e50); color: white; border-bottom-right-radius: 4px; }
+        .received .message-bubble { background: white; border: 1px solid #dee2e6; color: #212529; border-bottom-left-radius: 4px; }
+        .message-time { font-size: 11px; color: #6c757d; margin-top: 4px; }
+        .sent .message-time { color: #adb5bd; }
+        .chat-input-area { padding: 15px; background: white; border-top: 1px solid #dee2e6; }
+        .chat-input-container { display: flex; gap: 10px; }
+        .chat-input { border-radius: 20px; resize: none; padding: 10px 15px; }
+        .send-btn { border-radius: 50%; width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; }
+
+        .modal { z-index: 1055; }
+        .modal-backdrop { z-index: 1050; }
+        body { position: relative; }
+    </style>
 </head>
 
 <body>
@@ -107,7 +268,7 @@
                                     <button type="button" class="btn btn-filter"
                                         onclick="filterConcerns('In Progress')">In Progress</button>
                                     <button type="button" class="btn btn-filter"
-                                        onclick="filterConcerns('Resolved')">Resolved</button>
+                                        onclick="filterConcerns('Closed')">Closed</button>
                                 </div>
                             </div>
                             <div class="col-md-6">
@@ -124,8 +285,10 @@
                 <!-- Concerns Grid -->
                 <div class="row g-4" id="concernsGrid">
                     <div class="col-12 text-center py-5">
-                        <i class="bi bi-inbox fs-1 text-muted"></i>
-                        <p class="text-muted mt-3">No concerns found. Click "Add New Concern" to create one.</p>
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="text-muted mt-3">Loading concerns...</p>
                     </div>
                 </div>
             </div>
@@ -133,7 +296,7 @@
     </div>
 
     <!-- Add/Edit Concern Modal -->
-    <div class="modal fade" id="concernModal" tabindex="-1">
+    <div class="modal fade" id="concernModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
@@ -176,7 +339,7 @@
                                 <select class="form-select" id="concernStatus">
                                     <option value="Open" selected>Open</option>
                                     <option value="In Progress">In Progress</option>
-                                    <option value="Resolved">Resolved</option>
+                                    <option value="Closed">Closed</option>
                                 </select>
                             </div>
                         </div>
@@ -184,8 +347,53 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-primary" id="submitConcernBtn" onclick="saveConcern()">Save
-                        Concern</button>
+                    <button type="button" class="btn btn-primary" id="submitConcernBtn" onclick="saveConcern()">
+                        <i class="bi bi-check-circle"></i> Save Concern
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chat Modal -->
+    <div class="modal fade" id="chatModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content chat-modal-content">
+                <div class="modal-header bg-dark text-white">
+                    <h5 class="modal-title d-flex align-items-center">
+                        <i class="bi bi-chat-square-text me-2" style="color: #ffc107;"></i>
+                        Concern Discussion
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                
+                <div class="chat-header-info">
+                    <div class="row align-items-center">
+                        <div class="col-md-12">
+                            <div class="d-flex flex-column">
+                                <span class="badge bg-secondary mb-1" style="width: fit-content;" id="chatConcernId">#CON-XXXX</span>
+                                <h6 class="mb-0 fw-bold" id="chatConcernTitle">Concern Title</h6>
+                                <small class="text-muted"><i class="bi bi-shop me-1"></i> <span id="chatBranchName">Branch</span></small>
+                                <small class="text-muted d-block mt-1" id="chatDescription"></small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="chat-container" id="chatContainer">
+                    <div class="text-center text-muted my-auto p-4">
+                        <i class="bi bi-chat-square text-light fs-1 d-block mb-3"></i>
+                        Loading messages...
+                    </div>
+                </div>
+
+                <div class="chat-input-area">
+                    <div class="chat-input-container">
+                        <textarea class="form-control chat-input" id="messageInput" rows="1" placeholder="Type your message..."></textarea>
+                        <button class="btn btn-primary send-btn" onclick="sendMessage()" id="sendMessageBtn">
+                            <i class="bi bi-send-fill"></i>
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -198,22 +406,39 @@
     <script>
         let currentFilter = 'All';
         let concernModal;
+        let chatModalInstance;
+        let currentChatConcernId = null;
+        let allConcerns = [];
+        let filteredConcerns = [];
+        let chatMessages = [];
+        let branchId = '';
 
         document.addEventListener('DOMContentLoaded', function () {
             concernModal = new bootstrap.Modal(document.getElementById('concernModal'));
+            chatModalInstance = new bootstrap.Modal(document.getElementById('chatModal'));
+            
+            branchId = localStorage.getItem('active_branch_id') || 'BCH-001';
+            
             loadBranchInfo();
             loadConcerns();
+
+            const msgInput = document.getElementById('messageInput');
+            if(msgInput) {
+                msgInput.addEventListener('keypress', function (e) {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        sendMessage();
+                    }
+                });
+            }
         });
 
         async function loadBranchInfo() {
-            const branchId = localStorage.getItem('active_branch_id') || 'BCH-001';
-
             try {
                 const response = await fetch(`/api/branch/${branchId}`);
                 if (response.ok) {
                     const result = await response.json();
                     const branchData = result.data;
-
                     document.getElementById('sidebarBranchName').textContent = branchData.branch_name || 'Unknown';
                     document.getElementById('sidebarManagerName').textContent = branchData.contact_full_name || 'Manager';
                 } else {
@@ -226,18 +451,13 @@
         }
 
         async function loadConcerns() {
-            const branchId = localStorage.getItem('active_branch_id') || 'BCH-001';
-
             try {
-                // FIXED: Changed from /api/branches/ to /api/concerns/
-                const response = await fetch(`/api/concerns/${branchId}`);
-
-                if (!response.ok) {
-                    throw new Error('Failed to fetch concerns');
-                }
-
-                const concerns = await response.json();
-                displayConcerns(concerns);
+                const response = await fetch(`/api/concerns?branch_id=${branchId}`);
+                if (!response.ok) throw new Error('Failed to fetch concerns');
+                
+                allConcerns = await response.json();
+                filteredConcerns = allConcerns;
+                displayConcerns(allConcerns);
             } catch (err) {
                 console.error("Error loading concerns:", err);
                 displayConcerns([]);
@@ -247,13 +467,13 @@
         function displayConcerns(concerns) {
             const grid = document.getElementById('concernsGrid');
 
-            // Filter concerns
-            let filteredConcerns = concerns;
+            // Filter concerns by status
+            let filtered = concerns;
             if (currentFilter !== 'All') {
-                filteredConcerns = concerns.filter(c => c.status === currentFilter);
+                filtered = concerns.filter(c => c.status === currentFilter);
             }
 
-            if (filteredConcerns.length === 0) {
+            if (filtered.length === 0) {
                 grid.innerHTML = `
                     <div class="col-12 text-center py-5">
                         <i class="bi bi-inbox fs-1 text-muted"></i>
@@ -263,14 +483,17 @@
                 return;
             }
 
-            grid.innerHTML = filteredConcerns.map(concern => `
+            grid.innerHTML = filtered.map(concern => {
+                const safeDesc = concern.description ? concern.description.replace(/'/g, "\\'").replace(/"/g, '&quot;') : '';
+                const safeTitle = concern.title ? concern.title.replace(/'/g, "\\'").replace(/"/g, '&quot;') : '';
+                return `
                 <div class="col-lg-6">
-                    <div class="concern-card priority-${concern.priority.toLowerCase()}">
+                    <div class="concern-card priority-${concern.priority.toLowerCase()}" style="cursor: pointer;" onclick="openChat('${concern.id}', '${safeTitle}', '${safeDesc}')">
                         <div class="concern-header">
                             <h5 class="concern-title">${concern.title}</h5>
                             <div class="concern-badges">
                                 <span class="badge priority-badge-${concern.priority.toLowerCase()}">${concern.priority}</span>
-                                <span class="badge status-badge-${concern.status.toLowerCase().replace(' ', '-')}">${concern.status}</span>
+                                <span class="badge status-badge-${concern.status.toLowerCase().replace(' ', '')}">${concern.status}</span>
                             </div>
                         </div>
                         <p class="concern-description">${concern.description}</p>
@@ -279,16 +502,16 @@
                             <span><i class="bi bi-calendar"></i> ${formatDate(concern.created_at)}</span>
                         </div>
                         <div class="concern-actions">
-                            <button class="btn btn-sm btn-outline-primary" onclick="editConcern('${concern.id}')">
+                            <button class="btn btn-sm btn-outline-primary" onclick="event.stopPropagation(); editConcern('${concern.id}')">
                                 <i class="bi bi-pencil"></i> Edit
                             </button>
-                            <button class="btn btn-sm btn-outline-danger" onclick="deleteConcern('${concern.id}')">
+                            <button class="btn btn-sm btn-outline-danger" onclick="event.stopPropagation(); deleteConcern('${concern.id}')">
                                 <i class="bi bi-trash"></i> Delete
                             </button>
                         </div>
                     </div>
                 </div>
-            `).join('');
+            `}).join('');
         }
 
         function openAddConcernModal() {
@@ -299,23 +522,19 @@
         }
 
         async function editConcern(id) {
-            const branchId = localStorage.getItem('active_branch_id') || 'BCH-001';
-
             try {
-                const response = await fetch(`/api/concerns/${branchId}`);
-                const concerns = await response.json();
-                const concern = concerns.find(c => c.id === id);
-
-                if (concern) {
-                    document.getElementById('modalTitle').textContent = 'Edit Concern';
-                    document.getElementById('concernId').value = concern.id;
-                    document.getElementById('concernTitle').value = concern.title;
-                    document.getElementById('concernDescription').value = concern.description;
-                    document.getElementById('concernPriority').value = concern.priority;
-                    document.getElementById('concernCategory').value = concern.category;
-                    document.getElementById('concernStatus').value = concern.status;
-                    concernModal.show();
-                }
+                const response = await fetch(`/api/concerns/${id}`);
+                if (!response.ok) throw new Error('Failed to fetch concern');
+                
+                const concern = await response.json();
+                document.getElementById('modalTitle').textContent = 'Edit Concern';
+                document.getElementById('concernId').value = concern.id;
+                document.getElementById('concernTitle').value = concern.title;
+                document.getElementById('concernDescription').value = concern.description;
+                document.getElementById('concernPriority').value = concern.priority;
+                document.getElementById('concernCategory').value = concern.category;
+                document.getElementById('concernStatus').value = concern.status;
+                concernModal.show();
             } catch (error) {
                 console.error("Error loading concern for edit:", error);
                 alert('Failed to load concern details');
@@ -323,9 +542,10 @@
         }
 
         async function saveConcern() {
-            console.log("save concern button clicked!");
-            const branchId = localStorage.getItem('active_branch_id') || 'BCH-001';
             const id = document.getElementById('concernId').value;
+            const submitBtn = document.getElementById('submitConcernBtn');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Saving...';
 
             const payload = {
                 branch_id: branchId,
@@ -338,6 +558,8 @@
 
             if (!payload.title || !payload.description) {
                 alert('Please fill in the title and description.');
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="bi bi-check-circle"></i> Save Concern';
                 return;
             }
 
@@ -345,28 +567,22 @@
                 let response;
 
                 if (id) {
-                    // Update existing concern
                     response = await fetch(`/api/concerns/${id}`, {
                         method: 'PUT',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
+                        headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(payload)
                     });
                 } else {
-                    // Create new concern
                     response = await fetch('/api/concerns', {
                         method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
+                        headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(payload)
                     });
                 }
 
                 if (response.ok) {
                     concernModal.hide();
-                    alert(id ? "Concern updated!" : "New concern added!");
+                    alert(id ? "✅ Concern updated!" : "✅ New concern added!");
                     await loadConcerns();
                 } else {
                     const errorData = await response.json();
@@ -375,13 +591,15 @@
             } catch (err) {
                 console.error("Error saving concern:", err);
                 alert('Network error. Please try again.');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="bi bi-check-circle"></i> Save Concern';
             }
         }
 
         async function deleteConcern(id) {
-            // FIXED: Inverted logic - should NOT return if user confirms
             if (!confirm('Are you sure you want to delete this concern?')) {
-                return; // Exit if user clicks Cancel
+                return;
             }
 
             try {
@@ -390,7 +608,7 @@
                 });
 
                 if (response.ok) {
-                    alert('Concern deleted successfully!');
+                    alert('✅ Concern deleted successfully!');
                     await loadConcerns();
                 } else {
                     const error = await response.json();
@@ -406,29 +624,23 @@
             currentFilter = status;
             document.querySelectorAll('.btn-filter').forEach(btn => btn.classList.remove('active'));
             event.target.classList.add('active');
-            loadConcerns();
+            displayConcerns(allConcerns);
         }
 
         async function searchConcerns() {
             const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-            const branchId = localStorage.getItem('active_branch_id') || 'BCH-001';
-
-            try {
-                const response = await fetch(`/api/concerns/${branchId}`);
-                let concerns = await response.json();
-
-                if (searchTerm) {
-                    concerns = concerns.filter(c =>
-                        c.title.toLowerCase().includes(searchTerm) ||
-                        c.description.toLowerCase().includes(searchTerm) ||
-                        c.category.toLowerCase().includes(searchTerm)
-                    );
-                }
-
-                displayConcerns(concerns);
-            } catch (error) {
-                console.error("Error searching concerns:", error);
+            
+            if (searchTerm === '') {
+                filteredConcerns = allConcerns;
+            } else {
+                filteredConcerns = allConcerns.filter(c =>
+                    c.title.toLowerCase().includes(searchTerm) ||
+                    c.description.toLowerCase().includes(searchTerm) ||
+                    c.category.toLowerCase().includes(searchTerm)
+                );
             }
+
+            displayConcerns(filteredConcerns);
         }
 
         function formatDate(dateString) {
@@ -445,6 +657,198 @@
             }
             return false;
         }
+
+        async function openChat(concernId, title, description) {
+            currentChatConcernId = concernId;
+            const branchName = document.getElementById('sidebarBranchName').textContent;
+            
+            document.getElementById('chatConcernId').textContent = '#' + (concernId ? concernId.toString().substring(0, 8).toUpperCase() : 'NEW');
+            document.getElementById('chatBranchName').textContent = branchName;
+            document.getElementById('chatConcernTitle').textContent = title;
+            document.getElementById('chatDescription').textContent = description || '';
+            
+            // Load messages from database
+            await loadChatMessages(concernId);
+            
+            document.getElementById('messageInput').value = '';
+            chatModalInstance.show();
+        }
+
+        async function loadChatMessages(concernId) {
+            try {
+                const response = await fetch(`/api/concerns/${concernId}/messages`);
+                if (!response.ok) throw new Error('Failed to fetch messages');
+                
+                chatMessages = await response.json();
+                displayChatMessages();
+            } catch (err) {
+                console.error("Failed to load messages:", err);
+                const chatContainer = document.getElementById('chatContainer');
+                chatContainer.innerHTML = '<div class="text-center text-muted my-auto p-4"><i class="bi bi-chat-square text-light fs-1 d-block mb-3"></i>No messages yet. Send a message to start.</div>';
+            }
+        }
+
+        function displayChatMessages() {
+            const chatContainer = document.getElementById('chatContainer');
+            
+            if (!chatMessages || chatMessages.length === 0) {
+                chatContainer.innerHTML = '<div class="text-center text-muted my-auto p-4"><i class="bi bi-chat-square text-light fs-1 d-block mb-3"></i>No messages yet. Send a message to start.</div>';
+                return;
+            }
+
+            chatContainer.innerHTML = '';
+            
+            chatMessages.forEach(msg => {
+                const msgDiv = document.createElement('div');
+                const msgType = msg.sender_type === 'branch' ? 'sent' : 'received';
+                msgDiv.className = `chat-message ${msgType}`;
+                
+                const msgTime = new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                
+                msgDiv.innerHTML = `
+                    <div class="message-time mb-1 d-block" style="font-size: 10px;">${msg.sender_name}</div>
+                    <div class="message-bubble">${msg.message.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</div>
+                    <div class="message-time">${msgTime}</div>
+                `;
+                
+                chatContainer.appendChild(msgDiv);
+            });
+            
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        async function sendMessage() {
+    const input = document.getElementById('messageInput');
+    const text = input.value.trim();
+    
+    console.log('🚀 sendMessage() called', {
+        hasText: text.length > 0,
+        concernId: currentChatConcernId,
+        textLength: text.length
+    });
+
+    // Validation
+    if (text === '') {
+        console.warn('⚠️ Empty message attempted');
+        alert('Please type a message');
+        return;
+    }
+
+    if (!currentChatConcernId) {
+        console.error('❌ No concern ID selected');
+        alert('No concern selected. Please close and reopen the chat.');
+        return;
+    }
+    
+    const sendBtn = document.getElementById('sendMessageBtn');
+    sendBtn.disabled = true;
+    sendBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>';
+    
+    const payload = {
+        sender_type: 'branch',
+        sender_id: branchId,
+        sender_name: document.getElementById('sidebarManagerName').textContent || 'Branch Manager',
+        message: text
+    };
+
+    console.log('📤 Sending message payload:', {
+        concernId: currentChatConcernId,
+        sender_type: payload.sender_type,
+        sender_id: payload.sender_id,
+        sender_name: payload.sender_name,
+        message: payload.message.substring(0, 50) + '...'
+    });
+
+    try {
+        const url = `/api/concerns/${currentChatConcernId}/messages`;
+        console.log('🌐 API Endpoint:', url);
+        console.log('📦 Request Body:', JSON.stringify(payload, null, 2));
+        
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: { 
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify(payload)
+        });
+
+        console.log('📥 Response Status:', response.status, response.statusText);
+        console.log('📥 Response Headers:', {
+            contentType: response.headers.get('content-type'),
+            contentLength: response.headers.get('content-length')
+        });
+
+        // Get response text first
+        const responseText = await response.text();
+        console.log('📥 Raw Response Text:', responseText.substring(0, 200));
+
+        // Check if response is okay first
+        if (!response.ok) {
+            console.error('❌ HTTP Error:', response.status);
+            
+            let errorData;
+            
+            // Try to parse as JSON
+            try {
+                if (responseText) {
+                    errorData = JSON.parse(responseText);
+                } else {
+                    errorData = { error: 'Empty response from server' };
+                }
+            } catch (parseErr) {
+                console.error('❌ Failed to parse JSON:', parseErr.message);
+                console.error('📝 Response was:', responseText);
+                errorData = { 
+                    error: `Server error (${response.status})`,
+                    details: responseText ? responseText.substring(0, 100) : 'No response text'
+                };
+            }
+            
+            console.error('❌ API Error Response:', errorData);
+            
+            const errorMessage = errorData.details || errorData.error || `Server error: ${response.status}`;
+            alert(`Failed to send message:\n${errorMessage}\n\nPlease check the browser console for details.`);
+            return;
+        }
+
+        // Parse successful response
+        let newMessage;
+        try {
+            newMessage = JSON.parse(responseText);
+        } catch (parseErr) {
+            console.error('❌ Failed to parse success response:', parseErr);
+            alert('Message may have been sent but response parsing failed. Please refresh to verify.');
+            await loadChatMessages(currentChatConcernId);
+            input.value = '';
+            return;
+        }
+
+        console.log('✅ Message sent successfully:', newMessage);
+        
+        chatMessages.push(newMessage);
+        displayChatMessages();
+        input.value = '';
+        
+        // Auto-scroll to latest message
+        setTimeout(() => {
+            const chatContainer = document.getElementById('chatContainer');
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }, 100);
+
+    } catch (err) {
+        console.error('❌ Network/Exception Error:', {
+            message: err.message,
+            stack: err.stack,
+            name: err.name
+        });
+        alert(`Network error: ${err.message}\n\nMake sure:\n1. Server is running on localhost:3000\n2. Network connection is stable\n3. Check browser console for details`);
+    } finally {
+        sendBtn.disabled = false;
+        sendBtn.innerHTML = '<i class="bi bi-send-fill"></i>';
+        console.log('🔄 Send button re-enabled');
+    }
+}
     </script>
 </body>
 
