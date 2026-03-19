@@ -3,12 +3,21 @@ services:
     build: ./backend
     ports:
       - "3000:3000"
-    environment:
-      - ML_SERVICE_URL=http://ml-service:5000
-    depends_on:
-      - ml-service
-
-  ml-service:
-    build: ./ml-service
+    volumes:
+      - ./frontend:/usr/src/frontend
+      
+  barista-staff-backend:
+    build: ./Barista-Food-Staff/backend
     ports:
-      - "5000:5000"
+      - "3001:3001"
+    volumes:
+      - ./Barista-Food-Staff/frontend:/usr/src/frontend
+
+  customer-reviews-backend:
+    build: ./Customer-Reviews/backend
+    ports:
+      - "3002:3002"
+    volumes:
+      - ./Customer-Reviews/frontend:/usr/src/frontend
+    env_file:
+      - ./Customer-Reviews/backend/.env

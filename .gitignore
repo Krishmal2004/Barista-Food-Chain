@@ -2,3 +2,4 @@ backend/.env
 ml-service/.env
 Barista-Food-Staff/backend/.env
 Barista-Food-Staff/backend/.env.example
+backend-go/.env

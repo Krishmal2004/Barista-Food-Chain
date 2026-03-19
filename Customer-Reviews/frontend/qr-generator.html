@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="assests/hero-image.png">
+    <title>QR Code Generator for Branches</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 2rem; max-width: 500px; margin: 0 auto; background: #fdfaf6; }
+        .card { background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .form-group { margin-bottom: 1.5rem; }
+        label { display: block; margin-bottom: 0.5rem; font-weight: bold; }
+        input { width: 100%; padding: 0.75rem; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
+        button { width: 100%; padding: 1rem; background: #c27a3e; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; }
+        button:hover { background: #b0652d; }
+        #qr-result { text-align: center; margin-top: 2rem; display: none; }
+        #qr-result img { max-width: 100%; height: auto; border: 1px solid #eee; padding: 10px; border-radius: 8px; }
+        .url-preview { font-size: 0.85rem; color: #666; margin-top: 10px; word-break: break-all; }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <h2>Generate Branch QR Code</h2>
+        
+        <div class="form-group">
+            <label>Your Website Base URL</label>
+            <input type="text" id="baseUrl" value="http://localhost:3002" placeholder="https://yourwebsite.com/review.html">
+            <small style="color: #666;">(Change this to your live website URL once hosted)</small>
+        </div>
+
+        <div class="form-group">
+            <label>Branch Name</label>
+            <input type="text" id="branchName" placeholder="e.g. Downtown Cafe">
+        </div>
+
+        <button onclick="generateQR()">Generate QR Code</button>
+
+        <div id="qr-result">
+            <img id="qr-image" src="" alt="QR Code">
+            <p class="url-preview" id="url-preview"></p>
+            <p><small>Right-click the image and select "Save Image As..." to download it for printing.</small></p>
+        </div>
+    </div>
+
+    <script>
+        function generateQR() {
+            const baseUrl = document.getElementById('baseUrl').value.trim();
+            const branchName = document.getElementById('branchName').value.trim();
+
+            if (!baseUrl || !branchName) {
+                alert('Please fill in both fields');
+                return;
+            }
+
+            // Combine URL and safely encode the branch name (handles spaces)
+            const finalUrl = `${baseUrl}?branch=${encodeURIComponent(branchName)}`;
+            
+            // Use a free API to generate the QR code image
+            const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(finalUrl)}`;
+
+            // Display result
+            document.getElementById('qr-image').src = qrApiUrl;
+            document.getElementById('url-preview').innerText = "Points to: " + finalUrl;
+            document.getElementById('qr-result').style.display = 'block';
+        }
+    </script>
+</body>
+</html>
