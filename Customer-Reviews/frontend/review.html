@@ -294,8 +294,8 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="branch_id" class="form-label">Branch ID <span>*</span></label>
-                    <input type="text" id="branch_id" name="branch_id" class="form-control" placeholder="e.g. BR-101" required>
+                    <label for="branch_id" class="form-label">Branch Name <span>*</span></label>
+                    <input type="text" id="branch_id" name="branch_id" class="form-control" placeholder="e.g. Downtown Cafe" required>
                 </div>
 
                 <div class="form-group">
@@ -366,7 +366,6 @@
                 btnSpinner.style.display = 'block';
 
                 try {
-                    // Call the Node.js / Express backend
                     const response = await fetch('http://localhost:3002/api/reviews', {
                         method: 'POST',
                         headers: { 
@@ -375,7 +374,6 @@
                         body: JSON.stringify(formData)
                     });
 
-                    // First, check if the response is actually JSON to prevent HTML parsing errors
                     const contentType = response.headers.get("content-type");
                     if (!contentType || !contentType.includes("application/json")) {
                         throw new TypeError("Backend did not return JSON. Make sure your Node.js server is running on port 3000.");
@@ -389,7 +387,6 @@
 
                     console.log('Successfully saved to Supabase:', data);
 
-                    // Show success state
                     formContainer.style.display = 'none';
                     successMessage.style.display = 'block';
 
@@ -397,7 +394,6 @@
                     console.error('Error submitting review:', error);
                     alert('Error: ' + error.message);
                     
-                    // Reset UI
                     submitBtn.disabled = false;
                     btnText.style.display = 'block';
                     btnSpinner.style.display = 'none';
