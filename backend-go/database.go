@@ -13,9 +13,9 @@ import (
 var dbPool *pgxpool.Pool
 
 func initDB() {
-	if err := godotenv.Load(); err != nil {
-		log.Fatal("Error loading .env file")
-	}
+	// Ignore the error. In Docker, variables are injected directly via env_file, 
+	// so the physical .env file might not exist in the container.
+	_ = godotenv.Load()
 
 	connString := os.Getenv("DATABASE_URL")
 	if connString == "" {

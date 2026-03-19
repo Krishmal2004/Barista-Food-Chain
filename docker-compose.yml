@@ -12,3 +12,12 @@ services:
       - "3001:3001"
     volumes:
       - ./Barista-Food-Staff/frontend:/usr/src/frontend
+
+  go-backend:
+    build: ./backend-go 
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./backend-go/frontend:/usr/src/frontend
+    env_file:
+      - ./backend-go/.env
