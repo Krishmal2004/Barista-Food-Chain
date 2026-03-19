@@ -13,11 +13,11 @@ services:
     volumes:
       - ./Barista-Food-Staff/frontend:/usr/src/frontend
 
-  go-backend:
-    build: ./backend-go 
+  customer-reviews-backend:
+    build: ./Customer-Reviews/backend
     ports:
-      - "8080:8080"
+      - "3002:3002"
     volumes:
-      - ./backend-go/frontend:/usr/src/frontend
+      - ./Customer-Reviews/frontend:/usr/src/frontend
     env_file:
-      - ./backend-go/.env
+      - ./Customer-Reviews/backend/.env
