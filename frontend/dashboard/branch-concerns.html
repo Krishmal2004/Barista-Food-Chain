@@ -524,10 +524,13 @@
 
         async function editConcern(id) {
             try {
-                const response = await fetch(`/api/concerns/${id}`);
-                if (!response.ok) throw new Error('Failed to fetch concern');
+                const concern = allConcerns.find(c => c.id === id || c.id === parseInt(id));
                 
-                const concern = await response.json();
+                if (!concern) {
+                    throw new Error('Concern not found in local data');
+                }
+                
+                // Populate the modal fields
                 document.getElementById('modalTitle').textContent = 'Edit Concern';
                 document.getElementById('concernId').value = concern.id;
                 document.getElementById('concernTitle').value = concern.title;
@@ -535,6 +538,7 @@
                 document.getElementById('concernPriority').value = concern.priority;
                 document.getElementById('concernCategory').value = concern.category;
                 document.getElementById('concernStatus').value = concern.status;
+                
                 concernModal.show();
             } catch (error) {
                 console.error("Error loading concern for edit:", error);
