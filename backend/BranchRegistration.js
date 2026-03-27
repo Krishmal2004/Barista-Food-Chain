@@ -6,7 +6,7 @@ export function BranchRegistrationRoute(supabase,app) {
         const { data: existingBranch, error: checkError } = await supabase
             .from('branches')
             .select('branch_name')
-            .ilike('branch_name', branchData.branchName) // ilike ignores upper/lowercase differences
+            .ilike('branch_name', branchData.branchName) 
             .maybeSingle();
 
         if (existingBranch) {
