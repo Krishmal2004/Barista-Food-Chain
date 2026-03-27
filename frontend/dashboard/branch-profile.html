@@ -161,7 +161,7 @@
                         <div class="dashboard-card">
                             <div class="card-header">
                                 <h5 class="mb-0"><i class="bi bi-building me-2"></i>Branch Information</h5>
-                                <button class="btn btn-success btn-sm" id="saveBtn" style="display: none;"
+                                <button type="button" class="btn btn-success btn-sm" id="saveBtn" style="display: none;"
                                     onclick="saveProfile()">
                                     <i class="bi bi-check-circle"></i> Save Changes
                                 </button>
@@ -193,16 +193,6 @@
                                             <label class="form-label fw-bold">Phone</label>
                                             <input type="tel" class="form-control" id="phone" value="+1 (555) 123-4567"
                                                 disabled>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label class="form-label fw-bold">Location</label>
-                                            <input type="text" class="form-control" id="location"
-                                                value="123 Main St, New York" disabled>
-                                        </div>
-                                        <div class="col-12">
-                                            <label class="form-label fw-bold">Address</label>
-                                            <textarea class="form-control" id="address" rows="2"
-                                                disabled>123 Main Street, Downtown, New York, NY 10001</textarea>
                                         </div>
                                     </div>
                                 </form>
@@ -287,7 +277,6 @@
             const branchId = localStorage.getItem('active_branch_id') || 'BCH-001';
 
             try {
-                // FIXED: NO BODY in GET request
                 const response = await fetch(`/api/branch/${branchId}`, {
                     method: 'GET',
                     headers: {
@@ -313,14 +302,11 @@
                     document.getElementById('managerName').value = branchData.contact_full_name || "";
                     document.getElementById('email').value = branchData.contact_email || "";
                     document.getElementById('phone').value = branchData.contact_phone || "";
-                    document.getElementById('address').value = branchData.address || "";
 
-                    // Use Optional Chaining (?.) to prevent 'weekday' crash
                     document.getElementById('weekdayHours').textContent = branchData.hours?.weekday || '7:00 AM - 9:00 PM';
                     document.getElementById('saturdayHours').textContent = branchData.hours?.saturday || '8:00 AM - 10:00 PM';
                     document.getElementById('sundayHours').textContent = branchData.hours?.sunday || '8:00 AM - 8:00 PM';
 
-                    // UI Header updates
                     document.getElementById('profileBranchName').textContent = branchData.branch_name || 'Unknown Branch';
                     document.getElementById('profileBranchId').textContent = branchData.branch_id || 'N/A';
                     document.getElementById('sidebarBranchName').textContent = branchData.branch_name || 'Unknown';
@@ -335,7 +321,6 @@
                 }
             } catch (err) {
                 console.error("Failed to load profile:", err);
-                // Silently fallback to default data instead of alerting the user
                 loadDefaultData();
             }
         }
@@ -346,7 +331,6 @@
             document.getElementById('managerName').value = defaultData.manager;
             document.getElementById('email').value = defaultData.email;
             document.getElementById('phone').value = defaultData.phone;
-            document.getElementById('address').value = defaultData.address;
         }
 
         async function loadStats() {
@@ -382,7 +366,6 @@
                 email: 'downtown@barista.com',
                 phone: '+1 (555) 123-4567',
                 location: '123 Main St, New York',
-                address: '123 Main Street, Downtown, New York, NY 10001',
                 hours: {
                     weekday: '7:00 AM - 9:00 PM',
                     saturday: '8:00 AM - 10:00 PM',
@@ -399,7 +382,8 @@
             const inputs = form.querySelectorAll('input, textarea');
 
             inputs.forEach(input => {
-                if (input.id !== 'branchId') {
+                // FIXED: Skip branchName so it cannot be edited
+                if (input.id !== 'branchId' && input.id !== 'branchName') {
                     input.disabled = !editMode;
 
                     if (editMode) {
@@ -434,8 +418,7 @@
                 name: document.getElementById('branchName').value,
                 manager: document.getElementById('managerName').value,
                 email: document.getElementById('email').value,
-                phone: document.getElementById('phone').value,
-                address: document.getElementById('address').value,
+                phone: document.getElementById('phone').value
             };
 
             try {
