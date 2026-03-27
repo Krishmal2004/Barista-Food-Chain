@@ -201,6 +201,22 @@
                     </div>
 
                     <div class="col-lg-4">
+                        <!-- NEW QR CODE CARD -->
+                        <div class="dashboard-card mb-4">
+                            <div class="card-header">
+                                <h5 class="mb-0"><i class="bi bi-qr-code me-2"></i>Branch QR Code</h5>
+                            </div>
+                            <div class="card-body text-center">
+                                <div class="p-3 bg-light rounded mb-3" style="display: inline-block;">
+                                    <img id="profileQrCode" src="" alt="Branch QR Code" class="img-fluid" style="width: 180px; height: 180px; display: none;">
+                                </div>
+                                <p class="text-muted small mb-3">Customers can scan this to leave a review.</p>
+                                <button class="btn btn-outline-primary w-100" onclick="downloadProfileQR()">
+                                    <i class="bi bi-download"></i> Download QR Code
+                                </button>
+                            </div>
+                        </div>
+
                         <div class="dashboard-card mb-4">
                             <div class="card-header">
                                 <h5 class="mb-0"><i class="bi bi-clock me-2"></i>Operating Hours</h5>
@@ -273,6 +289,56 @@
             loadStats();
         });
 
+        // Generate QR code URL
+        function generateAndShowQR(branchName) {
+            const baseUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+                ? 'http://localhost:3002/review.html' 
+                : `${window.location.origin}/review.html`;
+                
+            const finalUrl = `${baseUrl}?branch=${encodeURIComponent(branchName)}`;
+            const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(finalUrl)}`;
+            
+            const qrImage = document.getElementById('profileQrCode');
+            qrImage.src = qrApiUrl;
+            qrImage.style.display = 'block';
+            
+            // Store details in data attributes for downloading later
+            qrImage.setAttribute('data-branch', branchName);
+            qrImage.setAttribute('data-url', qrApiUrl);
+        }
+
+        // Download QR function
+        async function downloadProfileQR() {
+            const qrImage = document.getElementById('profileQrCode');
+            const qrApiUrl = qrImage.getAttribute('data-url');
+            const branchName = qrImage.getAttribute('data-branch');
+            
+            if (!qrApiUrl) return alert("QR code is not generated yet.");
+
+            try {
+                // Fetch the image as a Blob to force a local download
+                const response = await fetch(qrApiUrl);
+                const blob = await response.blob();
+                const downloadUrl = window.URL.createObjectURL(blob);
+                
+                const a = document.createElement('a');
+                a.style.display = 'none';
+                a.href = downloadUrl;
+                
+                const safeName = branchName.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+                a.download = `${safeName}_qr_code.png`;
+                
+                document.body.appendChild(a);
+                a.click();
+                
+                window.URL.revokeObjectURL(downloadUrl);
+                a.remove();
+            } catch (error) {
+                console.error("Failed to download QR code:", error);
+                alert("Failed to download QR code. Please try again.");
+            }
+        }
+
         async function loadBranchProfile() {
             const branchId = localStorage.getItem('active_branch_id') || 'BCH-001';
 
@@ -315,6 +381,10 @@
                     if (branchData.year_established) {
                         document.getElementById('openedSince').textContent = branchData.year_established;
                     }
+
+                    if (branchData.branch_name) {
+                        generateAndShowQR(branchData.branch_name);
+                    }
                 } else {
                     console.warn('No branch data found in response');
                     loadDefaultData();
@@ -331,6 +401,9 @@
             document.getElementById('managerName').value = defaultData.manager;
             document.getElementById('email').value = defaultData.email;
             document.getElementById('phone').value = defaultData.phone;
+            
+            // Generate QR code for default data fallback
+            generateAndShowQR(defaultData.name);
         }
 
         async function loadStats() {
@@ -382,7 +455,6 @@
             const inputs = form.querySelectorAll('input, textarea');
 
             inputs.forEach(input => {
-                // FIXED: Skip branchName so it cannot be edited
                 if (input.id !== 'branchId' && input.id !== 'branchName') {
                     input.disabled = !editMode;
 
