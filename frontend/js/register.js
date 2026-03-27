@@ -1,11 +1,10 @@
 document.addEventListener('DOMContentLoaded', () => {
     const registrationForm = document.getElementById('branchRegistrationForm');
 
-    // --- NEW: Generate automatic Branch ID ---
     const branchIdInput = document.getElementById('branchId');
     if (branchIdInput) {
-        // Generates an ID format like "BG-4892"
-        const randomNumbers = Math.floor(1000 + Math.random() * 9000); // 4 digit random number
+        // Generates an ID format 
+        const randomNumbers = Math.floor(1000 + Math.random() * 9000); 
         branchIdInput.value = `BG-${randomNumbers}`;
     }
 
@@ -31,6 +30,38 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     loadBranchNames();
 
+    async function downloadQRCode(branchName) {
+        try {
+            const baseUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+                ? 'http://localhost:3002/review.html' 
+                : `${window.location.origin}/review.html`;
+                
+            const finalUrl = `${baseUrl}?branch=${encodeURIComponent(branchName)}`;
+            const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(finalUrl)}`;
+
+            // Fetch the image as a Blob so we can force a local download
+            const response = await fetch(qrApiUrl);
+            const blob = await response.blob();
+            const downloadUrl = window.URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.style.display = 'none';
+            a.href = downloadUrl;
+            
+            const safeName = branchName.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+            a.download = `${safeName}_qr_code.png`;
+            
+            document.body.appendChild(a);
+            a.click();
+            
+            // Clean up
+            window.URL.revokeObjectURL(downloadUrl);
+            a.remove();
+        } catch (error) {
+            console.error("Failed to download QR code automatically:", error);
+        }
+    }
+
     if (registrationForm) {
         registrationForm.addEventListener('submit', async function (e) {
             e.preventDefault();
@@ -39,15 +70,12 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!validateForm()) {
                 return;
             }
-
-            // Get form data - ONLY fields that exist in the updated HTML
             const formData = {
-                branchName: document.getElementById('branchName').value,
-                branchId: document.getElementById('branchId').value, // This will grab the auto-generated ID
+                branchName: document.getElementById('branchName').value.trim(),
+                branchId: document.getElementById('branchId').value,
                 branchPassword: document.getElementById('branch-password').value
             };
 
-            // Show loading state
             const submitBtn = this.querySelector('button[type="submit"]');
             const originalText = submitBtn.innerHTML;
             submitBtn.disabled = true;
@@ -62,9 +90,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 const result = await response.json();
                 
                 if (response.ok) {
-                    alert(`Success! Your branch has been registered.\nYour Branch ID is: ${formData.branchId}\nPlease save this for logging in.`);
-                    // Redirect to login page after successful registration
-                    window.location.href = 'branch-login.html'; 
+                    await downloadQRCode(formData.branchName);
+
+                    alert(`Success! Your branch has been registered.\nYour Branch ID is: ${formData.branchId}\n\nA QR code for your customers has been downloaded automatically!`);
+                    
+                    setTimeout(() => {
+                        window.location.href = 'branch-login.html'; 
+                    }, 1500);
+
                 } else {
                     alert("Error: " + result.error);
                 }
@@ -78,7 +111,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Form validation
     function validateForm() {
         const termsAccept = document.getElementById('termsAccept').checked;
 
@@ -90,7 +122,6 @@ document.addEventListener('DOMContentLoaded', () => {
         return true;
     }
 
-    // Show error message
     function showError(message) {
         let alertDiv = document.querySelector('.alert-danger');
         if (!alertDiv) {
@@ -108,7 +139,6 @@ document.addEventListener('DOMContentLoaded', () => {
         alertDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
 
-    // Add visual feedback to form fields
     const formInputs = document.querySelectorAll('.form-control');
     formInputs.forEach(input => {
         input.addEventListener('blur', function () {
